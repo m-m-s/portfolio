@@ -1,11 +1,11 @@
-# Spec: Sky (DRAFT)
+# Spec: Sky
 
-The live NYC weather sky behind the homepage: dithered clouds made of dots that drift across the page and scatter when you touch them. It's also seen through the window on the About page.
+The live NYC weather sky behind the homepage: dithered clouds made of dots that drift across the page and scatter when you touch them. It's also seen through the window on the About and Projects pages. The house's reveal and shadow are in homepage.md.
 
 ## Source material (in this repo)
 - `docs/reference/mock-snowy.html`: the finished mock. It holds the whole engine and every weather's tables (cloud counts, ink colors, layer physics, rain and snow). **This is the source of truth for behavior.** Port its behavior as is.
 - `docs/reference/mock-rainy.html`: the Rainy mock, for comparing the rain.
-- `features/sky/config/*.json`: Maggie's tuned cloud picks and settings, one file per weather, exported from the mocks.
+- `features/sky/config/*.json`: the tuned cloud picks and settings, one file per weather.
 - `public/sky/clouds/`: 31 grayscale cloud cutouts, used in the middle and front layers.
 - `public/sky/strips/`: 11 distant cloud strips, used in the far layer. These are already dot images.
 - The mock loads images from `s/src/` and `s/far/`. Those are the same files under their new folder names.
@@ -18,7 +18,7 @@ The mock page also contains editing controls (cloud picker, sliders, saving to a
 - The weather comes from the shell's weather route, so the sky and the weather/clock line always agree.
 
 ## Layers
-- **Far:** one distant strip per visit, picked at random from that weather's far list. It stays still, as in the mock. **[CONFIRM with Maggie: still, or a very slow drift?]**
+- **Far:** one distant strip per visit, picked at random from that weather's far list. It stays still.
 - Far strip settings (from the config): Size; Shade, which thickens or thins the dots; Ink, which darkens the dot color from the far grey toward the front ink; and Height, a number that shifts the strip up or down as a fraction of the sky's height.
 - **Middle:** clouds drift slowly. Dots respond gently to the cursor and settle back slowly, which reads as distance.
 - **Front:** clouds drift faster. Dots scatter from the cursor or finger and spring back. Soft and fluffy is the feel.
@@ -31,7 +31,7 @@ The mock page also contains editing controls (cloud picker, sliders, saving to a
 - The sky re-dithers once a resize finishes.
 
 ## Composition (every visit is different)
-- The mock starts from a fixed random seed so it looks the same while editing. The site seeds randomly on each visit.
+- Seed the random layout with a new random value on each visit. When porting, replace the mock's fixed seed (`seed=11`, `layoutSeed=11`).
 - Each weather has a pool of clouds per layer (the config). Every visit composes a fresh sky from it.
 - Cloud count per weather (middle / front): Sunny 3 / 2, Partly cloudy 5 / 3, Cloudy, Rainy and Snowy 12 / 7.
 - Each copy gets a random size between its Smallest and Largest, a random base height inside its ticked height bands, and is mirrored half the time.
@@ -40,7 +40,7 @@ The mock page also contains editing controls (cloud picker, sliders, saving to a
 
 ## Size
 - Sky height: 40% of the screen height to start, tuned in `/lab` on phone and laptop.
-- Cloud size scales with the sky's height. The mock's fixed widths (front 300px, middle 220px) were tuned on a laptop, so use them as the laptop reference and scale from there.
+- Cloud size scales with the sky's height. Treat the mock's fixed widths (front 300px, middle 220px) as correct for a 1440×900 browser window, and scale from there.
 
 ## Rain and snow
 - Rain and snow fall from the underside of each front and middle cloud and drift with it, plus a sparse distant fall from the far strip.
@@ -55,15 +55,10 @@ The mock page also contains editing controls (cloud picker, sliders, saving to a
 - Check it stays smooth on a mid-range phone in `/lab`.
 
 ## Reduced motion
-- The sky keeps moving as normal, rain and snow included (decided in CLAUDE.md). This differs from the mock, which switches rain and snow off for reduced motion.
+- The sky keeps moving as normal: drift, dot scatter, rain and snow. The mock freezes all of these for reduced motion; leave that out when porting.
 
 ## Accessibility
 - The canvas is decorative (`aria-hidden`).
-
-## To revisit
-- Rainy and Snowy currently use the same cloud picks as Cloudy. Their own ink colors make them look different. Maggie may tune them separately later.
-- Fog: Maggie is deciding whether it gets its own sky.
-- Homepage-specific behavior (the house text appearing as clouds pass behind it, the moving shadow) goes in the homepage spec.
 
 ## Done when
 - `/lab` shows all five weathers, each looking like its mock.
