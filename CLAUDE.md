@@ -14,6 +14,7 @@ Maggie Shen's personal portfolio site. Its purpose is to showcase her abilities 
 ## Commands
 - `npm run dev`: local dev server at http://localhost:3000
 - `npm run build`: production build (includes a type check)
+- `npm run preview`: production build served at http://localhost:3000. Use it to judge motion timing: the dev server builds pages on demand and never prefetches, so it adds pauses the real site doesn't have.
 - `npm run lint`: Biome lint and format check
 - `npm run format`: Biome auto-fix and format
 - `npm run typecheck`: generates Next's route types, then runs `tsc --noEmit`
@@ -28,6 +29,7 @@ app/                 routes (one folder per page)
 components/          shared UI (site shell, weather/clock line, door link, footer)
 app/fonts/           local font files (Switzer, Space Grotesk), loaded with next/font/local
 features/weather/    NYC weather fetch (cached) and the weather code → sky mapping
+features/transitions/ page transitions: direction by page depth, back/forward handling
 features/sky/        the dithered weather sky, self-contained
 features/sky/config/ tuned cloud settings, one JSON file per weather
 features/projects/   the projects platform
@@ -63,7 +65,7 @@ docs/design/         Figma exports and references
 - Components use the theme tokens for colors, type sizes and spacing, so changing a token updates the whole site.
 
 ## Motion rules
-- Big room-to-room links swing open like doors. Only the text swings. The swing is fast.
+- Big room-to-room links swing open like doors, outward toward the viewer. Only the text swings. The swing is smooth, not floppy, and hover swings the word slightly ajar.
 - Page transitions feel like a camera walking up to, into and out of rooms. Use the View Transitions API.
 - `prefers-reduced-motion`: page transitions and door swings become a simple fade. The sky keeps moving as normal.
 - Animations pause when the tab is hidden.

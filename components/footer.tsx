@@ -6,7 +6,10 @@ const LINKS = [
 
 export function Footer() {
   return (
-    <footer className="flex justify-end px-4 py-6 font-grotesk text-sm sm:px-8">
+    <footer
+      style={{ viewTransitionName: "footer" }}
+      className="flex justify-end px-4 py-6 font-grotesk text-sm sm:px-8"
+    >
       <ul className="flex gap-8">
         {LINKS.map(({ label, href }) => (
           <li key={label}>

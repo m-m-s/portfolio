@@ -3,6 +3,7 @@ import { FilmJoustingWake } from "@/components/film-jousting-wake";
 import { Footer } from "@/components/footer";
 import { HouseLogo } from "@/components/house-logo";
 import { WeatherClockLine } from "@/components/weather-clock-line";
+import { RoomTransition } from "@/features/transitions/room-transition";
 import { spaceGrotesk, switzer } from "./fonts/fonts";
 import "./globals.css";
 
@@ -24,7 +25,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <WeatherClockLine />
           </div>
         </header>
-        <div className="flex flex-1 flex-col">{children}</div>
+        <RoomTransition>{children}</RoomTransition>
         <Footer />
         <FilmJoustingWake />
       </body>

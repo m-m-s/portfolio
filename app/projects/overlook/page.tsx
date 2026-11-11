@@ -1,5 +1,5 @@
-import { PlaceholderPage } from "@/components/placeholder-page";
+import { ProjectStub } from "@/components/project-stub";
 
 export default function Page() {
-  return <PlaceholderPage name="Overlook" />;
+  return <ProjectStub href="/projects/overlook" />;
 }

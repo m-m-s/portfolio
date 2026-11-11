@@ -13,6 +13,30 @@
 
 :root {
   color-scheme: light;
+
+  /* One continuous camera move from the click: the old room zooms (--camera)
+     while its door swings (--door-swing); from --settle-delay the new room
+     zooms the same way, slowing into place (--settle), and the two crossfade
+     evenly over --crossfade. Negative angles swing toward the viewer. */
+  --door-swing: 450ms;
+  --camera: 600ms;
+  --crossfade: 200ms;
+  --settle-delay: 350ms;
+  --settle: 450ms;
+  --settle-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --door-hover: 450ms;
+  --door-nudge: 5000ms;
+  --walk-up: 1600ms;
+  --fade: 500ms;
+  --door-angle: -120deg;
+  --door-ajar: -45deg;
+  --door-shadow: 0.1em 0.08em 0.12em rgb(0 0 0 / 0.16);
+  --doorway-opacity: 1;
+  --door-perspective: 40em;
+  --slab-pad-x: 0.12em;
+  --slab-pad-y: 0.02em;
+  --door-ease: cubic-bezier(0.33, 0, 0.2, 1);
+  --camera-ease: cubic-bezier(0.3, 0.5, 0.6, 0.9);
 }
 
 :focus-visible {
@@ -24,4 +48,285 @@
 body {
   background: var(--color-page);
   color: var(--color-ink);
+}
+
+/* Door links */
+
+/* inline-block so the doorway (inset: 0) is exactly the door's size. */
+.door {
+  position: relative;
+  display: inline-block;
+}
+
+.door-panel {
+  position: relative;
+  display: inline-block;
+  transform-origin: left center;
+  /* A solid slab in the page color while it moves, so it reads as a door, not
+     loose letters. Transparent at rest so its padding never hides neighbours. */
+  background: transparent;
+  /* Room around the letters; the negative margin keeps the text in place. */
+  padding: var(--slab-pad-y) var(--slab-pad-x);
+  margin: calc(-1 * var(--slab-pad-y)) calc(-1 * var(--slab-pad-x));
+  transition:
+    transform var(--door-hover) var(--door-ease),
+    filter var(--door-hover) var(--door-ease);
+}
+
+/* The doorway: the door is cut from the page, so behind it is the paper
+   underneath, a shade darker and recessed with a shadow along the cut. */
+.door-frame {
+  position: absolute;
+  /* Just the word's size: the slab can overhang it. */
+  inset: 0;
+  pointer-events: none;
+  user-select: none;
+  color: transparent;
+  background: color-mix(in srgb, var(--color-ink) 7%, var(--color-page));
+  box-shadow:
+    inset 0.08em 0.08em 0.2em rgb(0 0 0 / 0.22),
+    inset -0.02em -0.02em 0.05em rgb(255 255 255 / 0.6);
+  opacity: 0;
+  transition: opacity var(--door-hover) var(--door-ease);
+}
+
+.door-frame svg {
+  visibility: hidden;
+}
+
+/* The swinging door casts a shadow, light from the upper left. */
+.door-panel:not([data-door=""]) {
+  background: var(--color-page);
+}
+@media (hover: hover) {
+  .door:hover .door-panel {
+    background: var(--color-page);
+  }
+}
+.door-panel:not([data-door=""]) {
+  filter: drop-shadow(var(--door-shadow));
+}
+
+@media (hover: hover) {
+  .door:hover .door-panel {
+    filter: drop-shadow(var(--door-shadow));
+  }
+  .door:hover .door-panel[data-door=""] {
+    transform: perspective(var(--door-perspective)) rotateY(var(--door-ajar));
+  }
+  .door:hover .door-frame {
+    opacity: var(--doorway-opacity);
+  }
+}
+
+/* "none", not 0s: it also cancels a hover fade-in still running at the click. */
+.door:has([data-door="leaving"]) .door-frame {
+  opacity: var(--doorway-opacity);
+  transition: none;
+}
+
+.door:has([data-door="nudge"]) .door-frame {
+  animation: doorway-nudge var(--door-nudge) both;
+}
+
+.door-panel[data-door="leaving"] {
+  transition: none;
+}
+
+.door-panel[data-door="nudge"] {
+  animation: door-nudge var(--door-nudge);
+}
+
+/* Opens slowly, lingers open, then drifts shut. */
+@keyframes door-nudge {
+  0% {
+    transform: perspective(var(--door-perspective)) rotateY(0deg);
+    animation-timing-function: cubic-bezier(0.45, 0, 0.35, 1);
+  }
+  40%,
+  50% {
+    transform: perspective(var(--door-perspective)) rotateY(var(--door-ajar));
+    animation-timing-function: cubic-bezier(0.45, 0, 0.75, 0.6);
+  }
+  100% {
+    transform: perspective(var(--door-perspective)) rotateY(0deg);
+  }
+}
+
+@keyframes doorway-nudge {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  4%,
+  96% {
+    opacity: var(--doorway-opacity);
+  }
+}
+
+/* Page transitions: the camera walks into and out of rooms. */
+
+::view-transition {
+  pointer-events: none;
+}
+
+::view-transition-group(weather-line),
+::view-transition-group(footer) {
+  animation: none;
+  z-index: 10;
+}
+
+::view-transition-old(weather-line),
+::view-transition-old(footer) {
+  display: none;
+}
+
+::view-transition-group(room) {
+  animation: none;
+}
+::view-transition-group(door) {
+  animation: none;
+  transform: translate(var(--door-x), var(--door-y));
+}
+
+/* The clicked door is its own layer: it swings open while riding the same
+   camera move as the room (centred on the door, which is the camera's focus). */
+html[data-nav="in"]::view-transition-image-pair(door) {
+  animation-name: camera-through, leave-fade;
+}
+html[data-nav="out"]::view-transition-image-pair(door) {
+  animation-name: camera-to-far, leave-fade;
+}
+::view-transition-old(door) {
+  /* The perspective is in em: match the link's text size, not the page's. */
+  font-size: var(--door-font);
+  transform-origin: left center;
+  animation: door-leave var(--door-swing) var(--door-ease) both;
+}
+@keyframes door-leave {
+  from {
+    transform: perspective(var(--door-perspective)) rotateY(var(--door-from));
+  }
+  to {
+    transform: perspective(var(--door-perspective)) rotateY(var(--door-angle));
+  }
+}
+
+/* One move: both rooms zoom the same way, crossfading briefly in the middle. */
+::view-transition-old(room),
+::view-transition-image-pair(door) {
+  animation-duration: var(--camera), var(--crossfade);
+  animation-timing-function: var(--camera-ease), linear;
+  animation-delay: 0s, var(--settle-delay);
+  animation-fill-mode: both;
+}
+::view-transition-old(room) {
+  transform-origin: var(--camera-x, 50%) var(--camera-y, 50%);
+}
+::view-transition-new(room) {
+  transform-origin: var(--camera-x, 50%) var(--camera-y, 50%);
+  animation-duration: var(--settle), var(--crossfade);
+  animation-timing-function: var(--settle-ease), linear;
+  animation-delay: var(--settle-delay);
+  animation-fill-mode: both;
+}
+
+html[data-nav="in"]::view-transition-old(room) {
+  animation-name: camera-through, leave-fade;
+}
+html[data-nav="in"]::view-transition-new(room) {
+  animation-name: settle-in, enter-fade;
+}
+html[data-nav="out"]::view-transition-old(room) {
+  animation-name: camera-to-far, leave-fade;
+}
+html[data-nav="out"]::view-transition-new(room) {
+  animation-name: settle-out, enter-fade;
+}
+
+@keyframes camera-through {
+  to {
+    transform: scale(1.6);
+  }
+}
+@keyframes camera-to-far {
+  to {
+    transform: scale(0.85);
+  }
+}
+@keyframes leave-fade {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes enter-fade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes settle-in {
+  from {
+    transform: scale(0.9);
+  }
+}
+@keyframes settle-out {
+  from {
+    transform: scale(1.1);
+  }
+}
+@keyframes camera-from-far {
+  from {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+}
+
+/* No data-nav yet means a fresh page load, not an in-site navigation. */
+html:not([data-nav]) .walk-up {
+  animation: camera-from-far var(--walk-up) var(--settle-ease) both;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes fade-out {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes door-fade {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .door-panel {
+    transition-property: opacity;
+  }
+  .door-frame {
+    display: none;
+  }
+  .door:hover .door-panel[data-door=""] {
+    transform: none;
+    opacity: 0.6;
+  }
+  .door-panel[data-door="nudge"] {
+    animation-name: door-fade;
+  }
+  html[data-nav]::view-transition-old(room),
+  ::view-transition-old(door) {
+    animation: fade-out var(--fade) ease both;
+  }
+  html[data-nav]::view-transition-image-pair(door) {
+    animation: none;
+  }
+  html[data-nav]::view-transition-new(room) {
+    animation: fade-in var(--fade) ease both;
+  }
+  html:not([data-nav]) .walk-up {
+    animation: fade-in var(--fade) ease both;
+  }
 }

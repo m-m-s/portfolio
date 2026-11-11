@@ -8,7 +8,10 @@ export async function WeatherClockLine() {
   const { sky, temperature } = await getWeather();
 
   return (
-    <div className="flex flex-col items-end gap-x-8 gap-y-1 font-grotesk text-sm sm:flex-row sm:items-center">
+    <div
+      style={{ viewTransitionName: "weather-line" }}
+      className="flex flex-col items-end gap-x-8 gap-y-1 font-grotesk text-sm sm:flex-row sm:items-center"
+    >
       <p className="flex items-center gap-2">
         <WeatherIcon sky={sky} />
         <span>

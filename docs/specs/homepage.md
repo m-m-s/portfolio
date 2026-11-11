@@ -5,7 +5,7 @@ The front of the house. A short intro stacked into the shape of a house, standin
 ## Layout (see docs/design/homepage.png)
 - Off-white page, the shell's weather/clock line at the top right, the footer at the bottom right.
 - The sky covers the top part of the page (see sky.md).
-- The intro sits left of center, below the sky.
+- The intro sits left of center, below the sky. The free space around it is split by the golden ratio: 61.8% above and 38.2% below, 38.2% to the left and 61.8% to the right.
 - The house logo appears on every page except the homepage, since the homepage is already home.
 
 ## The intro

@@ -55,10 +55,10 @@ Text links, written out: `Email   LinkedIn   GitHub`. Typeface: Space Grotesk re
 
 A reusable `DoorLink` component for every big bold link (Switzer bold), on any page.
 
-- **Click:** the link text swings open like a door, hinged on its left edge. Only the text swings. The swing is fast. Then the page transition takes over.
-- **Back:** returning to the page plays the swing in reverse.
-- **Look:** styled the same as the text around it, with an underline on hover.
-- **Idle swing (homepage):** the links take turns doing a small swing to invite a click. 5 seconds after the page opens, the first link swings; 5 seconds later the next one; and so on in reading order (Maggie Shen → Product Engineer → Photographer), looping for as long as the page is open. The cycle pauses while the visitor hovers a link.
+- **Click:** the link text swings open like a door, hinged on its left edge, outward toward the viewer. Only the text swings. The swing is smooth, not floppy (0.45s to start). The camera starts moving the instant the link is clicked, and the door swings open while the camera pushes in (full overlap, no pause). The door is a slab in the page color with the word on it, with some room around the letters (invisible at rest). It's cut from the page: behind it is the paper underneath, a shade darker and recessed with a soft shadow along the cut. The door casts a soft shadow.
+- **Coming back:** the page you return to loads normally, with every door closed. No reverse swing.
+- **Look:** styled the same as the text around it. On hover the word swings slightly ajar instead of underlining.
+- **Idle swing (homepage):** the links take turns doing a small swing to invite a click, in reading order (Maggie Shen → Product Engineer → Photographer), looping. Each idle swing opens slowly (about 2s), lingers open for half a second, then drifts shut (about 2.5s). The first swing comes after 5 seconds of no activity (mouse, scroll, keys); after that, every 30 seconds while the visitor stays idle. Any activity restarts the wait. The cycle pauses while the visitor hovers a link or the tab is hidden.
 - **Reduced motion:** the swing becomes a fade.
 
 **House logo**
@@ -70,11 +70,23 @@ A reusable `DoorLink` component for every big bold link (Switzer bold), on any p
 The camera walks up to, into and out of rooms. Built with the View Transitions API. Everything here is a starting point to test and tune in the browser.
 
 - **Arriving at the homepage fresh** (typed URL, link from elsewhere, refresh): the intro text comes into view from far away, like walking up to a house.
-- **Entering a room:** after the door swings, the camera pushes forward through the doorway. The new page grows from small and far to full size.
-- **Going home from a room:** the camera pulls back out of the room until the house is in view. This replaces the walk-up.
+- **Entering a room:** one continuous camera move from the click. The old page zooms forward gently while its door swings open, then it crossfades evenly into the new page, which keeps zooming the same way and slows into place. It should read as a single action, not one page leaving and then another arriving.
+- **Going home from a room:** the same single move in reverse: the old page shrinks back slightly and crossfades into the homepage, which comes down to size the same way. This replaces the walk-up.
 - **Going deeper** (Projects page → a project page): the same push forward, like stepping closer to one piece on the shelf. Coming back out pulls back the same way.
-- **Duration:** 2 seconds in total, door swing included. Cinematic but gentle, tuned in the browser.
+- **Duration:** about 0.8 seconds from the click, snappy rather than fadey: the door swings over 0.45s, and the pages crossfade quickly (0.2s, from 0.35s) while both keep zooming. Tuned in the browser.
+- **Direction comes from page depth** (`/` is 0, rooms 1, project pages 2): deeper pushes in, shallower pulls back, same depth pushes in. This covers the browser's back and forward buttons too.
+- **Back/forward** start at the top of the page instead of restoring the scroll position (the price of animating them). A phone's swipe-back gesture keeps the browser's own animation instead.
+- The weather/clock line and footer stay still while the rest of the page moves.
+- Timings are CSS variables in `app/globals.css` (`--door-swing`, `--camera`, `--walk-up`, `--door-nudge`).
 - **Reduced motion:** a simple fade.
+
+## To revisit: the doorway shows the room behind it
+Shelved until the pages have real content (with stub pages, the room behind every door looks the same). The plan:
+- Treat each page as a sheet lying on the next page, with the door cut out of it.
+- **Hover and idle swing:** the doorway shows a screenshot of the destination page, pinned to the viewport (`background-attachment: fixed`), so the hole shows the part of the next page that sits at that spot. iPhone Safari ignores fixed backgrounds, so there it sits relative to the door instead.
+- **Click:** no crossfade. The new page sits under the old one; the old page's snapshot gets a hole cut where the door was (a CSS `mask`), and it zooms toward the door until the hole fills the screen, so you walk through the doorway into the room. The new page grows slightly (0.9× to 1×) at a slower rate for depth. Going back out keeps the reverse move.
+- **Screenshots:** an `npm run door-previews` script (Playwright) captures every page at desktop and phone sizes into `public/doors/`; rerun it when a page changes and commit the images.
+- Watch for a small jump in the doorway at the click, where the still screenshot switches to the live page.
 
 ## Stub pages
 
@@ -91,5 +103,5 @@ Every route from CLAUDE.md exists from the start, with the shell around it and a
 - The clock ticks in New York time, and the weather line shows live NYC weather (or Sunny if the fetch fails).
 - The footer shows on the right pages, and its links work.
 - Every door link and the house logo swing open, and the homepage idle swing cycles through the three links.
-- Transitions play: walk-up on a fresh homepage visit, push forward into rooms and deeper, pull back out, 2 seconds total.
+- Transitions play: walk-up on a fresh homepage visit, push forward into rooms and deeper, pull back out, each as one smooth move.
 - Reduced motion turns the swings and transitions into fades.
