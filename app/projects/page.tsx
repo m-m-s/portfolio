@@ -1,5 +1,5 @@
 import { PlaceholderPage } from "@/components/placeholder-page";
 
 export default function Page() {
-  return <PlaceholderPage name="projects" />;
+  return <PlaceholderPage name="Projects" />;
 }

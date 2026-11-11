@@ -1,9 +1,7 @@
-// Temporary stand-in for pages that haven't been built yet.
 export function PlaceholderPage({ name }: { name: string }) {
   return (
-    <main className="flex-1 p-4">
-      <h1 className="text-2xl">{name}</h1>
-      <p className="font-grotesk">[COPY: {name} page]</p>
+    <main className="flex-1 px-4 py-12 sm:px-8">
+      <h1 className="text-4xl font-bold">[COPY: {name}]</h1>
     </main>
   );
 }

@@ -1,4 +1,8 @@
 import type { Metadata } from "next";
+import { FilmJoustingWake } from "@/components/film-jousting-wake";
+import { Footer } from "@/components/footer";
+import { HouseLogo } from "@/components/house-logo";
+import { WeatherClockLine } from "@/components/weather-clock-line";
 import { spaceGrotesk, switzer } from "./fonts/fonts";
 import "./globals.css";
 
@@ -13,8 +17,16 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${switzer.variable} ${spaceGrotesk.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-page font-sans text-ink">
-        {children}
+      <body className="flex min-h-full flex-col bg-page font-sans text-ink">
+        <header className="flex items-start justify-between gap-4 px-4 pt-6 sm:px-8 sm:pt-8">
+          <HouseLogo />
+          <div className="ml-auto">
+            <WeatherClockLine />
+          </div>
+        </header>
+        <div className="flex flex-1 flex-col">{children}</div>
+        <Footer />
+        <FilmJoustingWake />
       </body>
     </html>
   );

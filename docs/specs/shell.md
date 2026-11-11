@@ -21,9 +21,11 @@ Example: `[sun icon] Sunny 58°    06:10:37 PM ET`
 - The clock renders in the browser only, so the server's time never flashes on screen. Reserve its width on first render so the line doesn't shift when it appears.
 
 **Weather data**
-- A Next.js server route fetches current weather for Manhattan (latitude 40.7831, longitude -73.9712) from Open-Meteo (`temperature_unit=fahrenheit`, current `temperature_2m` and `weather_code`), cached for 15 minutes.
+- A cached server function (`getWeather()` in `features/weather/`) fetches current weather for Manhattan (latitude 40.7831, longitude -73.9712) from Open-Meteo (`temperature_unit=fahrenheit`, current `temperature_2m` and `weather_code`). The weather is rendered into the page, so it's there on load.
+- Caching: fresh for 15 minutes, refreshed in the background after that, discarded after 1 hour (the next visitor waits briefly for live weather). Nothing is fetched without visitors.
+- A tab left open for an hour refreshes its data in place, only while the tab is visible.
 - The same data feeds both this line and the homepage sky, from one fetch.
-- If the fetch fails, the line and the sky both show Sunny.
+- If the fetch fails, the line and the sky both show Sunny (without a temperature). A failure is cached for only 5 minutes, so the next visit retries soon.
 
 **Weather code → sky**
 
@@ -46,7 +48,7 @@ Text links, written out: `Email   LinkedIn   GitHub`. Typeface: Space Grotesk re
 - Email → `mailto:maggiemshen@gmail.com`
 - LinkedIn → https://www.linkedin.com/in/shenmaggie/
 - GitHub → https://github.com/m-m-s
-- Appears on the homepage, About, Projects and Photography. The three project pages get it once Maggie's Figma mock settles where it sits.
+- Appears bottom right on every page. On the three project pages it sits at the very end of the page.
 - One footer component, placed the same way on every page that has it.
 
 ## Door links

@@ -1,10 +1,5 @@
 @import "tailwindcss";
 
-/*
-  Theme tokens. Every component uses these, so changing a value here
-  updates the whole site. Type sizes and spacing use Tailwind's defaults
-  until they're tuned in the browser.
-*/
 @theme inline {
   --font-sans: var(--font-switzer), ui-sans-serif, system-ui, sans-serif;
   --font-grotesk:
@@ -16,9 +11,14 @@
   --color-ink: #171717;
 }
 
-/* One light theme at all hours. */
 :root {
   color-scheme: light;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 3px;
+  border-radius: 2px;
 }
 
 body {

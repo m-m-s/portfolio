@@ -27,6 +27,7 @@ This is Next.js 16. Read the matching guide in `node_modules/next/dist/docs/` be
 app/                 routes (one folder per page)
 components/          shared UI (site shell, weather/clock line, door link, footer)
 app/fonts/           local font files (Switzer, Space Grotesk), loaded with next/font/local
+features/weather/    NYC weather fetch (cached) and the weather code → sky mapping
 features/sky/        the dithered weather sky, self-contained
 features/sky/config/ tuned cloud settings, one JSON file per weather
 features/projects/   the projects platform
@@ -69,7 +70,7 @@ docs/design/         Figma exports and references
 
 ## Live NYC weather and time
 - Time: computed in the browser with `Intl` and the `America/New_York` time zone, ticking every second.
-- Weather: Open-Meteo, fetched through a Next.js server route cached for 15 minutes, so every visitor shares one response.
+- Weather: Open-Meteo, fetched on the server by `getWeather()` in `features/weather/` using Next's `"use cache"`, so the weather is already in the page when it loads and visitors share one fetch. Cache timings and the open-tab refresh are in docs/specs/shell.md.
 - One function maps Open-Meteo weather codes to the five sky sets, with these ids everywhere in code and file names: `sunny`, `partly-cloudy`, `cloudy`, `rainy`, `snowy`. The full code table is in docs/specs/shell.md.
 - If the weather call fails, show the sunny sky.
 - Open-Meteo asks for credit for its data. The credit goes on the This site project page.
@@ -92,3 +93,4 @@ docs/design/         Figma exports and references
 - One feature per branch.
 - When a decision changes, update the spec or this file in the same change.
 - When you make a non-obvious technical choice, explain it in plain terms in your summary.
+- Keep code comments rare: only a non-obvious reason or a trap the code can't show. Never restate the spec or describe what the code plainly does. The specs are the one place that explains behavior.
