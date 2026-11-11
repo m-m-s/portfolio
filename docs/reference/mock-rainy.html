@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sky mock: Rainy</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400&display=swap">
+<style>
+:root{--paper:#f6f5f2;--ink:#1f1e1c;--muted:#6b6862;--rule:#dedbd5;--panel:#fff;--accent:#3d6f9e;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;--mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;color-scheme:light}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.5 var(--sans)}
+.wrap{max-width:1240px;margin:0 auto;padding:24px 16px 48px;display:flex;flex-direction:column;gap:16px}
+h1{font-size:22px;font-weight:600;margin:0}
+.lede{margin:4px 0 0;color:var(--muted);max-width:72ch}
+#stage{position:sticky;top:0;z-index:4;height:clamp(420px,60vh,640px);border-radius:8px;overflow:hidden;border:1px solid var(--rule);background:#f6f5f2;touch-action:none}
+#stage.free{position:relative}
+#c{position:absolute;inset:0;width:100%;height:100%}
+.wx{position:absolute;top:14px;right:18px;font:400 12px var(--mono);color:#55534e;pointer-events:none}
+.intro{position:absolute;left:clamp(18px,4vw,48px);bottom:clamp(18px,4vh,40px);font-weight:600;font-size:clamp(24px,3.4vw,40px);line-height:1.08;color:#1f1e1c;pointer-events:none;letter-spacing:-.01em}
+#pv{position:absolute;top:12px;left:12px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;background:rgba(255,255,255,.95);border:1px solid #dedbd5;border-radius:8px;padding:6px 8px 6px 12px;font-size:13px}
+#pv[hidden]{display:none}
+.bar{display:flex;flex-wrap:wrap;gap:10px 20px;align-items:center;background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:12px 16px}
+.bar label{display:flex;align-items:center;gap:8px;font-size:14px}
+.t{font:400 12px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.save{margin-left:auto;font:400 12px var(--mono);color:var(--muted)}
+button{font:500 13px var(--sans);border:1px solid var(--rule);background:var(--paper);color:var(--ink);border-radius:999px;padding:5px 13px;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+button[disabled]{opacity:.35;cursor:default}
+input[type=range]{accent-color:var(--accent);width:100%;min-width:0}
+input[type=checkbox]{accent-color:var(--accent)}
+.picker{display:flex;flex-direction:column;gap:14px;background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:16px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap}
+.tabs button{font-size:14px;padding:6px 16px}
+.pd{margin:0;color:var(--muted);font-size:14px;max-width:76ch}
+h2{font-size:15px;font-weight:600;margin:4px 0 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,320px),1fr));gap:12px}
+.card{border:1px solid var(--rule);border-radius:6px;overflow:hidden;display:flex;flex-direction:column;background:var(--panel)}
+.card.focus{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.im{height:200px;background:#f6f5f2;display:flex;align-items:center;justify-content:center;padding:6px;overflow:hidden;cursor:pointer}
+.im img{max-width:100%;max-height:100%;object-fit:contain}
+.b{padding:8px 10px 10px;display:flex;flex-direction:column;gap:8px}
+.n{font:400 12px var(--mono);color:var(--muted)}
+.also{font-size:12px;color:var(--muted)}
+.tune{display:grid;grid-template-columns:5.5em 1fr 3.4em;gap:2px 8px;align-items:center;font-size:12px;color:var(--muted)}
+.tune output{font:400 11px var(--mono);text-align:right}
+.row{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12px;color:var(--muted)}
+.row .t{min-width:5em}
+.row button{font-size:12px;padding:3px 10px}
+.small{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,180px),1fr));gap:10px}
+.small .im{height:110px}
+.add{border-color:var(--ink)}
+</style></head><body>
+<div class="wrap">
+  <div>
+    <h1>Sky mock: Rainy</h1>
+    <p class="lede">Pick the clouds for each section of the rainy sky. A cloud's size range, contrast, brightness, lightness and height belong to the section it's in, so the same cloud can look different in the front and the middle. Height bands are ranges: a cloud's base lands anywhere inside the bands it's allowed, and the lowest clouds can hang below the sky. This sky has a fourth band, Lowest, under Lower, for stacking more clouds. Move your cursor through the sky, or drag on a phone.</p>
+  </div>
+  <div id="stage">
+    <canvas id="c"></canvas>
+    <div class="wx">Rain 48° &nbsp; 06:10 PM ET</div>
+    <div id="pv" hidden><span id="pvn"></span><span id="pvb" class="row"></span><button type="button" id="pvs"></button><button type="button" id="pvx">Done</button></div>
+    <div class="intro">Hi, I'm<br>Maggie Shen, a<br>Product Engineer<br>and Photographer<br>in New York City.</div>
+  </div>
+  <div class="bar">
+    <button type="button" id="shuffle">Reshuffle</button>
+    <label><span class="t">Clouds</span><span class="row" id="cov"></span></label>
+    <label><span class="t">Show</span><input type="checkbox" id="sf" checked> Far <input type="checkbox" id="sm" checked> Middle <input type="checkbox" id="sn" checked> Front</label>
+    <label id="rainL" hidden><input type="checkbox" id="rain" checked> Rain</label>
+    <label><input type="checkbox" id="pin" checked> Keep the sky on screen</label>
+    <span class="save" id="save">Loading…</span>
+  </div>
+  <section class="picker">
+    <div class="tabs" id="tabs" role="group" aria-label="Section"></div>
+    <p class="pd" id="secNote"></p>
+    <div class="grid" id="grid"></div>
+    <h2 id="trayT"></h2>
+    <div class="small" id="tray"></div>
+  </section>
+</div>
+<script>
+const WEATHER="rainy";
+const LABEL={sunny:"Sunny",partly:"Partly cloudy",cloudy:"Cloudy",rainy:"Rainy"}[WEATHER];
+const COUNT={sunny:{mid:3,front:2},partly:{mid:5,front:3},cloudy:{mid:12,front:7},rainy:{mid:12,front:7}}[WEATHER];
+const INK={sunny:{far:[200,197,191],mid:[118,115,109],front:[28,27,25]},partly:{far:[200,197,191],mid:[118,115,109],front:[28,27,25]},
+  cloudy:{far:[186,183,177],mid:[104,101,96],front:[26,25,23]},rainy:{far:[165,162,157],mid:[84,82,78],front:[18,17,16]}}[WEATHER];
+const CLOUDS=["new-1","new-2","new-3","07-1","10-2","19-2","21-1","22-1","15-1","58-2","35-1","23-1","m29-1","m38-2","m32-1","m41-1","m52-1","m02-1","s19-3","s19-4","s19-5","s19-6","s26-2","s07-4","s08-2","s08-3","s08-4","s08-6","s10-3","s35-2","s59-1"];
+const FAR=[["34","Crowded, shaded"],["28","Crowded, packed"],["31","Crowded, towering"],["46","Bank with wisps above"],["08-field","Field of small puffs"],
+  ["07-row","Low row, small puffs"],["19-row","Thin row"],["10-row","Low bank"],["13","Mackerel sky"],["47","Cirrus wisps"],["39-rows","Rows to the horizon"]];
+const SEC_LABEL={front:"Front",mid:"Middle",far:"Far"},SEC_LOWER={front:"front",mid:"middle",far:"far"};
+const DEF_CLOUD={sizeMin:.7,sizeMax:1.45,contrast:1,bright:0,light:0,height:["high","mid","low"]},DEF_FAR={size:1,shade:1,height:0,ink:0};
+// Cloudy and Rainy get a fourth band, Lowest, under Lower: more room to stack clouds at different heights
+const EXTRA=WEATHER==="cloudy"||WEATHER==="rainy";
+const BANDS=EXTRA?["high","mid","low","lowest"]:["high","mid","low"],BAND_LABEL={high:"Upper",mid:"Middle",low:"Lower",lowest:"Lowest"};
+const LAYER={mid:{speed:2.4,radius:46,push:.38,spring:.016,damp:.9,maxv:.9},front:{speed:6,radius:80,push:1.25,spring:.055,damp:.85,maxv:9}};
+const WIDTH={front:300,mid:220};
+
+// Everything that's chosen: for each section, which clouds are in it and how each one is drawn there.
+let state={front:{},mid:{},far:{}};
+// a cloud's settings in a section. Size is a range: each copy picks a size between sizeMin and sizeMax.
+// Older saves have one size; that becomes the spread the sky used to draw around it (70% to 145% of it).
+function cloudSet(sec,id){const raw=(state[sec]||{})[id]||{},{size,density,...o}=raw;if(size!=null&&o.sizeMin==null){o.sizeMin=Math.min(2.5,+(size*.7).toFixed(2));o.sizeMax=Math.min(2.5,+(size*1.45).toFixed(2))}return {...DEF_CLOUD,...o}}
+const farSet=k=>({...DEF_FAR,...(state.far[k]||{})});
+const labelOf=id=>id.startsWith("new-")?"New "+id.slice(4):id.replace(/^[sm]/,"")+(id.startsWith("s")?" (single)":"");
+const farLabel=k=>(FAR.find(([x])=>x===k)||[k,k])[1];
+
+const stage=document.getElementById("stage"),cv=document.getElementById("c"),ctx=cv.getContext("2d");
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+let W=0,H=0,dpr=1,S=0,layers={},farL=null,seed=11,layoutSeed=11,cover=2,show={far:true,mid:true,front:true},rainOn=WEATHER==="rainy";
+let focus=null,solo=true,sec="front";const sprites={},SRC={};
+function rnd(){seed=(seed*16807)%2147483647;return (seed-1)/2147483646}
+function shuffled(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function hv(x,y){let n=(x*374761393+y*668265263)|0;n=Math.imul(n^(n>>>13),1274126177);return ((n^(n>>>16))>>>0)/4294967296}
+function boxBlur(src,w,h,r){let a=Float32Array.from(src),b=new Float32Array(src.length);
+  for(let p=0;p<3;p++){for(let y=0;y<h;y++){let acc=0,n=0;for(let x=-r;x<w;x++){if(x+r<w){acc+=a[y*w+x+r];n++}if(x-r-1>=0){acc-=a[y*w+x-r-1];n--}if(x>=0)b[y*w+x]=acc/n}}
+    for(let x=0;x<w;x++){let acc=0,n=0;for(let y=-r;y<h;y++){if(y+r<h){acc+=b[(y+r)*w+x];n++}if(y-r-1>=0){acc-=b[(y-r-1)*w+x];n--}if(y>=0)a[y*w+x]=acc/n}}}
+  return a}
+const FS=[[1,0,7/16],[-1,1,3/16],[0,1,5/16],[1,1,1/16]];
+function fsDither(g,w,h,skip){const pts=[];
+  for(let y=0;y<h;y++){const ltr=y%2===0;for(let s=0;s<w;s++){const x=ltr?s:w-1-s,i=y*w+x,v=g[i];if(skip&&v<0)continue;
+    const dot=v<128,err=v-(dot?0:255);if(dot)pts.push(x,y);
+    for(const [dx,dy,sh] of FS){const nx=x+(ltr?dx:-dx),ny=y+dy;if(nx<0||nx>=w||ny>=h)continue;const j=ny*w+nx;if(!skip||g[j]>=0)g[j]+=err*sh}}}
+  return Int16Array.from(pts)}
+// far strips arrive already dithered; thin their dots toward the bottom so they fade out
+function loadFar(k){return new Promise(r=>{const im=new Image();im.onload=()=>{const t=document.createElement("canvas");t.width=im.width;t.height=im.height;
+  const x=t.getContext("2d");x.drawImage(im,0,0);const d=x.getImageData(0,0,im.width,im.height).data,pts=[],H0=im.height,band=H0*.3;
+  for(let i=0;i<im.width*im.height;i++)if(d[i*4+3]>128){const px=i%im.width,py=(i/im.width)|0,dd=H0-1-py;if(dd>=band||hv(px,py)<Math.pow(dd/band,1.3))pts.push(px,py)}
+  sprites["far/"+k]={w:im.width,h:im.height,pts:Int16Array.from(pts),tint:{}};r()};im.onerror=()=>r();im.src="s/far/"+k+".png"})}
+function loadSrc(id){return new Promise(r=>{const im=new Image();im.onload=()=>{SRC[id]=im;r()};im.onerror=()=>r();im.src="s/src/"+id+".png"})}
+function tinted(path,ink,flip){const s=sprites[path],k=ink.join()+(flip?"f":"");if(s.tint[k])return s.tint[k];const t=document.createElement("canvas");t.width=s.w;t.height=s.h;
+  const x=t.getContext("2d"),im=x.createImageData(s.w,s.h);for(let i=0;i<s.pts.length;i+=2){const px=flip?s.w-1-s.pts[i]:s.pts[i],j=(s.pts[i+1]*s.w+px)*4;
+    im.data[j]=ink[0];im.data[j+1]=ink[1];im.data[j+2]=ink[2];im.data[j+3]=255}x.putImageData(im,0,0);return s.tint[k]=t}
+// photo to dots: stretch the photo's own tones, apply this section's contrast and brightness, then a plain Floyd–Steinberg dither
+function ditherCloud(id,width,o){const im=SRC[id];if(!im)return null;const w=Math.max(20,Math.round(width)),h=Math.max(10,Math.round(im.height*w/im.width));
+  const c=document.createElement("canvas");c.width=w;c.height=h;const x=c.getContext("2d");x.imageSmoothingQuality="high";x.drawImage(im,0,0,w,h);
+  const d=x.getImageData(0,0,w,h).data,N=w*h,lum=new Float32Array(N),al=new Float32Array(N);for(let i=0;i<N;i++){lum[i]=d[i*4];al[i]=d[i*4+3]/255}
+  {const fw=Math.max(2,w*.06),fh=Math.max(2,h*.06);for(let y=0;y<h;y++)for(let xx=0;xx<w;xx++){const e=Math.min(xx/fw,(w-1-xx)/fw,y/fh,(h-1-y)/fh);if(e<1){const s=Math.max(0,e);al[y*w+xx]*=s*s*(3-2*s)}}}
+  {const solid=new Float32Array(N);for(let i=0;i<N;i++)solid[i]=al[i]>.5?1:0;const near=boxBlur(solid,w,h,1),rim=new Float32Array(N),keep=new Float32Array(N);
+    for(let i=0;i<N;i++){rim[i]=al[i]>.02&&near[i]<.999?1:0;keep[i]=al[i]>.5&&!rim[i]?1:0}
+    const bk=boxBlur(keep,w,h,3),bl=boxBlur(lum.map((v,i)=>v*keep[i]),w,h,3);
+    for(let i=0;i<N;i++){if(!rim[i]||bk[i]<.05)continue;const inner=bl[i]/bk[i];if(lum[i]<inner)lum[i]=inner}}
+  const core=[];for(let i=0;i<N;i++)if(al[i]>.6)core.push(lum[i]);core.sort((a,b)=>a-b);
+  let lo=0,hi=255;if(core.length>50){lo=core[Math.floor(core.length*.02)];hi=core[Math.floor(core.length*.98)];if(hi-lo<24){const m=(hi+lo)/2;lo=m-12;hi=m+12}}
+  const g=new Float32Array(N);for(let i=0;i<N;i++){if(al[i]<12/255){g[i]=-1;continue}let t=(lum[i]-lo)/(hi-lo);t=.5+(t-.5)*o.contrast;
+    let tone=Math.min(255,Math.max(0,40+t*215+o.bright*255));
+    if(o.light>0)tone=255*Math.pow(tone/255,1/(1+2.5*o.light));   // Lighter: lift the middle tones, keep black and white
+    g[i]=255-(255-tone)*al[i]}
+  return {w,h,pts:fsDither(g,w,h,true),tint:{}}}
+function getSprite(id,layer,f){const t=cloudSet(layer,id),w=Math.max(20,Math.round(WIDTH[layer]*f/8)*8),key="c/"+layer+"/"+id+"/"+w+"/"+t.contrast+","+t.bright+","+t.light;
+  if(!sprites[key]){const sp=ditherCloud(id,w,t);if(!sp)return null;sprites[key]=sp}return key}
+// far strips are re-dithered from their own dot density when resized or shaded
+function farSprite(k){const f=farSet(k),base=sprites["far/"+k];if(!base)return null;if(f.size===1&&f.shade===1)return "far/"+k;
+  const w=Math.round(base.w*f.size),h=Math.round(base.h*f.size),key="fr/"+k+"/"+w+"/"+f.shade;if(sprites[key])return key;
+  const a=new Float32Array(base.w*base.h);for(let i=0;i<base.pts.length;i+=2)a[base.pts[i+1]*base.w+base.pts[i]]=1;const dn=boxBlur(a,base.w,base.h,2);
+  const c0=document.createElement("canvas");c0.width=base.w;c0.height=base.h;const x0=c0.getContext("2d"),im=x0.createImageData(base.w,base.h);
+  for(let i=0;i<dn.length;i++)im.data[i*4+3]=Math.round(Math.min(1,dn[i])*255);x0.putImageData(im,0,0);
+  const c=document.createElement("canvas");c.width=w;c.height=h;const x=c.getContext("2d");x.imageSmoothingQuality="high";x.drawImage(c0,0,0,w,h);
+  const d=x.getImageData(0,0,w,h).data,g=new Float32Array(w*h);for(let i=0;i<w*h;i++)g[i]=255*(1-Math.min(1,d[i*4+3]/255*f.shade));
+  sprites[key]={w,h,pts:fsDither(g,w,h,false),tint:{}};return key}
+// height: three bands, each a third of the sky; a cloud is kept inside the bands it's allowed in this section
+// Height is set by a cloud's bottom edge, the way you read real clouds: the band says where its base sits.
+// The three bands split the range from TOP to BOT (in sky heights) into equal thirds; Upper is the highest.
+// BOT past 1 lets the lowest clouds hang below the sky. A tall cloud runs off the top instead, but at least 60% stays on screen.
+const TOP=.3,BOT=1.3,BW=(BOT-TOP)/3,BASE={high:[TOP,TOP+BW],mid:[TOP+BW,TOP+2*BW],low:[TOP+2*BW,BOT],lowest:[BOT,BOT+BW]};   // the first three are the same in every mock
+// The ticked bands are one range a cloud's base can land anywhere in: u from 0 to 1 runs from the top of the
+// highest ticked band to the bottom of the lowest, skipping any band that isn't ticked. No steps, no lines to sit on.
+function placeY(hb,u,h){const rs=BANDS.filter(b=>hb.includes(b)).map(b=>BASE[b]);let t=u*rs.length*BW,base=rs[rs.length-1][1];
+  for(const [a,b] of rs){if(t<=b-a){base=a+t;break}t-=b-a}return Math.round(Math.max(base*S,h*.6)-h)}
+function build(){
+  seed=layoutSeed;const r=stage.getBoundingClientRect();W=r.width;H=r.height;dpr=Math.min(2,window.devicePixelRatio||1);
+  cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);S=H*3/7;
+  const k=[.6,1,1.4][cover-1],n={mid:Math.max(1,Math.round(COUNT.mid*k)),front:Math.max(1,Math.round(COUNT.front*k))};
+  const gauss=()=>Math.sqrt(-2*Math.log(rnd()+1e-9))*Math.cos(6.2832*rnd());
+  // size within the cloud's range, leaning small: many small clouds, a few big ones
+  const pickSize=c=>c.sizeMin+(c.sizeMax-c.sizeMin)*rnd();   // any size in the cloud's range
+  layers={};
+  for(const name of ["mid","front"]){
+    const pool=CLOUDS.filter(id=>state[name][id]&&SRC[id]);if(!pool.length)continue;
+    const L={...LAYER[name],name,ink:INK[name]},inst=[],hand=shuffled(pool).slice(0,Math.max(1,Math.ceil(n[name]*.6)));
+    const span=W*1.15+WIDTH[name]*1.6,items=[];
+    for(let i=0;i<n[name];i++){const id=hand[Math.floor(rnd()*hand.length)],cs=cloudSet(name,id),u=rnd();   // random size and height in its ranges
+      const path=getSprite(id,name,pickSize(cs));if(!path)continue;const s=sprites[path];items.push({path,w:s.w,y:placeY(cs.height,u,s.h),flip:rnd()<.5})}
+    // spacing: the biggest clouds go first, each into the most open stretch of sky (the best of a few random tries),
+    // so big clouds spread out instead of arriving as a swarm; smaller ones fill the gaps. Some overlap is fine.
+    items.sort((a,b)=>b.w-a.w);const placed=[],gap=(a,b)=>{const d=Math.abs(a-b)%span;return Math.min(d,span-d)};
+    for(const it of items){let bx=rnd()*span,bs=-1e9;
+      if(placed.length)for(let t=0;t<8;t++){const x=rnd()*span,c=x+it.w/2;let sc=1e9;
+        for(const p of placed)sc=Math.min(sc,gap(c,p.c)-(it.w+p.w)/2*.75);if(sc>bs){bs=sc;bx=x}}
+      placed.push({c:bx+it.w/2,w:it.w});inst.push({path:it.path,flip:it.flip,x0:bx,y:it.y})}
+    inst.sort((a,b)=>(a.y+sprites[a.path].h)-(b.y+sprites[b.path].h));
+    const margin=Math.max(...inst.map(o=>sprites[o.path].w));
+    layers[name]={...L,inst,span:span+margin,margin,off:rnd()*span};inst.forEach(o=>{alloc(L,o);tinted(o.path,L.ink,o.flip)})}
+  // preview: the cloud alone, still, one copy in each band it's allowed in
+  // preview: the cloud alone, still. Copies spread from the top to the bottom of its height range, smallest to largest
+  if(focus&&focus.kind==="cloud"&&SRC[focus.id]){const name=focus.sec,cs=cloudSet(name,focus.id),hb=cs.height,k=Math.max(2,hb.length);
+    const L={...LAYER[name],name,ink:INK[name],speed:0},inst=[];
+    for(let i=0;i<k;i++){const f=cs.sizeMin+(cs.sizeMax-cs.sizeMin)*i/(k-1),path=getSprite(focus.id,name,f),sp=sprites[path];if(!sp)continue;
+      inst.push({path,flip:false,x0:Math.round(W*(i+1)/(k+1)-sp.w/2),y:placeY(hb,i/(k-1),sp.h)})}
+    layers.focus={...L,inst,span:W*20,margin:0,off:0};inst.forEach(o=>{alloc(L,o);tinted(o.path,L.ink,false)})}
+  // far: one of this weather's strips, chosen at random each visit (or the one being previewed)
+  const farPool=FAR.map(([k])=>k).filter(k=>state.far[k]&&sprites["far/"+k]),pick=farPool.length?farPool[Math.floor(rnd()*farPool.length)]:null;
+  const FK=focus&&focus.kind==="far"?focus.id:pick,fk=FK&&farSprite(FK),fs=fk&&sprites[fk];
+  // Ink darkens the strip's dot colour itself, from the far grey (0%) to the front clouds' ink (100%)
+  const fi=FK?farSet(FK).ink:0,fink=INK.far.map((c,i)=>Math.round(c+(INK.front[i]-c)*fi));
+  farL=fs?{path:fk,ink:fink,y:Math.round(S-fs.h-farSet(FK).height*S)}:null;if(farL){tinted(fk,fink,false);tinted(fk,fink,true)}
+  drops.length=0;farDrops.length=0;
+  if(rainOn&&!reduce&&farL)for(let t=0;t<4;t+=.1){emitFar(.1);for(let i=farDrops.length-1;i>=0;i--){const d=farDrops[i];d.y+=d.vy*.1;d.x+=d.vx*.1;if(d.y>H){farDrops[i]=farDrops[farDrops.length-1];farDrops.pop()}}}
+  if(rainOn&&!reduce)for(let t=0;t<3;t+=.1){for(const name of ["mid","front"]){const L=layers[name];if(!L)continue;
+      for(const o of L.inst){const sp=sprites[o.path];let v=(o.x0+L.off)%L.span;if(v<0)v+=L.span;const x=v-L.margin;if(x>W||x+sp.w<0)continue;emit(L,o,x,o.y,.1)}}
+    for(let i=drops.length-1;i>=0;i--){const d=drops[i];d.y+=d.vy*.1;d.x+=(d.vx-d.cs)*.1;if(d.y>H){drops[i]=drops[drops.length-1];drops.pop()}}}
+}
+// rain falls from the underside of each cloud and drifts along with it
+const drops=[];
+// distant rain: falls from the underside of the far strip, behind every cloud. Thinner, shorter, slower and in a
+// pale ink, so it reads as rain a long way off.
+const farDrops=[];
+function farRainInk(){return farL?farL.ink.map((c,i)=>Math.round(c+(INK.mid[i]-c)*.35)):INK.far}
+function emitFar(dt){if(reduce||!rainOn||!farL||farDrops.length>1600)return;const s=sprites[farL.path],bot=bottoms(s);
+  // streaks rather than dots: long thin lines, fewer of them
+  for(let k=.13*W*dt;k>0;k--){if(Math.random()>k)break;const x=Math.random()*W,t=Math.floor(x/s.w),c=Math.floor(x-t*s.w),col=t%2===1?s.w-1-c:c,by=bot[col];if(by<0)continue;
+    const v=170+Math.random()*90;const y0=farL.y+by-Math.random()*4;farDrops.push({x,y:y0,y0,vx:v*.04,vy:v,max:3+Math.round(Math.random()*3),pv:0})}}
+function drawFarDrops(dt){if(!farDrops.length)return;const col=farRainInk();ctx.fillStyle="rgb("+col.join(",")+")";
+  for(let i=farDrops.length-1;i>=0;i--){const d=farDrops[i];d.y+=d.vy*dt;d.x+=d.vx*dt;if(d.y>H||!rainOn){farDrops[i]=farDrops[farDrops.length-1];farDrops.pop();continue}
+    pushDrop(d,45,1800,dt);ctx.fillRect(Math.round(d.x),Math.round(d.y),1,dropLen(d))}}
+function bottoms(s){if(s.bot)return s.bot;const b=new Int16Array(s.w).fill(-1),n=new Uint16Array(s.w);
+  for(let i=0;i<s.pts.length;i+=2){const x=s.pts[i],y=s.pts[i+1];n[x]++;if(y>b[x])b[x]=y}for(let x=0;x<s.w;x++)if(n[x]<4)b[x]=-1;return s.bot=b}
+function emit(L,o,x,y,dt){if(reduce||!rainOn||drops.length>1400)return;const s=sprites[o.path],bot=bottoms(s),mid=L.name==="mid";
+  for(let k=.09*s.w*(mid?.6:1)*dt;k>0;k--){if(Math.random()>k)break;let c=-1,by=-1;for(let t=0;t<4&&by<0;t++){c=Math.floor(Math.random()*s.w);by=bot[o.flip?s.w-1-c:c]}if(by<0)continue;
+    const v=(240+Math.random()*120)*(mid?.7:1);const y0=y+by-Math.random()*6;drops.push({cs:L.speed,x:x+c,y:y0,y0,vx:L.speed+v*.06,vy:v,max:(mid?3:5)+Math.round(Math.random()*(mid?2:3)),mid,pv:0})}}
+// A drop starts as a dot and stretches into a streak over its first ~90px of fall, like rain picking up speed.
+function dropLen(d){return Math.max(1,Math.round(1+(d.max-1)*Math.min(1,(d.y-d.y0)/90)))}
+// The cursor pushes nearby drops sideways (closer = harder); the push fades and the drop falls on.
+function pushDrop(d,R,A,dt){if(dt<=0)return;const dx=d.x-px,dy=d.y-py,d2=dx*dx+dy*dy;
+  if(d2<R*R){const dist=Math.sqrt(d2)||1;d.pv+=(dx/dist)*(1-dist/R)*A*dt}
+  d.pv*=Math.exp(-3.5*dt);d.x+=d.pv*dt}
+function drawDrops(dt){for(let i=drops.length-1;i>=0;i--){const d=drops[i];d.y+=d.vy*dt;d.x+=d.vx*dt;if(d.y>H||!rainOn){drops[i]=drops[drops.length-1];drops.pop();continue}
+  pushDrop(d,d.mid?55:85,d.mid?2600:4200,dt);
+  ctx.fillStyle=d.mid?"rgb(150,148,143)":"rgb(82,80,76)";ctx.fillRect(Math.round(d.x),Math.round(d.y),1,dropLen(d))}}
+// dots scatter from the cursor and spring back
+function alloc(L,o){const s=sprites[o.path],n=s.pts.length/2,m=Math.ceil(L.radius*1.4);
+  o.buf={n,m,x:new Float32Array(n),y:new Float32Array(n),vx:new Float32Array(n),vy:new Float32Array(n),c:document.createElement("canvas")};
+  o.buf.c.width=s.w+2*m;o.buf.c.height=s.h+2*m;o.buf.cx=o.buf.c.getContext("2d");o.buf.img=o.buf.cx.createImageData(o.buf.c.width,o.buf.c.height);o.buf.b=new Uint32Array(o.buf.img.data.buffer)}
+function wake(o){const s=sprites[o.path],p=o.buf;for(let i=0;i<p.n;i++){p.x[i]=o.flip?s.w-1-s.pts[i*2]:s.pts[i*2];p.y[i]=s.pts[i*2+1];p.vx[i]=0;p.vy[i]=0}o.p=p}
+function step(L,o,lx,ly,near){const s=sprites[o.path],p=o.p,R=L.radius,R2=R*R;let moving=0;
+  for(let i=0;i<p.n;i++){const hx=o.flip?s.w-1-s.pts[i*2]:s.pts[i*2],hy=s.pts[i*2+1];let vx=p.vx[i]+(hx-p.x[i])*L.spring,vy=p.vy[i]+(hy-p.y[i])*L.spring;
+    if(near){const dx=p.x[i]-lx,dy=p.y[i]-ly,d2=dx*dx+dy*dy;if(d2<R2){const d=Math.sqrt(d2)||1,f=(1-d/R)*L.push/d;vx+=dx*f;vy+=dy*f}}
+    vx*=L.damp;vy*=L.damp;const sp=Math.hypot(vx,vy);if(sp>L.maxv){vx*=L.maxv/sp;vy*=L.maxv/sp}
+    p.vx[i]=vx;p.vy[i]=vy;p.x[i]+=vx;p.y[i]+=vy;if(Math.abs(p.x[i]-hx)>.35||Math.abs(p.y[i]-hy)>.35)moving++}return moving}
+function paint(L,o){const p=o.p,[r,g,b]=L.ink,col=(255<<24)|(b<<16)|(g<<8)|r,w=p.c.width,h=p.c.height;p.b.fill(0);
+  for(let i=0;i<p.n;i++){const X=Math.round(p.x[i])+p.m,Y=Math.round(p.y[i])+p.m;if(X>=0&&X<w&&Y>=0&&Y<h)p.b[Y*w+X]=col}p.cx.putImageData(p.img,0,0)}
+function drawBands(){ctx.save();ctx.strokeStyle="rgba(61,111,158,.55)";ctx.setLineDash([4,4]);ctx.font='11px "IBM Plex Mono",monospace';ctx.fillStyle="rgba(61,111,158,.9)";
+  // a line at the bottom of each band: a cloud's base sits between the line above and its band's line
+  const line=f=>{const y=Math.round(S*f)+.5;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();return y};
+  ctx.setLineDash([1,5]);line(TOP);ctx.setLineDash([4,4]);
+  BANDS.forEach(b=>{const y=line(BASE[b][1]),t=BAND_LABEL[b]+" base";ctx.fillText(t,W-ctx.measureText(t).width-12,y-6)});ctx.restore()}
+let px=-1e5,py=-1e5;
+function pt(e){const r=stage.getBoundingClientRect();px=e.clientX-r.left;py=e.clientY-r.top}
+stage.addEventListener("pointermove",pt);stage.addEventListener("pointerdown",pt);
+["pointerleave","pointerup","pointercancel"].forEach(t=>stage.addEventListener(t,e=>{if(e.pointerType!=="mouse"||t==="pointerleave")px=py=-1e5}));
+let last=performance.now();
+function frame(now){const dt=Math.min(.05,(now-last)/1000);last=now;const m=reduce?0:1;
+  ctx.setTransform(dpr,0,0,dpr,0,0);ctx.imageSmoothingEnabled=true;ctx.clearRect(0,0,W,H);
+  const alone=solo&&focus;
+  if(farL&&show.far&&(!alone||focus.kind==="far")){const s=sprites[farL.path];let x=0,k=0;while(x<W){ctx.drawImage(tinted(farL.path,farL.ink,k%2===1),x,farL.y);x+=s.w;k++}}
+  if(farL&&show.far&&!alone){emitFar(dt*m);drawFarDrops(dt*m)}
+  for(const name of ["mid","front","focus"]){if(name==="front"&&!alone)drawDrops(dt*m);const L=layers[name];
+    if(!L||(name!=="focus"&&(!show[name]||alone)))continue;L.off+=L.speed*dt*m;
+    for(const o of L.inst){const s=sprites[o.path];let v=(o.x0+L.off)%L.span;if(v<0)v+=L.span;const x=v-L.margin,y=o.y;if(x>W||x+s.w<0){o.p=null;continue}
+      if(name!=="focus")emit(L,o,x,y,dt);
+      if(!reduce){const lx=px-x,ly=py-y,R=L.radius,near=lx>-R&&lx<s.w+R&&ly>-R&&ly<s.h+R;if(near&&!o.p)wake(o);
+        if(o.p){const mv=step(L,o,lx,ly,near);if(!near&&mv===0)o.p=null;else{paint(L,o);ctx.drawImage(o.p.c,x-o.p.m,y-o.p.m);continue}}}
+      ctx.drawImage(tinted(o.path,L.ink,o.flip),x,y)}}
+  if((!layers.front||!show.front)&&!alone)drawDrops(dt*m);
+  if(focus&&focus.kind==="cloud")drawBands();
+  requestAnimationFrame(frame)}
+
+// ----- controls -----
+function el(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e}
+function btn(text,cls,on){const b=el("button",cls||"",text);b.type="button";b.onclick=on;return b}
+document.getElementById("shuffle").onclick=()=>{layoutSeed=(layoutSeed*7919+13)%2147483647||1;build()};
+function renderCover(){const c=document.getElementById("cov");c.innerHTML="";["Few","Some","Many"].forEach((t,i)=>{const b=btn(t,"",()=>{cover=i+1;renderCover();build()});b.setAttribute("aria-pressed",cover===i+1?"true":"false");c.append(b)})}
+renderCover();
+[["sf","far"],["sm","mid"],["sn","front"]].forEach(([id,k])=>{document.getElementById(id).onchange=e=>{show[k]=e.target.checked}});
+if(WEATHER==="rainy"){document.getElementById("rainL").hidden=false;document.getElementById("rain").onchange=e=>{rainOn=e.target.checked;build()}}
+document.getElementById("pin").onchange=e=>stage.classList.toggle("free",!e.target.checked);
+
+// ----- preview bar -----
+const bar=document.getElementById("pv");
+const isFocus=(id,kind)=>!!focus&&focus.id===id&&focus.kind===kind&&(kind==="far"||focus.sec===sec);
+function preview(id,kind){focus=isFocus(id,kind)?null:{kind,id,sec};solo=true;build();render();updateBar()}
+function updateBar(){if(!focus){bar.hidden=true;return}bar.hidden=false;
+  document.getElementById("pvn").textContent=focus.kind==="far"?"Far: "+farLabel(focus.id):labelOf(focus.id)+", "+SEC_LOWER[focus.sec];
+  document.getElementById("pvs").textContent=solo?"Show the rest of the sky":"Show it alone";
+  const pb=document.getElementById("pvb");pb.innerHTML="";
+  if(focus.kind==="cloud")pb.textContent="in "+cloudSet(focus.sec,focus.id).height.map(b=>BAND_LABEL[b]).join(", ")}
+document.getElementById("pvs").onclick=()=>{solo=!solo;updateBar()};
+document.getElementById("pvx").onclick=()=>{focus=null;build();render();updateBar()};
+
+// ----- picker -----
+const grid=document.getElementById("grid"),tray=document.getElementById("tray"),saveEl=document.getElementById("save");
+const THUMB={};
+function thumbOf(id,s){const c=cloudSet(s,id),k=getSprite(id,s,(c.sizeMin+c.sizeMax)/2);if(!k)return null;if(!THUMB[k])THUMB[k]={src:tinted(k,INK[s],false).toDataURL(),w:sprites[k].w};return THUMB[k]}
+function setImg(img,th){if(th){img.src=th.src;img.style.width=th.w+"px"}}
+const TUNES=[["sizeMin","Smallest",30,250,5,v=>v+"%",v=>v/100,v=>Math.round(v*100)],["sizeMax","Largest",30,250,5,v=>v+"%",v=>v/100,v=>Math.round(v*100)],["contrast","Contrast",50,250,5,v=>v+"%",v=>v/100,v=>Math.round(v*100)],["bright","Brightness",-40,40,1,v=>(v>0?"+":"")+v,v=>v/100,v=>Math.round(v*100)],["light","Lighter",0,100,5,v=>v+"%",v=>v/100,v=>Math.round(v*100)]];
+const FAR_TUNES=[["size","Size",50,200,5,v=>v+"%",v=>v/100,v=>Math.round(v*100)],["shade","Shade",30,400,5,v=>v+"%",v=>v/100,v=>Math.round(v*100)],["height","Height",-50,50,1,v=>(v>0?"+":"")+v+"%",v=>v/100,v=>Math.round(v*100)],["ink","Ink",0,100,5,v=>v+"%",v=>v/100,v=>Math.round(v*100)]];
+const timers={};
+function sliders(list,vals,label,onSet){const tw=el("div","tune");
+  for(const [key,lab,mn,mx,st,fmt,from,to] of list){const r=el("input");r.type="range";r.min=mn;r.max=mx;r.step=st;r.value=to(vals[key]);r.setAttribute("aria-label",lab+", "+label);
+    const out=el("output",null,fmt(+r.value));r.dataset.k=key;r.oninput=()=>{out.textContent=fmt(+r.value);onSet(key,from(+r.value));
+      const pair={sizeMin:"sizeMax",sizeMax:"sizeMin"}[key];if(pair){const o=tw.querySelector('[data-k="'+pair+'"]');
+        if((key==="sizeMin"&&+o.value<+r.value)||(key==="sizeMax"&&+o.value>+r.value)){o.value=r.value;o.nextElementSibling.textContent=fmt(+r.value);onSet(pair,from(+r.value))}}};
+    tw.append(el("span",null,lab),r,out)}return tw}
+function otherSec(id,s){const o=s==="front"?"mid":"front";return state[o][id]?"Also in the "+SEC_LOWER[o]+", with its own settings there":""}
+function cloudCard(id){const s=sec,c=el("article","card"+(isFocus(id,"cloud")?" focus":""));
+  const im=el("div","im"),img=el("img");img.alt=labelOf(id);setImg(img,thumbOf(id,s));im.append(img);im.onclick=()=>preview(id,"cloud");
+  const b=el("div","b");b.append(el("span","n",labelOf(id)));const also=otherSec(id,s);if(also)b.append(el("span","also",also));
+  b.append(sliders(TUNES,cloudSet(s,id),labelOf(id)+" "+SEC_LOWER[s],(k,v)=>{state[s][id]={...cloudSet(s,id),[k]:v};
+    clearTimeout(timers[id]);timers[id]=setTimeout(()=>{setImg(img,thumbOf(id,s));build();markChanged()},160)}));
+  const h=cloudSet(s,id).height,hr=el("div","row");hr.append(el("span","t","Height"));
+  for(const v of BANDS){const x=btn(BAND_LABEL[v],"",()=>{const cur=new Set(cloudSet(s,id).height);cur.has(v)?cur.delete(v):cur.add(v);if(!cur.size)return;
+    state[s][id]={...cloudSet(s,id),height:BANDS.filter(z=>cur.has(z))};changed()});x.setAttribute("aria-pressed",h.includes(v)?"true":"false");hr.append(x)}
+  b.append(hr);
+  const acts=el("div","row");acts.append(btn(isFocus(id,"cloud")?"Stop preview":"Preview alone","",()=>preview(id,"cloud")),
+    btn("Remove","",()=>{if(isFocus(id,"cloud"))focus=null;delete state[s][id];changed();updateBar()}),
+    btn("Reset","",()=>{state[s][id]={...DEF_CLOUD};changed()}));
+  b.append(acts);c.append(im,b);return c}
+function farCard(k){const c=el("article","card"+(isFocus(k,"far")?" focus":""));
+  const im=el("div","im"),img=el("img");img.alt=farLabel(k);img.src="s/far/"+k+".png";im.append(img);im.onclick=()=>preview(k,"far");
+  const b=el("div","b");b.append(el("span","n",farLabel(k)));
+  b.append(sliders(FAR_TUNES,farSet(k),farLabel(k),(key,v)=>{state.far[k]={...farSet(k),[key]:v};if(!isFocus(k,"far")){focus={kind:"far",id:k,sec};solo=true;updateBar()}
+    clearTimeout(timers["f"+k]);timers["f"+k]=setTimeout(()=>{build();markChanged()},150)}));
+  const acts=el("div","row");acts.append(btn(isFocus(k,"far")?"Stop preview":"Preview alone","",()=>preview(k,"far")),
+    btn("Remove","",()=>{if(isFocus(k,"far"))focus=null;delete state.far[k];changed();updateBar()}),btn("Reset","",()=>{state.far[k]={...DEF_FAR};changed()}));
+  b.append(acts);c.append(im,b);return c}
+function trayCard(id,isFar){const c=el("article","card"+(isFocus(id,isFar?"far":"cloud")?" focus":"")),im=el("div","im"),img=el("img");
+  if(isFar){img.src="s/far/"+id+".png";img.alt=farLabel(id)}else{setImg(img,thumbOf(id,sec));img.alt=labelOf(id)}
+  im.append(img);im.onclick=()=>preview(id,isFar?"far":"cloud");
+  const b=el("div","b");b.append(el("span","n",isFar?farLabel(id):labelOf(id)));if(!isFar){const also=otherSec(id,sec);if(also)b.append(el("span","also",also.replace(", with its own settings there","")))}
+  const acts=el("div","row");acts.append(btn("Add","add",()=>{state[sec][id]=isFar?{...DEF_FAR}:{...DEF_CLOUD};changed()}),btn(isFocus(id,isFar?"far":"cloud")?"Stop":"Preview","",()=>preview(id,isFar?"far":"cloud")));
+  b.append(acts);c.append(im,b);return c}
+function render(){const tabs=document.getElementById("tabs");tabs.innerHTML="";
+  for(const s of ["front","mid","far"]){const n=Object.keys(state[s]).length,b=btn(SEC_LABEL[s]+" · "+n,"",()=>{sec=s;if(focus&&focus.kind==="cloud")focus=null;build();render();updateBar()});
+    b.setAttribute("aria-pressed",s===sec?"true":"false");tabs.append(b)}
+  const isFar=sec==="far",all=isFar?FAR.map(([k])=>k):CLOUDS,ids=all.filter(x=>state[sec][x]),rest=all.filter(x=>!state[sec][x]);
+  document.getElementById("secNote").textContent=isFar?"The far strip sits behind everything at the bottom of the sky. Each visit shows one strip from this list, chosen at random.":
+    "These are the "+LABEL.toLowerCase()+" "+SEC_LOWER[sec]+" clouds. Each visit builds the "+SEC_LOWER[sec]+" layer from them at random. Settings here change this cloud in the "+SEC_LOWER[sec]+" only.";
+  grid.innerHTML="";if(!ids.length)grid.append(el("p","pd","Nothing here yet. Add some from below."));
+  for(const id of ids)grid.append(isFar?farCard(id):cloudCard(id));
+  document.getElementById("trayT").textContent=isFar?"Other far strips":"Add to the "+SEC_LOWER[sec];
+  tray.innerHTML="";for(const id of rest)tray.append(trayCard(id,isFar))}
+
+// ----- saving -----
+let dbRef=null,dirty=false,saving=false,saveTimer=null,lastSaved="";
+const stable=o=>JSON.stringify(o,(k,v)=>v&&typeof v==="object"&&!Array.isArray(v)?Object.fromEntries(Object.keys(v).sort().map(x=>[x,v[x]])):v);
+function changed(){render();build();updateBar();markChanged()}
+function markChanged(){dirty=true;if(!dbRef){saveEl.textContent="Not saved: saving isn’t available in this view";return}saveEl.textContent="Saving…";clearTimeout(saveTimer);saveTimer=setTimeout(save,600)}
+async function save(){if(saving){saveTimer=setTimeout(save,300);return}const body=stable(state);if(body===lastSaved){dirty=false;saveEl.textContent="Saved";return}
+  saving=true;try{await dbRef.set(JSON.parse(body));lastSaved=body;saveEl.textContent="Saved";if(stable(state)===body)dirty=false}
+  catch(e){saveEl.textContent="Couldn’t save. Try again in a moment."}saving=false;if(dirty&&stable(state)!==lastSaved)markChanged()}
+Promise.all([...FAR.map(([k])=>loadFar(k)),...CLOUDS.map(loadSrc)]).then(()=>{build();render();let t;new ResizeObserver(()=>{clearTimeout(t);t=setTimeout(build,150)}).observe(stage);requestAnimationFrame(frame)});
+render();
+(async()=>{const db=window.claude&&await window.claude.use("db").catch(()=>null);
+  if(!db){saveEl.textContent="Changes won’t be saved in this view";return}
+  dbRef=db.doc("sky/choices");const t=setTimeout(()=>{saveEl.textContent="Saved choices can’t be reached yet"},10000);
+  dbRef.onSnapshot(snap=>{clearTimeout(t);
+    if(!snap.exists){saveEl.textContent="Nothing saved yet";return}
+    if(dirty||(snap.metadata&&snap.metadata.hasPendingWrites))return;   // never let an older copy overwrite edits still being saved
+    const d=JSON.parse(JSON.stringify(snap.data()));                    // our own copy: snapshot data is read-only
+    const next={front:d.front||{},mid:d.mid||{},far:d.far||{}},body=stable(next);lastSaved=body;
+    if(body!==stable(state)){state=next;render();if(Object.keys(SRC).length)build()}saveEl.textContent="Saved"},
+    ()=>{clearTimeout(t);saveEl.textContent="Saved choices can’t be reached"})})();
+</script>
+</body></html>

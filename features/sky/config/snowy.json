@@ -1,0 +1,266 @@
+{
+    "far": {
+        "13": {
+            "height": -0.5,
+            "ink": 0.2,
+            "shade": 4,
+            "size": 1.85
+        },
+        "28": {
+            "height": -0.5,
+            "ink": 0.25,
+            "shade": 2.05,
+            "size": 1.85
+        },
+        "31": {
+            "height": -0.5,
+            "ink": 0.3,
+            "shade": 1.95,
+            "size": 1.95
+        },
+        "34": {
+            "height": -0.5,
+            "ink": 0.25,
+            "shade": 2.95,
+            "size": 1.9
+        },
+        "39-rows": {
+            "height": -0.5,
+            "ink": 0.65,
+            "shade": 1.25,
+            "size": 1.95
+        }
+    },
+    "front": {
+        "10-2": {
+            "bright": 0,
+            "contrast": 1,
+            "height": [
+                "high",
+                "mid",
+                "low",
+                "lowest"
+            ],
+            "light": 0,
+            "sizeMax": 2,
+            "sizeMin": 1.65
+        },
+        "15-1": {
+            "bright": 0,
+            "contrast": 1,
+            "height": [
+                "high",
+                "mid",
+                "low",
+                "lowest"
+            ],
+            "light": 0.3,
+            "sizeMax": 1.6,
+            "sizeMin": 0.95
+        },
+        "21-1": {
+            "bright": -0.11,
+            "contrast": 1.1,
+            "height": [
+                "high",
+                "mid",
+                "low",
+                "lowest"
+            ],
+            "light": 0.4,
+            "sizeMax": 1.45,
+            "sizeMin": 1.15
+        },
+        "58-2": {
+            "bright": 0,
+            "contrast": 1,
+            "height": [
+                "high",
+                "mid",
+                "low",
+                "lowest"
+            ],
+            "light": 0.1,
+            "sizeMax": 1.8,
+            "sizeMin": 1.4
+        },
+        "m38-2": {
+            "bright": 0,
+            "contrast": 1,
+            "height": [
+                "high",
+                "mid",
+                "low",
+                "lowest"
+            ],
+            "light": 0.2,
+            "sizeMax": 1.45,
+            "sizeMin": 1.2
+        },
+        "new-1": {
+            "bright": 0,
+            "contrast": 1,
+            "height": [
+                "low",
+                "lowest"
+            ],
+            "light": 0,
+            "sizeMax": 2.15,
+            "sizeMin": 1.35
+        }
+    },
+    "mid": {
+        "07-1": {
+            "bright": 0,
+            "contrast": 1,
+            "height": [
+                "high",
+                "low",
+                "lowest"
+            ],
+            "light": 0,
+            "sizeMax": 2.5,
+            "sizeMin": 2.5
+        },
+        "10-2": {
+            "bright": 0,
+            "contrast": 1,
+            "height": [
+                "high",
+                "mid",
+                "low",
+                "lowest"
+            ],
+            "light": 0,
+            "sizeMax": 2.5,
+            "sizeMin": 1.6
+        },
+        "15-1": {
+            "bright": 0.1,
+            "contrast": 1.4,
+            "height": [
+                "high",
+                "mid",
+                "low",
+                "lowest"
+            ],
+            "light": 0.9,
+            "sizeMax": 2.5,
+            "sizeMin": 0.73
+        },
+        "21-1": {
+            "bright": 0,
+            "contrast": 1,
+            "height": [
+                "high",
+                "mid",
+                "low",
+                "lowest"
+            ],
+            "light": 0,
+            "sizeMax": 2.15,
+            "sizeMin": 1.05
+        },
+        "35-1": {
+            "bright": 0,
+            "contrast": 1,
+            "height": [
+                "high",
+                "mid",
+                "low",
+                "lowest"
+            ],
+            "light": 0,
+            "sizeMax": 2.5,
+            "sizeMin": 0.7
+        },
+        "58-2": {
+            "bright": 0,
+            "contrast": 1,
+            "height": [
+                "high",
+                "mid",
+                "low",
+                "lowest"
+            ],
+            "light": 0,
+            "sizeMax": 1.45,
+            "sizeMin": 0.7
+        },
+        "m02-1": {
+            "bright": 0,
+            "contrast": 1,
+            "height": [
+                "high",
+                "mid",
+                "low"
+            ],
+            "light": 0,
+            "sizeMax": 1.45,
+            "sizeMin": 0.7
+        },
+        "m38-2": {
+            "bright": 0,
+            "contrast": 1,
+            "height": [
+                "high",
+                "mid",
+                "low",
+                "lowest"
+            ],
+            "light": 0,
+            "sizeMax": 2.4,
+            "sizeMin": 1.5
+        },
+        "m41-1": {
+            "bright": 0,
+            "contrast": 1,
+            "height": [
+                "high",
+                "mid",
+                "low",
+                "lowest"
+            ],
+            "light": 0,
+            "sizeMax": 1.45,
+            "sizeMin": 0.7
+        },
+        "new-3": {
+            "bright": 0.22,
+            "contrast": 1.8,
+            "height": [
+                "high",
+                "mid",
+                "low",
+                "lowest"
+            ],
+            "light": 0.35,
+            "sizeMax": 2.5,
+            "sizeMin": 0.7
+        },
+        "s08-3": {
+            "bright": 0,
+            "contrast": 1,
+            "height": [
+                "high",
+                "mid",
+                "low"
+            ],
+            "light": 0,
+            "sizeMax": 2.15,
+            "sizeMin": 1.55
+        },
+        "s19-3": {
+            "bright": 0,
+            "contrast": 1,
+            "height": [
+                "high",
+                "mid",
+                "low"
+            ],
+            "light": 0,
+            "sizeMax": 1.45,
+            "sizeMin": 0.7
+        }
+    }
+}
