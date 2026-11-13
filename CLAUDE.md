@@ -28,7 +28,7 @@ This is Next.js 16. Read the matching guide in `node_modules/next/dist/docs/` be
 app/                 routes (one folder per page)
 components/          shared UI (site shell, weather/clock line, door link, footer)
 app/fonts/           local font files (Switzer, Space Grotesk), loaded with next/font/local
-features/weather/    NYC weather fetch (cached) and the weather code → sky mapping
+features/weather/    NYC weather fetch (cached), the weather code → sky mapping, and the sun's and moon's positions
 features/transitions/ page transitions: direction by page depth, back/forward handling
 features/sky/        the dithered weather sky, self-contained
 features/sky/config/ tuned cloud settings, one JSON file per weather
@@ -60,7 +60,7 @@ docs/design/         Figma exports and references
 - Type: Switzer is the standard typeface. Space Grotesk regular is used for the homepage's connecting words and for the weather/clock line and footer. Fonts load locally with `next/font/local`, from `app/fonts/fonts.ts`. Switzer's license (ITF FFL) allows self-hosting on this site but not sharing the font files publicly, so the Switzer files are git-ignored until hosting is decided. Space Grotesk is OFL and committed.
 - Figma frames are loose mocks showing layout and intent. Spacing and type sizes come from named tokens in the Tailwind theme, starting from Tailwind's defaults and tuned in the browser. Build hierarchy with type size and whitespace.
 - The weather/clock line sits at the top of every page, so every room feels like the same place.
-- The house-shaped favicon is also the logo that links home.
+- The house-shaped favicon is also the logo that links home. Both are the homepage house outline (`app/icon.svg`, `components/house-logo.tsx`); if the house shape changes, update both.
 - Mobile first.
 - Components use the theme tokens for colors, type sizes and spacing, so changing a token updates the whole site.
 
@@ -78,7 +78,7 @@ docs/design/         Figma exports and references
 - Open-Meteo asks for credit for its data. The credit goes on the This site project page.
 
 ## Sky (see docs/specs/sky.md)
-- Self-contained in `features/sky/`. One shared sky lives in the shell behind every page: Home shows all of it, and About and Projects show it through their window. Tuned on a private `/lab` route.
+- Self-contained in `features/sky/`. One shared sky lives in the shell behind every page: Home shows all of it, and About and Projects show it through their window. Tuned on a `/lab` route that only exists on the dev server (`npm run dev`); it 404s in production.
 - The per-weather cloud settings live as JSON in `features/sky/config/`. They are data, kept separate from the code.
 - Dither each cloud fresh at its final pixel size. Scaling a dithered image breaks the dot pattern.
 

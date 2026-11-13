@@ -1,12 +1,11 @@
 import { cacheLife } from "next/cache";
+import { MANHATTAN } from "./nyc";
 import { type Sky, skyFromWeatherCode } from "./sky";
 
 export type Weather = {
   sky: Sky;
   temperature: number | null;
 };
-
-const MANHATTAN = { latitude: 40.7831, longitude: -73.9712 };
 
 const OPEN_METEO_URL =
   "https://api.open-meteo.com/v1/forecast" +

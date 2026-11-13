@@ -19,6 +19,8 @@ type LabOverride = { weather: Sky; seed: number; scale: number | null };
 type SkyContextValue = {
   /** Calls draw with the sky's canvas after every frame. Returns an unsubscribe. */
   watch: (draw: Draw) => () => void;
+  /** The weather the sky is showing (the lab's choice while in /lab). */
+  weather: Sky;
   setLabOverride: (override: LabOverride | null) => void;
 };
 
@@ -91,7 +93,10 @@ export function SkyProvider({
     };
   }, []);
 
-  const value = useMemo(() => ({ watch, setLabOverride }), [watch]);
+  const value = useMemo(
+    () => ({ watch, weather: sky, setLabOverride }),
+    [watch, sky],
+  );
 
   return (
     <SkyContext value={value}>

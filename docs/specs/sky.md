@@ -21,7 +21,7 @@ The mock page also contains editing controls (cloud picker, sliders, saving to a
   - **About and Projects:** the sky is hidden except through the window (`components/window.tsx`). Each frame, the window copies the part of the sky that is behind it on screen, so it shows exactly the clouds that would be there on Home. View-only: nothing reacts to the cursor.
   - **Pages without a window:** the sky is hidden and stops drawing. When it shows again, the clouds have drifted on as if it had kept going.
 - In page transitions the sky stays still, since it's far away, and fades in step with the rooms (see shell.md).
-- `/lab` drives the same shared sky: weather, seed and cloud size switches.
+- `/lab` drives the same shared sky: weather, seed and cloud size switches, plus the house shadow panel. It is for development only: it exists on the dev server and returns a 404 in production builds.
 
 ## Layers
 - **Far:** one distant strip per visit, picked at random from that weather's far list. It stays still.
