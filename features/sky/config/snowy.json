@@ -1,31 +1,31 @@
 {
     "far": {
         "13": {
-            "height": -0.5,
+            "height": -0.2,
             "ink": 0.2,
             "shade": 4,
             "size": 1.85
         },
         "28": {
-            "height": -0.5,
+            "height": -0.2,
             "ink": 0.25,
             "shade": 2.05,
             "size": 1.85
         },
         "31": {
-            "height": -0.5,
+            "height": -0.2,
             "ink": 0.3,
             "shade": 1.95,
             "size": 1.95
         },
         "34": {
-            "height": -0.5,
+            "height": -0.2,
             "ink": 0.25,
             "shade": 2.95,
             "size": 1.9
         },
         "39-rows": {
-            "height": -0.5,
+            "height": -0.2,
             "ink": 0.65,
             "shade": 1.25,
             "size": 1.95

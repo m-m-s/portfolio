@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { PlaceholderPage } from "@/components/placeholder-page";
+import { SkyLab } from "@/features/sky/sky-lab";
 
 export const metadata: Metadata = {
   title: "Lab",
@@ -7,5 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function Lab() {
-  return <PlaceholderPage name="Lab" />;
+  return <SkyLab />;
 }

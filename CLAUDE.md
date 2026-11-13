@@ -78,7 +78,7 @@ docs/design/         Figma exports and references
 - Open-Meteo asks for credit for its data. The credit goes on the This site project page.
 
 ## Sky (see docs/specs/sky.md)
-- Self-contained in `features/sky/`. Built and tuned on a private `/lab` route before it goes on the homepage.
+- Self-contained in `features/sky/`. One shared sky lives in the shell behind every page: Home shows all of it, and About and Projects show it through their window. Tuned on a private `/lab` route.
 - The per-weather cloud settings live as JSON in `features/sky/config/`. They are data, kept separate from the code.
 - Dither each cloud fresh at its final pixel size. Scaling a dithered image breaks the dot pattern.
 

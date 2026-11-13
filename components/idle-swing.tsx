@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 
-const FIRST_WAIT = 5_000;
+const FIRST_WAIT = 10_000;
 const LATER_WAIT = 30_000;
 const ACTIVITY = ["pointermove", "pointerdown", "keydown", "scroll", "wheel"];
 

@@ -44,7 +44,7 @@ in New York City !
 
 ## Load
 - A fresh visit plays the walk-up: the house comes into view from far away (see shell.md).
-- The idle door swings start 5 seconds after the page opens (see shell.md).
+- The idle door swings start 10 seconds after the page opens (see shell.md).
 
 ## Done when
 - The intro keeps its five lines and house shape from a small phone to a wide screen, with "Product Engineer" on one line.

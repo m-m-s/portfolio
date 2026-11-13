@@ -58,7 +58,7 @@ A reusable `DoorLink` component for every big bold link (Switzer bold), on any p
 - **Click:** the link text swings open like a door, hinged on its left edge, outward toward the viewer. Only the text swings. The swing is smooth, not floppy (0.45s to start). The camera starts moving the instant the link is clicked, and the door swings open while the camera pushes in (full overlap, no pause). The door is a slab in the page color with the word on it, with some room around the letters (invisible at rest). It's cut from the page: behind it is the paper underneath, a shade darker and recessed with a soft shadow along the cut. The door casts a soft shadow.
 - **Coming back:** the page you return to loads normally, with every door closed. No reverse swing.
 - **Look:** styled the same as the text around it. On hover the word swings slightly ajar instead of underlining.
-- **Idle swing (homepage):** the links take turns doing a small swing to invite a click, in reading order (Maggie Shen → Product Engineer → Photographer), looping. Each idle swing opens slowly (about 2s), lingers open for half a second, then drifts shut (about 2.5s). The first swing comes after 5 seconds of no activity (mouse, scroll, keys); after that, every 30 seconds while the visitor stays idle. Any activity restarts the wait. The cycle pauses while the visitor hovers a link or the tab is hidden.
+- **Idle swing (homepage):** the links take turns doing a small swing to invite a click, in reading order (Maggie Shen → Product Engineer → Photographer), looping. Each idle swing opens slowly (about 2s), lingers open for half a second, then drifts shut (about 2.5s). Its shadow and the doorway fade out over the last part of the close and are gone just before it shuts, so the slab settles flat into the page. The first swing comes after 10 seconds of no activity (mouse, scroll, keys); after that, every 30 seconds while the visitor stays idle. Any activity restarts the wait. The cycle pauses while the visitor hovers a link or the tab is hidden.
 - **Reduced motion:** the swing becomes a fade.
 
 **House logo**
@@ -77,6 +77,7 @@ The camera walks up to, into and out of rooms. Built with the View Transitions A
 - **Direction comes from page depth** (`/` is 0, rooms 1, project pages 2): deeper pushes in, shallower pulls back, same depth pushes in. This covers the browser's back and forward buttons too.
 - **Back/forward** start at the top of the page instead of restoring the scroll position (the price of animating them). A phone's swipe-back gesture keeps the browser's own animation instead.
 - The weather/clock line and footer stay still while the rest of the page moves.
+- **The sky** stays still too, and only fades: from the whole sky on Home to just the window in a room, in step with the rooms' crossfade (see sky.md).
 - Timings are CSS variables in `app/globals.css` (`--door-swing`, `--camera`, `--walk-up`, `--door-nudge`).
 - **Reduced motion:** a simple fade.
 

@@ -1,13 +1,13 @@
 {
     "far": {
         "10-row": {
-            "height": -0.35,
+            "height": -0.05,
             "ink": 0.05,
             "shade": 1.3,
             "size": 1.75
         },
         "19-row": {
-            "height": -0.35,
+            "height": -0.05,
             "ink": 0.1,
             "shade": 1.2,
             "size": 1.9

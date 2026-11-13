@@ -30,7 +30,8 @@ A room with a window. Reference: docs/design/about.png.
 ## The window
 - A shared `Window` component, also used on the Projects page.
 - A four-pane window frame, drawn to match the frame in the Figma mock.
-- Through the panes you see the live NYC sky: the same weather and the same Sky component as the homepage, clipped to the panes.
+- Through the panes you see the live NYC sky: the site's one shared sky, showing the part that's behind the window on screen (see sky.md). For it to show clouds, the window sits in the top part of the page.
+- The frame is a placeholder (plain four panes) until it's drawn to match the Figma mock; its colors are the `glass` and `frame` theme tokens.
 - The clouds drift as usual. The window is view-only: the dots stay put under the cursor.
 
 ## Light on the floor

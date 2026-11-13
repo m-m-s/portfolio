@@ -9,6 +9,10 @@
 @theme {
   --color-page: #fafaf8;
   --color-ink: #171717;
+  /* Placeholders until the window is drawn to match the Figma frame. */
+  --color-glass: #ffffff;
+  --color-frame: #ecebe7;
+  --shadow-window: 0 0.5rem 1.5rem rgb(0 0 0 / 0.06);
 }
 
 :root {
@@ -27,6 +31,7 @@
   --door-hover: 450ms;
   --door-nudge: 5000ms;
   --walk-up: 1600ms;
+  --sky-fade: 1200ms;
   --fade: 500ms;
   --door-angle: -120deg;
   --door-ajar: -45deg;
@@ -133,8 +138,13 @@ body {
   transition: none;
 }
 
+/* The shadow comes from the keyframes, so it's already gone when the nudge
+   ends and doesn't fade out again through the filter transition. */
 .door-panel[data-door="nudge"] {
-  animation: door-nudge var(--door-nudge);
+  filter: none;
+  animation:
+    door-nudge var(--door-nudge),
+    slab-nudge var(--door-nudge) linear;
 }
 
 /* Opens slowly, lingers open, then drifts shut. */
@@ -153,13 +163,27 @@ body {
   }
 }
 
+/* Shadow and doorway are gone just before the door shuts, so it settles flat into the page. */
+@keyframes slab-nudge {
+  0%,
+  88%,
+  100% {
+    filter: drop-shadow(0 0 0 rgb(0 0 0 / 0));
+  }
+  10%,
+  72% {
+    filter: drop-shadow(var(--door-shadow));
+  }
+}
+
 @keyframes doorway-nudge {
   0%,
+  90%,
   100% {
     opacity: 0;
   }
   4%,
-  96% {
+  76% {
     opacity: var(--doorway-opacity);
   }
 }
@@ -181,8 +205,17 @@ body {
   display: none;
 }
 
-::view-transition-group(room) {
+::view-transition-group(room),
+::view-transition-group(sky) {
   animation: none;
+}
+
+/* The sky stays still (it's far away) and only fades, in step with the rooms. */
+::view-transition-old(sky) {
+  animation: leave-fade var(--crossfade) linear var(--settle-delay) both;
+}
+::view-transition-new(sky) {
+  animation: enter-fade var(--crossfade) linear var(--settle-delay) both;
 }
 ::view-transition-group(door) {
   animation: none;

@@ -3,6 +3,7 @@ import { FilmJoustingWake } from "@/components/film-jousting-wake";
 import { Footer } from "@/components/footer";
 import { HouseLogo } from "@/components/house-logo";
 import { WeatherClockLine } from "@/components/weather-clock-line";
+import { SiteSky } from "@/features/sky/site-sky";
 import { RoomTransition } from "@/features/transitions/room-transition";
 import { spaceGrotesk, switzer } from "./fonts/fonts";
 import "./globals.css";
@@ -19,14 +20,16 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${switzer.variable} ${spaceGrotesk.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col bg-page font-sans text-ink">
-        <header className="flex items-start justify-between gap-4 px-4 pt-6 sm:px-8 sm:pt-8">
-          <HouseLogo />
-          <div className="ml-auto">
-            <WeatherClockLine />
-          </div>
-        </header>
-        <RoomTransition>{children}</RoomTransition>
-        <Footer />
+        <SiteSky>
+          <header className="flex items-start justify-between gap-4 px-4 pt-6 sm:px-8 sm:pt-8">
+            <HouseLogo />
+            <div className="ml-auto">
+              <WeatherClockLine />
+            </div>
+          </header>
+          <RoomTransition>{children}</RoomTransition>
+          <Footer />
+        </SiteSky>
         <FilmJoustingWake />
       </body>
     </html>
