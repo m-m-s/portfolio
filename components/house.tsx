@@ -16,10 +16,14 @@ export type HouseShadow = {
   opacity: number;
   /** In em. */
   blur: number;
+  /** Where the light comes from, in degrees: above the horizon (as cast, always above it) and clockwise from north. */
+  altitude: number;
+  azimuth: number;
 };
 
 export type ShadowTuning = {
   length: number;
+  /** How upright the shadow stands against a sideways light: higher leans it less. */
   depth: number;
   strength: number;
   /** Moon shadow strength as a share of the sun's. */
@@ -28,6 +32,8 @@ export type ShadowTuning = {
 };
 
 const MIN_REACH = 0.6;
+/** Degrees: a light low in the east or west would otherwise lay the shadow nearly flat. */
+const MAX_LEAN = 40;
 
 /** Clouds soften the light: a fainter, blurrier shadow. Multiplies the tuning's strength and blur. */
 const WEATHER_LIGHT: Record<Sky, { strength: number; blur: number }> = {
@@ -39,8 +45,8 @@ const WEATHER_LIGHT: Record<Sky, { strength: number; blur: number }> = {
 };
 
 export const SHADOW_TUNING: ShadowTuning = {
-  length: 1,
-  depth: 0.35,
+  length: 0.4,
+  depth: 1,
   strength: 0.6,
   moonlight: 0.8,
   blur: 0.15,
@@ -60,15 +66,21 @@ export function castShadow(
   const altitude = Math.max(6, Math.abs(light.altitude));
   const rad = Math.PI / 180;
   const long = Math.min(4, 1 / Math.tan(altitude * rad)) * t.length;
-  const side = -Math.sin(light.azimuth * rad) * long;
-  const behind = Math.abs(Math.cos(light.azimuth * rad)) * long * t.depth;
+  // The direction alone sets the lean, so length never changes the angle.
+  const lean =
+    Math.atan2(
+      -Math.sin(light.azimuth * rad),
+      Math.abs(Math.cos(light.azimuth * rad)) * t.depth,
+    ) / rad;
   return {
-    lean: Math.atan(side) / rad,
-    reach: Math.min(1, Math.max(MIN_REACH, behind)),
+    lean: Math.max(-MAX_LEAN, Math.min(MAX_LEAN, lean)),
+    reach: Math.min(1, Math.max(MIN_REACH, long)),
     opacity:
       weather.strength *
       (moon ? t.strength * t.moonlight * (0.6 + 0.4 * moon.lit) : t.strength),
     blur: t.blur * weather.blur,
+    altitude,
+    azimuth: light.azimuth,
   };
 }
 
@@ -102,21 +114,25 @@ function outline(lines: Box[], padX: number, pad: number) {
     .join(" ");
 }
 
+/** The live NYC light (sun or moon, softened by the sky's weather), recast every minute. Null until mounted. */
+export function useLiveLight() {
+  const { weather } = useSky();
+  const [light, setLight] = useState<HouseShadow | null>(null);
+  useEffect(() => {
+    const update = () => setLight(castShadow(new Date(), weather));
+    update();
+    const timer = setInterval(update, 60_000);
+    return () => clearInterval(timer);
+  }, [weather]);
+  return light;
+}
+
 /** Without a shadow prop, the house casts the live NYC shadow. */
 export function House({ shadow: fixed }: { shadow?: HouseShadow | null }) {
   const heading = useRef<HTMLHeadingElement>(null);
   const [points, setPoints] = useState("");
-  const [live, setLive] = useState<HouseShadow | null>(null);
+  const live = useLiveLight();
   const shadow = fixed === undefined ? live : fixed;
-  const { weather } = useSky();
-
-  useEffect(() => {
-    if (fixed !== undefined) return;
-    const update = () => setLive(castShadow(new Date(), weather));
-    update();
-    const timer = setInterval(update, 60_000);
-    return () => clearInterval(timer);
-  }, [fixed, weather]);
 
   useLayoutEffect(() => {
     const h = heading.current;

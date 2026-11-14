@@ -102,7 +102,7 @@ export function SkyLab() {
             onChange={(v) => tune("length", v)}
           />
           <Slider
-            label="Reach back"
+            label="Steepness"
             min={0}
             max={1}
             step={0.05}

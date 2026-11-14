@@ -35,7 +35,7 @@ in New York City !
 
 ## The shadow
 
-The shadow is on the homepage around the clock: the sun casts it by day and the moon by night. It's tuned in `/lab` (Shadow panel: time of day, length, reach back, strength, moonlight, blur); the defaults live in `SHADOW_TUNING` in `components/house.tsx`.
+The shadow is on the homepage around the clock: the sun casts it by day and the moon by night. It's tuned in `/lab` (Shadow panel: time of day, length, steepness, strength, moonlight, blur); the defaults live in `SHADOW_TUNING` in `components/house.tsx`.
 
 - The house casts a soft gray shadow onto the page, from the same outline. The house has no drawn outline: the shadow is what gives it its shape.
 - It follows the sun in New York through the day:
@@ -43,7 +43,7 @@ The shadow is on the homepage around the clock: the sun casts it by day and the 
   - **Length:** longest near sunrise and sunset, shortest around midday.
 - **Night:** from sunset to sunrise the moon casts the shadow instead, the same way. It's fainter than the sun's (`moonlight`, a share of the sun's strength) and a little fainter again when less of the moon is lit.
 - The shadow is stylized so it's always visible: it always falls behind the house (up the page), it's always at least 60% of the house's height (`MIN_REACH`; a shorter shadow hides behind the house), and a moon below the horizon still casts it, as if it were that far above.
-- Sun and moon positions come from the time and NYC's coordinates, calculated in the browser (`features/weather/sun-and-moon.ts`, the standard low-precision formulas, good to about 1°). The shadow is the house outline slanted sideways by the light's east–west direction and stretched by how far it falls behind the house, both scaled by how low the light is.
+- Sun and moon positions come from the time and NYC's coordinates, calculated in the browser (`features/weather/sun-and-moon.ts`, the standard low-precision formulas, good to about 1°). The shadow is the house outline slanted and stretched. The slant comes only from the light's direction (east–west against north–south, weighted by steepness), capped at 40° (`MAX_LEAN`). The stretch comes only from how low the light is, times the length. So changing the length never changes the angle.
 - The shadow updates once a minute, so the movement is too slow to notice while watching. It's computed after the page loads, so it appears just after the house.
 - **Weather:** a shadow in every weather, rain and snow included. Clouds soften the light: Sunny gives the darkest, sharpest shadow, Partly cloudy a little softer, and Cloudy, Rainy and Snowy a faint, blurry one (`WEATHER_LIGHT` in `components/house.tsx` multiplies the tuning's strength and blur). It follows the sky's weather, so in `/lab` it follows the weather buttons.
 

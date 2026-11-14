@@ -46,6 +46,9 @@ export const LAYER = {
 
 export const WIDTH: Record<Layer, number> = { front: 300, mid: 220 };
 
+/** Clouds on pages that show the sky only through a window: smaller, so a few fit in the panes. The window is smaller still on a phone. */
+export const WINDOW_CLOUD_SCALE = { laptop: 0.5, phone: 0.25 };
+
 /** Below this width (Tailwind's sm), clouds use PHONE_CLOUD_SCALE. */
 export const PHONE_WIDTH = 640;
 

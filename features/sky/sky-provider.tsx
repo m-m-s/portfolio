@@ -68,7 +68,7 @@ export function SkyProvider({
 
   const sky = override?.weather ?? weather;
   const seed = override?.seed ?? visitSeed;
-  const scale = override?.scale ?? null;
+  const scale = override?.scale ?? (full ? null : "window");
 
   // Before show, so the first build already uses it.
   useEffect(() => {

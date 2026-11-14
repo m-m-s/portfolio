@@ -17,6 +17,7 @@ import {
   type Rgb,
   SKY_FRACTION,
   WIDTH,
+  WINDOW_CLOUD_SCALE,
 } from "./constants";
 import {
   bottoms,
@@ -110,7 +111,7 @@ export class SkyEngine {
   private rainOn = false;
   private seed = 1;
   private layoutSeed = 1;
-  private scaleOverride: number | null = null;
+  private scaleOverride: number | "window" | null = null;
 
   private readonly src = new Map<string, HTMLImageElement>();
   private readonly farBase = new Map<string, Sprite>();
@@ -219,15 +220,18 @@ export class SkyEngine {
   }
 
   /** Overrides the weather's cloud scale (null goes back to it). Keeps the layout. */
-  setCloudScale(scale: number | null) {
+  setCloudScale(scale: number | "window" | null) {
     if (scale === this.scaleOverride) return;
     this.scaleOverride = scale;
     if (this.ready) void this.build();
   }
 
   private get cloudScale() {
+    const phone = this.W < PHONE_WIDTH;
+    if (this.scaleOverride === "window")
+      return WINDOW_CLOUD_SCALE[phone ? "phone" : "laptop"];
     if (this.scaleOverride !== null) return this.scaleOverride;
-    return this.W < PHONE_WIDTH ? PHONE_CLOUD_SCALE[this.sky] : 1;
+    return phone ? PHONE_CLOUD_SCALE[this.sky] : 1;
   }
 
   /** Called after every frame is painted. */

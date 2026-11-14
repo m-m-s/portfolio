@@ -7,15 +7,18 @@
 }
 
 @theme {
-  --color-page: #fafaf8;
+  --color-page: #fefdfd;
   --color-ink: #171717;
   --color-house-shadow: #8a8984;
   /* Shrinks with the screen so "Product Engineer" never wraps and the house keeps its shape. */
   --text-intro: min(3rem, calc((100vw - 2rem) / 10.6));
-  /* Placeholders until the window is drawn to match the Figma frame. */
+  /* The window: clear panes, the bezel's shading, the sill's top and front edge. */
   --color-glass: #ffffff;
-  --color-frame: #ecebe7;
-  --shadow-window: 0 0.5rem 1.5rem rgb(0 0 0 / 0.06);
+  --color-bevel: rgb(0 0 0 / 0.14);
+  --color-sill: #f3f2ef;
+  --color-sill-edge: #e2e0db;
+  /* About's floor: always a shade darker than the wall, so window light shows on it. */
+  --color-floor: #f0eeea;
 }
 
 :root {

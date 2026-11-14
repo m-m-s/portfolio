@@ -53,7 +53,7 @@ Text links, written out: `Email   LinkedIn   GitHub`. Typeface: Space Grotesk re
 
 ## Door links
 
-A reusable `DoorLink` component for every big bold link (Switzer bold), on any page.
+A reusable `DoorLink` component for every big bold link (Switzer bold), on any page. Small links inside running text (like the About paragraphs) are not doors: they underline on hover, and links to rooms use `RoomLink` so the camera still walks in.
 
 - **Click:** the link text swings open like a door, hinged on its left edge, outward toward the viewer. Only the text swings. The swing is smooth, not floppy (0.45s to start). The camera starts moving the instant the link is clicked, and the door swings open while the camera pushes in (full overlap, no pause). The door is a slab in the page color with the word on it, with some room around the letters (invisible at rest). It's cut from the page: behind it is the paper underneath, a shade darker and recessed with a soft shadow along the cut. The door casts a soft shadow.
 - **Coming back:** the page you return to loads normally, with every door closed. No reverse swing.

@@ -4,7 +4,7 @@ The projects sit on platforms at three heights, like pieces on display in a room
 
 ## Layout
 - Shell as usual: house logo top left, weather/clock line top right, footer bottom right.
-- The window from About (the shared `Window` component: live sky, view-only, light on the floor) sits top left.
+- The window from About (the shared `Window` component: live sky, view-only, light on the floor) sits top left, mirrored so its left side is toward the viewer (`<Window flip>`).
 - The platforms take up the rest of the page.
 
 ## The platforms
