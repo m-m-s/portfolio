@@ -4,7 +4,7 @@ One continuous gallery, images only.
 
 ## Layout
 - Shell: house logo, weather/clock line, footer.
-- 3 to 4 rows of large photos with generous space between rows, every photo the same height within the page. Widths follow each photo's own shape (landscape, portrait, wide), so nothing gets cropped.
+- 3 rows of large photos with generous space between rows, every photo the same height within the page. Widths follow each photo's own shape (landscape, portrait, wide), so nothing gets cropped.
 - Rows come from a list in `content/`: each row is an ordered list of image files, shown in that order.
 - Photos show without labels or captions.
 - The page is light, like every other room.
@@ -12,7 +12,7 @@ One continuous gallery, images only.
 ## Placeholder photos
 - Build the whole gallery with blank rectangles first, so the motion and slideshow can be tested before the real photos are chosen.
 - Placeholder data goes in the same `content/` list the real photos will use, with each entry giving a width-to-height ratio in place of an image file. Mix common photo shapes: 3:2, 2:3, 4:3, 3:4, 16:9.
-- 3 to 4 rows of 4 to 12 rectangles each, in a few light grays from the Tailwind theme.
+- 3 rows of 7 to 12 rectangles each, in a few light grays from the Tailwind theme.
 - Swapping in the real photos later changes only the content list.
 
 ## Built so far

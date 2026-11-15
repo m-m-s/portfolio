@@ -65,6 +65,12 @@ function shapeFor(width: number): Shape {
   ) as Shape;
 }
 
+/** How steeply the steps' sides recede, rising to the right, at this room width: the side wall, for anything set in it. */
+export function sideSlope(width: number) {
+  const s = shapeFor(width);
+  return s.backRise / s.backWidth;
+}
+
 /**
  * A staircase for a room of the given size, in pixels: one step per project,
  * lowest first, and the side wall they share.

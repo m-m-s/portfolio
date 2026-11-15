@@ -9,14 +9,16 @@ type Point = [number, number];
 /** Across the wall, down from the window's top, and out from the wall into the room. */
 type Point3 = [number, number, number];
 
-// A 100 × 150 window in a wall turned on its vertical axis, its right side
-// toward the viewer, seen from near its foot. The floor is level, FLOOR below
-// the window's top.
+// A 100 × 150 window in a wall turned on its vertical axis (by default its
+// right side toward the viewer), seen from near its foot. The floor is level,
+// FLOOR below the window's top.
 const W = 100;
 const H = 150;
-const TURN = (32 * Math.PI) / 180;
+/** The wall's turn, in degrees, unless a page asks for another. */
+const TURN = 32;
 const DISTANCE = 300;
-const EYE = 0.8 * H;
+/** The viewer's eye height, as a share of the window's height down from its top, unless a page asks for another. */
+const EYE = 0.8;
 const FRAME = 2.5;
 const MULLION = 3;
 /** A plain ledge under the window: barely wider than it, sticking out into the room, with a thin front edge. */
@@ -34,14 +36,19 @@ const LIGHT_REACH = 0.25;
 /** The light on the floor, as a multiple of the house shadow's strength (so it's bright in sun, faint under clouds and at night). */
 const LIGHT_STRENGTH = 1.2;
 
-function project([x, y, z = 0]: [number, number, number?]): Point {
-  const across = x - W / 2;
-  const depth = across * Math.sin(TURN) + z * Math.cos(TURN);
-  const scale = DISTANCE / (DISTANCE - depth);
-  return [
-    (across * Math.cos(TURN) - z * Math.sin(TURN)) * scale,
-    (y - EYE) * scale,
-  ];
+const rad = (deg: number) => (deg * Math.PI) / 180;
+
+function projector(turn: number, eye: number) {
+  const t = rad(turn);
+  return ([x, y, z = 0]: [number, number, number?]): Point => {
+    const across = x - W / 2;
+    const depth = across * Math.sin(t) + z * Math.cos(t);
+    const scale = DISTANCE / (DISTANCE - depth);
+    return [
+      (across * Math.cos(t) - z * Math.sin(t)) * scale,
+      (y - eye * H) * scale,
+    ];
+  };
 }
 
 const rect = (x0: number, y0: number, x1: number, y1: number): Point[] => [
@@ -75,75 +82,121 @@ const flatSill = {
     [-S.overhang, H + S.thickness, S.depth],
   ],
 } satisfies Record<string, Point3[]>;
-
-const projected = flatPanes.map((pane) => pane.map(project));
-const projectedSill = [flatSill.top.map(project), flatSill.front.map(project)];
-const all = [...projected.flat(), ...projectedSill.flat()];
-const minX = Math.min(...all.map(([x]) => x));
-const minY = Math.min(...all.map(([, y]) => y));
-const shift = ([x, y]: Point): Point => [x - minX, y - minY];
-const panes = projected.map((pane) => pane.map(shift));
-const [sillTop, sillFront] = projectedSill.map((face) => face.map(shift));
 // The faint contact shadow on the wall just under the ledge, from the room's light.
 const under = H + S.thickness;
-const sillShadow = [
+const flatSillShadow: Point3[] = [
   [-S.overhang, under, 0],
   [W + S.overhang, under, 0],
   [W + S.overhang, under + S.shadow, 0],
   [-S.overhang, under + S.shadow, 0],
-].map((p) => shift(project(p as Point3)));
-const VIEW_W = Math.max(...all.map(([x]) => x)) - minX;
-const VIEW_H = Math.max(...all.map(([, y]) => y)) - minY;
-
-// Where the wall meets the floor, drawn as a straight line out past both sides
-// of any page (the wall's own far end would stop short where it recedes), then
-// down past the foot of any page.
-const [wallA, wallB] = [project([0, FLOOR]), project([W, FLOOR])].map(shift);
-const floorAt = (x: number): Point => [
-  x,
-  wallA[1] + ((x - wallA[0]) * (wallB[1] - wallA[1])) / (wallB[0] - wallA[0]),
-];
-const floorOutline: Point[] = [
-  floorAt(wallA[0] - FLOOR_SPAN),
-  floorAt(wallB[0] + FLOOR_SPAN),
-  [wallB[0] + FLOOR_SPAN, 4000],
-  [wallA[0] - FLOOR_SPAN, 4000],
 ];
 
-/** The panes of light on the floor, from light at the given altitude and azimuth. */
-function lightOnFloor(light: HouseShadow, flip: boolean) {
-  const rad = Math.PI / 180;
-  const altitude = Math.min(
-    LIGHT_ALTITUDE.max,
-    Math.max(LIGHT_ALTITUDE.min, light.altitude),
-  );
-  const side = Math.max(
-    -MAX_SIDEWAYS,
-    Math.min(MAX_SIDEWAYS, -Math.sin(light.azimuth * rad)),
-  );
-  const inward = Math.max(MIN_INWARD, Math.abs(Math.cos(light.azimuth * rad)));
-  const flat = Math.hypot(side, inward);
-  const fall = Math.tan(altitude * rad);
-  const onFloor = ([x, y]: Point): Point3 => {
-    const t = (LIGHT_REACH * (FLOOR - y)) / fall;
-    return [x + (t * side) / flat, FLOOR, (t * inward) / flat];
+/**
+ * The turn, in degrees, at which the window's foot runs across the screen at
+ * this slope (down per across; positive when its left end is higher, i.e. farther).
+ */
+export function turnForSlope(slope: number, eye = EYE) {
+  const footSlope = (turn: number) => {
+    const project = projector(turn, eye);
+    const [a, b] = [project([0, H]), project([W, H])];
+    return (b[1] - a[1]) / (b[0] - a[0]);
   };
-  const cast = flatPanes.map((pane) =>
-    pane.map((p) => shift(project(onFloor(p)))),
-  );
-  return flip ? cast.map(mirror) : cast;
+  let [lo, hi] = [0, 80];
+  for (let i = 0; i < 30; i++) {
+    const mid = (lo + hi) / 2;
+    if (footSlope(mid) < Math.abs(slope)) lo = mid;
+    else hi = mid;
+  }
+  return Math.sign(slope) * lo;
 }
 
-const mirror = (pts: Point[]) => pts.map(([x, y]): Point => [VIEW_W - x, y]);
-const mirroredPanes = panes.map(mirror);
-const sills = {
-  plain: { top: sillTop, front: sillFront, shadow: sillShadow },
-  mirrored: {
-    top: mirror(sillTop),
-    front: mirror(sillFront),
-    shadow: mirror(sillShadow),
-  },
-};
+const mirrorIn = (width: number) => (pts: Point[]) =>
+  pts.map(([x, y]): Point => [width - x, y]);
+
+function build(turn: number, eye: number) {
+  const project = projector(turn, eye);
+  const projected = flatPanes.map((pane) => pane.map(project));
+  const projectedSill = [
+    flatSill.top.map(project),
+    flatSill.front.map(project),
+  ];
+  const all = [...projected.flat(), ...projectedSill.flat()];
+  const minX = Math.min(...all.map(([x]) => x));
+  const minY = Math.min(...all.map(([, y]) => y));
+  const shift = ([x, y]: Point): Point => [x - minX, y - minY];
+  const viewW = Math.max(...all.map(([x]) => x)) - minX;
+  const viewH = Math.max(...all.map(([, y]) => y)) - minY;
+  const mirror = mirrorIn(viewW);
+
+  // Where the wall meets the floor, drawn as a straight line out past both sides
+  // of any page (the wall's own far end would stop short where it recedes), then
+  // down past the foot of any page.
+  const [wallA, wallB] = [project([0, FLOOR]), project([W, FLOOR])].map(shift);
+  const floorAt = (x: number): Point => [
+    x,
+    wallA[1] + ((x - wallA[0]) * (wallB[1] - wallA[1])) / (wallB[0] - wallA[0]),
+  ];
+  const floor: Point[] = [
+    floorAt(wallA[0] - FLOOR_SPAN),
+    floorAt(wallB[0] + FLOOR_SPAN),
+    [wallB[0] + FLOOR_SPAN, 4000],
+    [wallA[0] - FLOOR_SPAN, 4000],
+  ];
+
+  const plain = {
+    panes: projected.map((pane) => pane.map(shift)),
+    sillTop: projectedSill[0].map(shift),
+    sillFront: projectedSill[1].map(shift),
+    sillShadow: flatSillShadow.map((p) => shift(project(p))),
+    floor,
+  };
+  const mirrored = {
+    panes: plain.panes.map(mirror),
+    sillTop: mirror(plain.sillTop),
+    sillFront: mirror(plain.sillFront),
+    sillShadow: mirror(plain.sillShadow),
+    floor: mirror(floor),
+  };
+
+  /** The panes of light on the floor, from light at the given altitude and azimuth. */
+  function lightOnFloor(light: HouseShadow, flip: boolean) {
+    const altitude = Math.min(
+      LIGHT_ALTITUDE.max,
+      Math.max(LIGHT_ALTITUDE.min, light.altitude),
+    );
+    const side = Math.max(
+      -MAX_SIDEWAYS,
+      Math.min(MAX_SIDEWAYS, -Math.sin(rad(light.azimuth))),
+    );
+    const inward = Math.max(MIN_INWARD, Math.abs(Math.cos(rad(light.azimuth))));
+    const flat = Math.hypot(side, inward);
+    const fall = Math.tan(rad(altitude));
+    const onFloor = ([x, y]: Point): Point3 => {
+      const t = (LIGHT_REACH * (FLOOR - y)) / fall;
+      return [x + (t * side) / flat, FLOOR, (t * inward) / flat];
+    };
+    const cast = flatPanes.map((pane) =>
+      pane.map((p) => shift(project(onFloor(p)))),
+    );
+    return flip ? cast.map(mirror) : cast;
+  }
+
+  return { viewW, viewH, plain, mirrored, lightOnFloor };
+}
+
+// One geometry per turn, kept so every render of a window hands the same
+// arrays to its effects.
+const built = new Map<string, ReturnType<typeof build>>();
+function geometryFor(turn: number, eye: number) {
+  const t = Math.round(turn * 4) / 4;
+  const key = `${t} ${eye}`;
+  let g = built.get(key);
+  if (!g) {
+    g = build(t, eye);
+    built.set(key, g);
+  }
+  return g;
+}
 
 const points = (pts: Point[]) =>
   pts.map(([x, y]) => `${x.toFixed(2)},${y.toFixed(2)}`).join(" ");
@@ -153,21 +206,28 @@ export function Window({
   className = "",
   floorLight = false,
   flip = false,
+  turn = TURN,
+  eye = EYE,
 }: {
   className?: string;
   /** Mirrored: the left side toward the viewer. */
   flip?: boolean;
   /** A darker floor below the window, with the window's light falling on it. */
   floorLight?: boolean;
+  /** How far the wall is turned, in degrees: 0 faces the viewer. */
+  turn?: number;
+  /** The viewer's eye height, as a share of the window's height down from its top. */
+  eye?: number;
 }) {
   const box = useRef<HTMLDivElement>(null);
   const glass = useRef<HTMLCanvasElement>(null);
   const { watch } = useSky();
   const id = useId();
   const light = useLiveLight();
-  const shown = flip ? mirroredPanes : panes;
-  const floorShown = flip ? mirror(floorOutline) : floorOutline;
-  const sill = sills[flip ? "mirrored" : "plain"];
+  const g = geometryFor(turn, eye);
+  const view = flip ? g.mirrored : g.plain;
+  const shown = view.panes;
+  const viewW = g.viewW;
 
   useEffect(() => {
     const el = box.current;
@@ -183,7 +243,7 @@ export function Window({
         ctx.canvas.width = w;
         ctx.canvas.height = h;
       }
-      const k = w / VIEW_W;
+      const k = w / viewW;
       ctx.clearRect(0, 0, w, h);
       ctx.save();
       ctx.beginPath();
@@ -200,23 +260,23 @@ export function Window({
       ctx.drawImage(sky, r.left * dpr, r.top * dpr, w, h, 0, 0, w, h);
       ctx.restore();
     });
-  }, [watch, shown]);
+  }, [watch, shown, viewW]);
 
   return (
     <div
       ref={box}
       aria-hidden="true"
-      style={{ aspectRatio: `${VIEW_W} / ${VIEW_H}` }}
+      style={{ aspectRatio: `${g.viewW} / ${g.viewH}` }}
       className={`relative ${className}`}
     >
       {floorLight && (
         // Behind the page's text: the page needs `isolate` so this stays above its background.
         <svg
           aria-hidden="true"
-          viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
+          viewBox={`0 0 ${g.viewW} ${g.viewH}`}
           className="pointer-events-none absolute inset-0 -z-10 h-full w-full overflow-visible"
         >
-          <polygon points={points(floorShown)} className="fill-floor" />
+          <polygon points={points(view.floor)} className="fill-floor" />
           {light && (
             <g
               className="fill-page"
@@ -225,7 +285,7 @@ export function Window({
                 filter: `blur(${light.blur / 2}em)`,
               }}
             >
-              {lightOnFloor(light, flip).map((pane) => (
+              {g.lightOnFloor(light, flip).map((pane) => (
                 <polygon key={points(pane)} points={points(pane)} />
               ))}
             </g>
@@ -235,7 +295,7 @@ export function Window({
       <canvas ref={glass} className="absolute inset-0 h-full w-full" />
       <svg
         aria-hidden="true"
-        viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
+        viewBox={`0 0 ${g.viewW} ${g.viewH}`}
         className="absolute inset-0 h-full w-full overflow-visible"
       >
         <defs>
@@ -265,12 +325,12 @@ export function Window({
           />
         ))}
         <polygon
-          points={points(sill.shadow)}
+          points={points(view.sillShadow)}
           filter={`url(#${id}-soft)`}
           className="fill-bevel"
         />
-        <polygon points={points(sill.top)} className="fill-sill" />
-        <polygon points={points(sill.front)} className="fill-sill-edge" />
+        <polygon points={points(view.sillTop)} className="fill-sill" />
+        <polygon points={points(view.sillFront)} className="fill-sill-edge" />
       </svg>
     </div>
   );

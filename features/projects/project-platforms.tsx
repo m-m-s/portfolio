@@ -2,14 +2,26 @@
 
 import { useLayoutEffect, useRef, useState } from "react";
 import { DoorLink } from "@/components/door-link";
+import { turnForSlope, Window } from "@/components/window";
 import type { Project } from "@/content/projects";
-import { type Point, staircase } from "./platforms";
+import { type Point, sideSlope, staircase } from "./platforms";
+
+/** The viewer looks down on the step tops, so their eye is level with the window's top. */
+const WINDOW_EYE = 0;
+/** Past this the window would turn to a sliver (on a phone the steps' sides recede very steeply). */
+const MAX_WINDOW_TURN = 45;
 
 const points = (pts: Point[]) =>
   pts.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(" ");
 
-/** The projects on platforms, oldest lowest. Fills its parent, which must be positioned. */
-export function ProjectPlatforms({ projects }: { projects: Project[] }) {
+/** The projects on platforms, oldest lowest, and a window in the wall behind them. Fills its parent, which must be positioned. */
+export function ProjectPlatforms({
+  projects,
+  windowClassName,
+}: {
+  projects: Project[];
+  windowClassName: string;
+}) {
   const room = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState<{ width: number; height: number } | null>(
     null,
@@ -37,6 +49,18 @@ export function ProjectPlatforms({ projects }: { projects: Project[] }) {
       style={{ visibility: size ? "visible" : "hidden" }}
       className="absolute inset-0"
     >
+      {size && (
+        // In the plane of the steps' sides: its foot rises to the right like their edges.
+        <Window
+          flip
+          eye={WINDOW_EYE}
+          turn={Math.min(
+            MAX_WINDOW_TURN,
+            turnForSlope(sideSlope(size.width), WINDOW_EYE),
+          )}
+          className={windowClassName}
+        />
+      )}
       <svg
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 h-full w-full overflow-visible"

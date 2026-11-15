@@ -4,7 +4,7 @@ The projects sit on platforms at three heights, like pieces on display in a room
 
 ## Layout
 - Shell as usual: house logo top left, weather/clock line top right, footer bottom right.
-- The window from About (the shared `Window` component: live sky, view-only, light on the floor) sits top left, mirrored so its left side is toward the viewer (`<Window flip>`).
+- The window from About (the shared `Window` component: live sky, view-only) sits top left, in the plane of the steps' sides (the side wall): turned with its right side away (`flip`), its foot rising to the right at the same slope as the steps' side edges, so its turn follows the staircase's numbers at every width (about 20° on desktop, capped at 45° on a phone, where the sides recede steeply). The viewer's eye is level with the window's top (`eye={0}`), since the room is seen from above the step tops; that's what lets the foot slope that steeply. `turnForSlope` in `components/window.tsx` finds the turn.
 - The platforms take up the rest of the page.
 - The room's wall (the whole page, `wall` token) is a shade darker than the other pages, so the white step tops stand out against it, as in the frames.
 
