@@ -21,6 +21,12 @@
   --color-floor: #f0eeea;
   /* Gray boxes standing in for images that aren't added yet. */
   --color-placeholder: #e3e2df;
+  /* Projects' wall: a shade darker than the page, so the white step tops stand out against it. */
+  --color-wall: #f6f5f2;
+  /* The Projects platforms: lit top, front in light shade, side in deeper shade. */
+  --color-platform-top: #ffffff;
+  --color-platform-front: #ebeae6;
+  --color-platform-side: #dfded9;
 }
 
 :root {
@@ -67,6 +73,11 @@
 body {
   background: var(--color-page);
   color: var(--color-ink);
+}
+
+/* The whole page takes the room's wall color, so door slabs and halos match it. */
+body:has([data-wall]) {
+  --color-page: var(--color-wall);
 }
 
 /* A soft page-colored rim so small text and icons stay legible over clouds. */
