@@ -4,7 +4,7 @@ One continuous gallery, images only.
 
 ## Layout
 - Shell: house logo, weather/clock line, footer.
-- Rows of photos, every photo the same height within the page. Widths follow each photo's own shape (landscape, portrait, wide), so nothing gets cropped.
+- 3 to 4 rows of large photos with generous space between rows, every photo the same height within the page. Widths follow each photo's own shape (landscape, portrait, wide), so nothing gets cropped.
 - Rows come from a list in `content/`: each row is an ordered list of image files, shown in that order.
 - Photos show without labels or captions.
 - The page is light, like every other room.
@@ -12,8 +12,13 @@ One continuous gallery, images only.
 ## Placeholder photos
 - Build the whole gallery with blank rectangles first, so the motion and slideshow can be tested before the real photos are chosen.
 - Placeholder data goes in the same `content/` list the real photos will use, with each entry giving a width-to-height ratio in place of an image file. Mix common photo shapes: 3:2, 2:3, 4:3, 3:4, 16:9.
-- About 6 rows of 4 to 12 rectangles each, in a few light grays from the Tailwind theme.
+- 3 to 4 rows of 4 to 12 rectangles each, in a few light grays from the Tailwind theme.
 - Swapping in the real photos later changes only the content list.
+
+## Built so far
+- Static rows (`features/photography/gallery.tsx`, data in `content/photography.ts`): each row scrolls sideways natively (touch, trackpad) with its scrollbar hidden. Rows are 14rem tall on a phone, 20rem from 640px, and 28rem (at most 60% of the screen's height) from 1024px, with 2.5rem between rows on a phone and 5rem from 640px. Placeholder grays are the `photo-1` to `photo-3` theme tokens.
+- The slideshow opens in a native `<dialog>`, with arrows and a Close button, and stops at the row's ends. It fades between photos and opens with a plain fade.
+- Not yet: the slide-in, drift and drag motion below, the photo growing out of its spot and back, and loading far rows only when they come near.
 
 ## Motion
 - Rows slide in from alternating sides (left, right, left…) and keep drifting in that direction while slowing to a stop, as one continuous motion with no pause.
@@ -23,7 +28,7 @@ One continuous gallery, images only.
 
 ## Slideshow
 - Tapping a photo opens a modal over the gallery: a slideshow of that photo's row, starting at that photo. The photo grows out of its spot in the row into the modal.
-- Inside the modal: arrows, swiping, or arrow keys move through the row.
+- Inside the modal: arrows, swiping, or arrow keys move through the row. No counter or numbers: just the photo, the arrows and Close.
 - The modal closes with a close button, Esc, or a click outside the photo. Closing shrinks the photo back into its spot in the row.
 
 ## Performance

@@ -27,6 +27,10 @@
   --color-platform-top: #ffffff;
   --color-platform-front: #ebeae6;
   --color-platform-side: #dfded9;
+  /* Photography's placeholder photos, until the real ones are in. */
+  --color-photo-1: #e6e5e1;
+  --color-photo-2: #dcdbd6;
+  --color-photo-3: #eeede9;
 }
 
 :root {
