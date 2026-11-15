@@ -1,5 +1,5 @@
-import { ProjectStub } from "@/components/project-stub";
+import { ProjectPage } from "@/features/project-page/project-page";
 
 export default function Page() {
-  return <ProjectStub href="/projects/this-site" />;
+  return <ProjectPage href="/projects/this-site" />;
 }

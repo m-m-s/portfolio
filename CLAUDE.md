@@ -33,6 +33,7 @@ features/transitions/ page transitions: direction by page depth, back/forward ha
 features/sky/        the dithered weather sky, self-contained
 features/sky/config/ tuned cloud settings, one JSON file per weather
 features/projects/   the projects platform
+features/project-page/ the project page template: content blocks and the slideshow
 content/             all site copy (MDX or TS), separate from components
 public/sky/clouds/   31 grayscale cloud cutouts (middle and front layers)
 public/sky/strips/   11 distant cloud strips (far layer)

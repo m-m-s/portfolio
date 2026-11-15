@@ -19,6 +19,8 @@
   --color-sill-edge: #e2e0db;
   /* About's floor: always a shade darker than the wall, so window light shows on it. */
   --color-floor: #f0eeea;
+  /* Gray boxes standing in for images that aren't added yet. */
+  --color-placeholder: #e3e2df;
 }
 
 :root {
@@ -374,6 +376,17 @@ html:not([data-nav]) .walk-up {
   animation: camera-from-far var(--walk-up) var(--settle-ease) both;
 }
 
+/* A project slideshow's new text and image. */
+.slide-in {
+  animation: slide-in 400ms var(--settle-ease) both;
+}
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(var(--slide-from, 0.75rem));
+  }
+}
+
 @keyframes fade-in {
   from {
     opacity: 0;
@@ -391,6 +404,9 @@ html:not([data-nav]) .walk-up {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .slide-in {
+    animation-name: fade-in;
+  }
   .door-panel {
     transition-property: opacity;
   }
