@@ -127,11 +127,13 @@ export function useLiveLight() {
   return light;
 }
 
-export function House({ shadow: fixed }: { shadow?: HouseShadow | null }) {
+export function LiveHouse() {
+  return <House shadow={useLiveLight()} />;
+}
+
+export function House({ shadow }: { shadow: HouseShadow | null }) {
   const heading = useRef<HTMLHeadingElement>(null);
   const [points, setPoints] = useState("");
-  const live = useLiveLight();
-  const shadow = fixed === undefined ? live : fixed;
 
   useLayoutEffect(() => {
     const h = heading.current;

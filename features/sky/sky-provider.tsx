@@ -14,14 +14,11 @@ import type { Sky } from "@/features/weather/sky";
 import { randomSeed, SkyEngine } from "./engine";
 
 type Draw = (sky: HTMLCanvasElement) => void;
-type LabOverride = { weather: Sky; seed: number; scale: number | null };
 
 type SkyContextValue = {
   /** Calls draw with the sky's canvas after every frame. Returns an unsubscribe. */
   watch: (draw: Draw) => () => void;
-  /** The weather the sky is showing (the lab's choice while in /lab). */
   weather: Sky;
-  setLabOverride: (override: LabOverride | null) => void;
 };
 
 const SkyContext = createContext<SkyContextValue | null>(null);
@@ -31,8 +28,6 @@ export function useSky() {
   if (!sky) throw new Error("useSky needs a SkyProvider");
   return sky;
 }
-
-const FULL_SKY = new Set(["/", "/lab"]);
 
 export function SkyProvider({
   weather,
@@ -46,9 +41,8 @@ export function SkyProvider({
   const watchers = useRef(new Set<Draw>());
   const [watching, setWatching] = useState(0);
   const [ready, setReady] = useState(false);
-  const [override, setLabOverride] = useState<LabOverride | null>(null);
-  const [visitSeed, setVisitSeed] = useState<number | null>(null);
-  const full = FULL_SKY.has(usePathname());
+  const [seed, setSeed] = useState<number | null>(null);
+  const full = usePathname() === "/";
 
   useEffect(() => {
     const c = canvas.current;
@@ -59,16 +53,14 @@ export function SkyProvider({
       for (const draw of watchers.current) draw(c);
     };
     engine.current = e;
-    setVisitSeed(randomSeed());
+    setSeed(randomSeed());
     return () => {
       e.destroy();
       engine.current = null;
     };
   }, []);
 
-  const sky = override?.weather ?? weather;
-  const seed = override?.seed ?? visitSeed;
-  const scale = override?.scale ?? (full ? null : "window");
+  const scale = full ? null : "window";
 
   // Before show, so the first build already uses it.
   useEffect(() => {
@@ -76,8 +68,8 @@ export function SkyProvider({
   }, [scale]);
 
   useEffect(() => {
-    if (seed !== null) engine.current?.show(sky, seed);
-  }, [sky, seed]);
+    if (seed !== null) engine.current?.show(weather, seed);
+  }, [weather, seed]);
 
   useEffect(() => {
     engine.current?.setInteractive(full);
@@ -93,10 +85,7 @@ export function SkyProvider({
     };
   }, []);
 
-  const value = useMemo(
-    () => ({ watch, weather: sky, setLabOverride }),
-    [watch, sky],
-  );
+  const value = useMemo(() => ({ watch, weather }), [watch, weather]);
 
   return (
     <SkyContext value={value}>

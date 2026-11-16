@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   castShadow,
   House,
@@ -14,8 +14,7 @@ import {
   nycTimeToday,
   sunPosition,
 } from "@/features/weather/sun-and-moon";
-import { randomSeed } from "./engine";
-import { useSky } from "./sky-provider";
+import { randomSeed, SkyEngine } from "./engine";
 
 const SCALES = [1, 0.8, 0.65, 0.5];
 
@@ -29,7 +28,8 @@ export function SkyLab() {
   const [weather, setWeather] = useState<SkyId>("cloudy");
   const [seed, setSeed] = useState<number | null>(null);
   const [scale, setScale] = useState<number | null>(null);
-  const { setLabOverride } = useSky();
+  const canvas = useRef<HTMLCanvasElement>(null);
+  const engine = useRef<SkyEngine | null>(null);
   // Set once mounted: reading the clock during the server render isn't allowed.
   const [minutes, setMinutes] = useState<number | null>(null);
   const [on, setOn] = useState(true);
@@ -52,13 +52,35 @@ export function SkyLab() {
   }, []);
 
   useEffect(() => {
-    if (seed !== null) setLabOverride({ weather, seed, scale });
-  }, [weather, seed, scale, setLabOverride]);
+    const c = canvas.current;
+    if (!c) return;
+    const e = new SkyEngine(c);
+    e.setInteractive(true);
+    e.setActive(true);
+    engine.current = e;
+    return () => {
+      e.destroy();
+      engine.current = null;
+    };
+  }, []);
 
-  useEffect(() => () => setLabOverride(null), [setLabOverride]);
+  // Before show, so the first build already uses it.
+  useEffect(() => {
+    engine.current?.setCloudScale(scale);
+  }, [scale]);
+
+  useEffect(() => {
+    if (seed !== null) engine.current?.show(weather, seed);
+  }, [weather, seed]);
 
   return (
     <>
+      <div
+        aria-hidden="true"
+        className="pointer-events-none fixed inset-0 -z-10"
+      >
+        <canvas ref={canvas} className="block h-full w-full" />
+      </div>
       <main className="pointer-events-none absolute inset-x-0 top-0 grid h-dvh grid-cols-[382fr_auto_618fr] grid-rows-[var(--house-above)_auto_var(--house-below)] px-4 sm:px-8">
         <div className="pointer-events-auto col-start-2 row-start-2">
           <House
