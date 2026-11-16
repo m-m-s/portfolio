@@ -1,5 +1,8 @@
 const ROOM_SELECTOR = "[data-room]";
 
+/** Marks a navigation as a walk between rooms: only these play the room transition. */
+export const ROOM_WALK = "room-walk";
+
 function depth(pathname: string) {
   return pathname.split("/").filter(Boolean).length;
 }

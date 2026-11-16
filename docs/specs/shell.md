@@ -79,6 +79,7 @@ The camera walks up to, into and out of rooms. Built with the View Transitions A
 - **Back/forward** start at the top of the page instead of restoring the scroll position (the price of animating them). A phone's swipe-back gesture keeps the browser's own animation instead.
 - The weather/clock line and footer stay still while the rest of the page moves.
 - **The sky** stays still too, and only fades: from the whole sky on Home to just the window in a room, in step with the rooms' crossfade (see sky.md).
+- **Only walks between rooms animate:** site links and the back and forward buttons mark their navigation as a walk (`ROOM_WALK` in `features/transitions/direction.ts`), and only those play the room transition. React can start a page transition on its own (when the page first loads, and when the weather refreshes), and those show no animation, so nothing ever covers the walk-up.
 - Timings are CSS variables in `app/globals.css` (`--door-swing`, `--camera`, `--walk-up`, `--door-nudge`).
 - **Reduced motion:** a simple fade.
 

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useLayoutEffect, useRef } from "react";
-import { prepareNavigation } from "@/features/transitions/direction";
+import { prepareNavigation, ROOM_WALK } from "@/features/transitions/direction";
 
 type DoorLinkProps = {
   href: string;
@@ -36,6 +36,7 @@ export function DoorLink({
   return (
     <Link
       href={href}
+      transitionTypes={[ROOM_WALK]}
       className={`door ${className}`}
       onNavigate={() => {
         const el = door.current;

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useRef } from "react";
-import { prepareNavigation } from "@/features/transitions/direction";
+import { prepareNavigation, ROOM_WALK } from "@/features/transitions/direction";
 
 /** An inline link to another room: no door swing, but the camera still walks toward it. */
 export function RoomLink({
@@ -19,6 +19,7 @@ export function RoomLink({
     <Link
       ref={link}
       href={href}
+      transitionTypes={[ROOM_WALK]}
       onNavigate={() => {
         const box = link.current?.getBoundingClientRect();
         prepareNavigation(

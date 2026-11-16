@@ -2,7 +2,7 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, ViewTransition } from "react";
-import { prepareNavigation } from "./direction";
+import { prepareNavigation, ROOM_WALK } from "./direction";
 
 export function RoomTransition({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -26,7 +26,7 @@ export function RoomTransition({ children }: { children: React.ReactNode }) {
       event.stopImmediatePropagation();
       prepareNavigation(current.current, to);
       const url = to + window.location.search + window.location.hash;
-      setTimeout(() => router.replace(url));
+      setTimeout(() => router.replace(url, { transitionTypes: [ROOM_WALK] }));
     };
     window.addEventListener("popstate", onPopState, { capture: true });
     return () =>
@@ -34,7 +34,10 @@ export function RoomTransition({ children }: { children: React.ReactNode }) {
   }, [router]);
 
   return (
-    <ViewTransition name="room">
+    <ViewTransition
+      name="room"
+      default={{ [ROOM_WALK]: "auto", default: "none" }}
+    >
       <div data-room className="flex flex-1 flex-col">
         {children}
       </div>
