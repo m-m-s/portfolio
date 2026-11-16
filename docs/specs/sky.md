@@ -58,7 +58,7 @@ The mock page also contains editing controls (cloud picker, sliders, saving to a
 ## Performance
 - One animation loop (`requestAnimationFrame`), paused when the tab is hidden or nothing on the page shows the sky.
 - Dither once per cloud and size, then reuse.
-- **Loading:** the first visit's sky builds behind the homepage walk-up, then fades in (`--sky-fade`). It builds one cloud at a time and hands control back to the page between clouds, so the clock and doors keep responding on a slow phone. With the CPU slowed 4×, the sky is ready about 4.4s after the page starts loading, and the page is never blocked for more than about 0.4s at a time.
+- **Loading:** the first visit's sky builds behind the homepage walk-up, then fades in (`--sky-fade`). The weather/clock line, the footer, the house shadow and the window light fade in with it (the `with-sky` class, switched on by `data-sky-ready` on the page), so everything live arrives together. It builds one cloud at a time and hands control back to the page between clouds, so the clock and doors keep responding on a slow phone. With the CPU slowed 4×, the sky is ready about 4.4s after the page starts loading, and the page is never blocked for more than about 0.4s at a time.
 - Check it stays smooth on a mid-range phone in `/lab`.
 
 ## Reduced motion

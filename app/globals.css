@@ -386,6 +386,15 @@ html[data-nav="out"]::view-transition-new(room) {
   }
 }
 
+/* The sky's first build sets data-sky-ready; everything live arrives with the clouds. */
+.with-sky {
+  opacity: 0;
+  transition: opacity var(--sky-fade) cubic-bezier(0.4, 0, 0.2, 1);
+}
+html[data-sky-ready] .with-sky {
+  opacity: 1;
+}
+
 /* No data-nav yet means a fresh page load, not an in-site navigation. */
 html:not([data-nav]) .walk-up {
   animation: camera-from-far var(--walk-up) var(--settle-ease) both;

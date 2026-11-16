@@ -40,7 +40,6 @@ export function SkyProvider({
   const engine = useRef<SkyEngine | null>(null);
   const watchers = useRef(new Set<Draw>());
   const [watching, setWatching] = useState(0);
-  const [ready, setReady] = useState(false);
   const [seed, setSeed] = useState<number | null>(null);
   const full = usePathname() === "/";
 
@@ -48,7 +47,9 @@ export function SkyProvider({
     const c = canvas.current;
     if (!c) return;
     const e = new SkyEngine(c);
-    e.onReady = () => setReady(true);
+    e.onReady = () => {
+      document.documentElement.dataset.skyReady = "";
+    };
     e.onFrame = () => {
       for (const draw of watchers.current) draw(c);
     };
@@ -94,10 +95,7 @@ export function SkyProvider({
         style={{ viewTransitionName: "sky" }}
         className={`pointer-events-none fixed inset-0 -z-10 ${full ? "" : "invisible"}`}
       >
-        <canvas
-          ref={canvas}
-          className={`block h-full w-full transition-opacity duration-(--sky-fade) ${ready ? "opacity-100" : "opacity-0"}`}
-        />
+        <canvas ref={canvas} className="with-sky block h-full w-full" />
       </div>
       {children}
     </SkyContext>

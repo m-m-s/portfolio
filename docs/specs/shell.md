@@ -17,7 +17,7 @@ Example: `[sun icon] Sunny 58°    06:10:37 PM ET`
 
 **Time**
 - New York time, 12-hour with seconds, leading zero on the hour, followed by `ET` (`06:10:37 PM ET`).
-- Computed in the browser with `Intl` and the `America/New_York` time zone, ticking every second.
+- Computed in the browser with `Intl` and the `America/New_York` time zone, ticking every second. On page load the whole line and the footer fade in with the sky (see sky.md).
 - The clock renders in the browser only, so the server's time never flashes on screen. Reserve its width on first render so the line doesn't shift when it appears.
 
 **Weather data**

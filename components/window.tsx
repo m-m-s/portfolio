@@ -279,9 +279,9 @@ export function Window({
           <polygon points={points(view.floor)} className="fill-floor" />
           {light && (
             <g
-              className="fill-page"
+              className="with-sky fill-page"
               style={{
-                opacity: Math.min(1, light.opacity * LIGHT_STRENGTH),
+                fillOpacity: Math.min(1, light.opacity * LIGHT_STRENGTH),
                 filter: `blur(${light.blur / 2}em)`,
               }}
             >

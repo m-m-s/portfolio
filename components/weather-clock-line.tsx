@@ -10,7 +10,7 @@ export async function WeatherClockLine() {
   return (
     <div
       style={{ viewTransitionName: "weather-line" }}
-      className="halo flex flex-col items-end gap-x-8 gap-y-1 font-grotesk text-sm sm:flex-row sm:items-center"
+      className="with-sky halo flex flex-col items-end gap-x-8 gap-y-1 font-grotesk text-sm sm:flex-row sm:items-center"
     >
       <p className="flex items-center gap-2">
         <WeatherIcon sky={sky} />

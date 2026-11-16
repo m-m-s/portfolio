@@ -178,9 +178,9 @@ export function House({ shadow }: { shadow: HouseShadow | null }) {
         {shadow && points && (
           <polygon
             points={points}
-            className="fill-house-shadow"
+            className="with-sky fill-house-shadow"
             style={{
-              opacity: shadow.opacity,
+              fillOpacity: shadow.opacity,
               filter: `blur(${shadow.blur}em)`,
               transformBox: "fill-box",
               transformOrigin: "bottom",

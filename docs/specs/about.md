@@ -41,7 +41,7 @@ A room with a window. Reference: docs/design/about.png.
 - The room has a floor a shade darker than the wall (`floor` theme token), so there's always contrast and the window's light can show on it in the page's white.
 - The room is worked out in 3D with the same camera as the window (`components/window.tsx`): the window sits in a wall turned 32° (`TURN`), and the floor is level about two-thirds of a window-height below the window (`FLOOR`). The floor's edge is where that wall meets it, so it slopes with the wall's turn.
 - The light is the window's four panes projected along the light onto the floor, then drawn in perspective, in the page color.
-- It follows the same light as the homepage shadow (`useLiveLight` in `components/house.tsx`): the sun by day and the moon by night, bright in sun, faint under clouds and at night (`LIGHT_STRENGTH`), always there. Morning light throws it left, afternoon right.
+- It follows the same light as the homepage shadow (`useLiveLight` in `components/house.tsx`): the sun by day and the moon by night, bright in sun, faint under clouds and at night (`LIGHT_STRENGTH`), always there. On page load it fades in with the sky. Morning light throws it left, afternoon right.
 - Stylized to stay in the room: the light's height is held between 35° and 70° (`LIGHT_ALTITUDE`), it always comes in through the window and at most so far sideways (`MIN_INWARD`, `MAX_SIDEWAYS`), and its travel across the floor is shortened (`LIGHT_REACH`).
 - On About only (`<Window floorLight>`), at every width.
 
