@@ -37,18 +37,18 @@ const MAX_LEAN = 40;
 
 /** Clouds soften the light: a fainter, blurrier shadow. Multiplies the tuning's strength and blur. */
 const WEATHER_LIGHT: Record<Sky, { strength: number; blur: number }> = {
-  sunny: { strength: 1.3, blur: 0.5 },
-  "partly-cloudy": { strength: 1, blur: 0.8 },
+  sunny: { strength: 1, blur: 0.5 },
+  "partly-cloudy": { strength: 0.8, blur: 0.8 },
   cloudy: { strength: 0.6, blur: 2 },
   rainy: { strength: 0.5, blur: 2.5 },
   snowy: { strength: 0.55, blur: 2 },
 };
 
 export const SHADOW_TUNING: ShadowTuning = {
-  length: 0.4,
+  length: 0.23,
   depth: 1,
-  strength: 0.6,
-  moonlight: 0.8,
+  strength: 0.5,
+  moonlight: 0.6,
   blur: 0.15,
 };
 
@@ -127,7 +127,6 @@ export function useLiveLight() {
   return light;
 }
 
-/** Without a shadow prop, the house casts the live NYC shadow. */
 export function House({ shadow: fixed }: { shadow?: HouseShadow | null }) {
   const heading = useRef<HTMLHeadingElement>(null);
   const [points, setPoints] = useState("");
