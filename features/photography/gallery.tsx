@@ -3,10 +3,13 @@
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Photo } from "@/content/photography";
+import { useRowMotion } from "./row-motion";
 
 const GRAYS = ["bg-photo-1", "bg-photo-2", "bg-photo-3"];
 /** A swipe shorter than this, in pixels, isn't a swipe. */
 const SWIPE = 40;
+/** A trackpad swipe ends when its scroll events pause this long, in ms. */
+const WHEEL_REST = 150;
 
 function PhotoFill({
   photo,
@@ -43,6 +46,9 @@ export function Gallery({ rows }: { rows: Photo[][] }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const [open, setOpen] = useState<Open | null>(null);
   const swipeFrom = useRef<number | null>(null);
+  const wheel = useRef({ sum: 0, done: false, timer: 0 });
+  const rowsBox = useRef<HTMLDivElement>(null);
+  useRowMotion(rowsBox);
 
   const shade = (row: number, photo: number) =>
     GRAYS[(row + photo) % GRAYS.length];
@@ -68,30 +74,36 @@ export function Gallery({ rows }: { rows: Photo[][] }) {
 
   return (
     <>
-      <div className="space-y-10 sm:space-y-20">
+      <div ref={rowsBox} className="space-y-10 sm:space-y-20">
         {rows.map((row, r) => (
           <div
             // biome-ignore lint/suspicious/noArrayIndexKey: rows are fixed content, never reordered.
             key={r}
-            className="flex gap-3 overflow-x-auto px-4 [scrollbar-width:none] sm:gap-4 sm:px-8"
+            className="row-in"
+            style={{ "--row-from": r % 2 ? 1 : -1 } as React.CSSProperties}
           >
-            {row.map((photo, p) => (
-              <button
-                key={photo.src ?? photo.alt}
-                type="button"
-                aria-label={`Open ${photo.alt}`}
-                onClick={() => setOpen({ row: r, photo: p })}
-                style={{ aspectRatio: photo.ratio }}
-                className="relative h-56 flex-none cursor-zoom-in overflow-hidden sm:h-80 lg:h-[min(28rem,60vh)]"
-              >
-                <PhotoFill
-                  photo={photo}
-                  shade={shade(r, p)}
-                  sizes="(min-width: 1024px) 50rem, (min-width: 640px) 36rem, 25rem"
-                  priority={r < 2}
-                />
-              </button>
-            ))}
+            <div
+              data-row={r % 2 ? -1 : 1}
+              className="flex gap-3 overflow-x-auto px-4 select-none [scrollbar-width:none] sm:gap-4 sm:px-8"
+            >
+              {row.map((photo, p) => (
+                <button
+                  key={photo.src ?? photo.alt}
+                  type="button"
+                  aria-label={`Open ${photo.alt}`}
+                  onClick={() => setOpen({ row: r, photo: p })}
+                  style={{ aspectRatio: photo.ratio }}
+                  className="relative h-56 flex-none cursor-zoom-in overflow-hidden sm:h-80 lg:h-[min(28rem,60vh)]"
+                >
+                  <PhotoFill
+                    photo={photo}
+                    shade={shade(r, p)}
+                    sizes="(min-width: 1024px) 50rem, (min-width: 640px) 36rem, 25rem"
+                    priority={r < 2}
+                  />
+                </button>
+              ))}
+            </div>
           </div>
         ))}
       </div>
@@ -106,6 +118,21 @@ export function Gallery({ rows }: { rows: Photo[][] }) {
         onKeyDown={(e) => {
           if (e.key === "ArrowLeft") step(-1);
           if (e.key === "ArrowRight") step(1);
+        }}
+        onWheel={(e) => {
+          if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+          const w = wheel.current;
+          clearTimeout(w.timer);
+          w.timer = window.setTimeout(() => {
+            w.sum = 0;
+            w.done = false;
+          }, WHEEL_REST);
+          if (w.done) return;
+          w.sum += e.deltaX;
+          if (Math.abs(w.sum) > SWIPE) {
+            step(w.sum > 0 ? 1 : -1);
+            w.done = true;
+          }
         }}
         onPointerDown={(e) => {
           swipeFrom.current = e.clientX;
@@ -134,31 +161,31 @@ export function Gallery({ rows }: { rows: Photo[][] }) {
                 sizes="90vw"
               />
             </div>
-            <div className="pointer-events-auto flex items-center gap-3 font-grotesk text-sm">
+            <div className="pointer-events-auto flex items-center gap-8 font-grotesk text-sm">
               <button
                 type="button"
                 aria-label="Previous photo"
                 disabled={open.photo === 0}
                 onClick={() => step(-1)}
-                className="cursor-pointer px-1 text-lg disabled:cursor-default disabled:opacity-25"
+                className="cursor-pointer px-1 disabled:cursor-default disabled:opacity-25"
               >
                 ←
+              </button>
+              <button
+                type="button"
+                onClick={close}
+                className="cursor-pointer text-xs hover:underline"
+              >
+                Close
               </button>
               <button
                 type="button"
                 aria-label="Next photo"
                 disabled={open.photo === rows[open.row].length - 1}
                 onClick={() => step(1)}
-                className="cursor-pointer px-1 text-lg disabled:cursor-default disabled:opacity-25"
+                className="cursor-pointer px-1 disabled:cursor-default disabled:opacity-25"
               >
                 →
-              </button>
-              <button
-                type="button"
-                onClick={close}
-                className="ml-6 cursor-pointer hover:underline"
-              >
-                Close
               </button>
             </div>
           </div>

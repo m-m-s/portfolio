@@ -50,6 +50,10 @@
   --door-nudge: 5000ms;
   --walk-up: 1600ms;
   --sky-fade: 1200ms;
+  /* Gallery rows slide in from alternating sides, from this far off. */
+  --row-slide: 1600ms;
+  --row-ease: cubic-bezier(0.33, 1, 0.68, 1);
+  --row-slide-distance: 40vw;
   /* Room between the intro's text and the house's edges, in em. */
   --house-pad: 0.35;
   --house-pad-x: 0.5;
@@ -400,6 +404,20 @@ html:not([data-nav]) .walk-up {
   animation: camera-from-far var(--walk-up) var(--settle-ease) both;
 }
 
+/* --row-from is -1 for a row coming from the left, 1 from the right. */
+.row-in {
+  animation: row-in var(--row-slide) var(--row-ease) both;
+}
+/* Arriving through a room transition, the gallery is still hidden until the crossfade. */
+html[data-nav] .row-in {
+  animation-delay: var(--settle-delay);
+}
+@keyframes row-in {
+  from {
+    transform: translateX(calc(var(--row-from) * var(--row-slide-distance)));
+  }
+}
+
 /* A project slideshow's new text and image. */
 .slide-in {
   animation: slide-in 400ms var(--settle-ease) both;
@@ -428,6 +446,9 @@ html:not([data-nav]) .walk-up {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .row-in {
+    animation: none;
+  }
   .slide-in {
     animation-name: fade-in;
   }

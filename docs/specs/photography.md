@@ -18,17 +18,19 @@ One continuous gallery, images only.
 ## Built so far
 - Static rows (`features/photography/gallery.tsx`, data in `content/photography.ts`): each row scrolls sideways natively (touch, trackpad) with its scrollbar hidden. Rows are 14rem tall on a phone, 20rem from 640px, and 28rem (at most 60% of the screen's height) from 1024px, with 2.5rem between rows on a phone and 5rem from 640px. Placeholder grays are the `photo-1` to `photo-3` theme tokens.
 - The slideshow opens in a native `<dialog>`, with arrows and a Close button, and stops at the row's ends. It fades between photos and opens with a plain fade.
-- Not yet: the slide-in, drift and drag motion below, the photo growing out of its spot and back, and loading far rows only when they come near.
+- Row motion (`features/photography/row-motion.ts`, slide-in in `app/globals.css`): see Motion. Tuning: `--row-slide` (1.6s), `--row-ease` and `--row-slide-distance` (40vw) in CSS; drift, edge and fling constants at the top of `row-motion.ts`.
+- Not yet: the photo growing out of its spot and back, and loading far rows only when they come near.
 
 ## Motion
-- Rows slide in from alternating sides (left, right, left…) and keep drifting in that direction while slowing to a stop, as one continuous motion with no pause.
-- While the visitor scrolls, each row drifts again in its own direction, then eases back to rest when scrolling stops.
-- Rows can be dragged sideways.
-- Reduced motion: rows appear in place, with no slide-in or drift.
+- Rows slide in from alternating sides (left, right, left…) and keep drifting in that direction while slowing to a stop, as one continuous motion with no pause. All rows arrive at the same time, with no stagger and no fade: the blank space a row leaves as it comes in is on purpose. Arriving through a room transition, the slide waits until the room is revealed (`--settle-delay`).
+- While the visitor scrolls, each row drifts again in its own direction, further the faster the scroll (up to 48px), then eases back to rest when scrolling stops.
+- With a mouse, hovering the left or right edge of the screen (12% of its width) over a row scrolls that row that way, faster nearer the edge. Not while the slideshow is open.
+- Rows scroll sideways natively with touch and trackpads. With a mouse they can be dragged sideways and keep gliding a little when let go; a drag never opens a photo.
+- Reduced motion: rows appear in place, with no slide-in or drift. Edge hover and dragging still work.
 
 ## Slideshow
 - Tapping a photo opens a modal over the gallery: a slideshow of that photo's row, starting at that photo. The photo grows out of its spot in the row into the modal.
-- Inside the modal: arrows, swiping, or arrow keys move through the row. No counter or numbers: just the photo, the arrows and Close.
+- Inside the modal: arrows, swiping (touch, mouse, or a sideways trackpad swipe, one photo per swipe), or arrow keys move through the row. No counter or numbers: just the photo, the arrows and Close.
 - The modal closes with a close button, Esc, or a click outside the photo. Closing shrinks the photo back into its spot in the row.
 
 ## Performance
