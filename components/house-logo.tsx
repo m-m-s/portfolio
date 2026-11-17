@@ -15,10 +15,6 @@ export function HouseLogo() {
         className="block h-5 w-auto overflow-visible"
         aria-hidden="true"
       >
-        <path
-          className="door-slab fill-page"
-          d="M-4 -4H22V3H41.4L50 19V38H-4Z"
-        />
         <path className="fill-ink" d="M0 0H18V7H39L46 20V34H0Z" />
       </svg>
     </DoorLink>

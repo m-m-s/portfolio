@@ -4,7 +4,11 @@ export type Point = [number, number];
 export type Platform = {
   top: Point[];
   front: Point[];
-  /** Middle of the top face: where the name sits. */
+  /** Its own part of the side wall, for when it rises out of line with the others. */
+  side: Point[];
+  /** Height of a front face between steps, in pixels: how far a step can rise. */
+  riser: number;
+  /** Bottom middle of the name and tagline: on the top, a little behind its front edge. */
   label: Point;
 };
 
@@ -27,7 +31,7 @@ type Shape = {
 /** Seen almost head on from the left: the steps climb up the page and off its right edge. */
 const PHONE: Shape = {
   cornerX: 1.1,
-  bottom: 0.15,
+  bottom: 0.03,
   frontWidth: 1.1,
   frontRise: 0,
   backWidth: 0.17,
@@ -38,7 +42,7 @@ const PHONE: Shape = {
 /** Seen from a corner, low: the steps climb from bottom left to top right, their sides one wall. */
 const DESKTOP: Shape = {
   cornerX: 0.382,
-  bottom: 0.06,
+  bottom: 0.03,
   frontWidth: 0.37,
   frontRise: 0.027,
   backWidth: 0.266,
@@ -53,11 +57,12 @@ const DESKTOP_WIDTH = 1280;
 /** How far the faces run below the room's foot, so they reach past the page's bottom. */
 const DEPTH = 2000;
 
+/** How far x is from `from` to `to`, from 0 to 1. */
+export const progress = (x: number, from: number, to: number) =>
+  Math.min(1, Math.max(0, (x - from) / (to - from)));
+
 function shapeFor(width: number): Shape {
-  const t = Math.min(
-    1,
-    Math.max(0, (width - PHONE_WIDTH) / (DESKTOP_WIDTH - PHONE_WIDTH)),
-  );
+  const t = progress(width, PHONE_WIDTH, DESKTOP_WIDTH);
   const mix = (key: keyof Shape) =>
     PHONE[key] + (DESKTOP[key] - PHONE[key]) * t;
   return Object.fromEntries(
@@ -71,9 +76,14 @@ export function sideSlope(width: number) {
   return s.backRise / s.backWidth;
 }
 
+/** From this room width the staircase shrinks so the empty step's near corner comes on screen; below it the step runs off the right edge. */
+const EXTRA_STEP_WIDTH = 1536;
+/** How far inside the room's right edge the empty step's near corner sits then, in the staircase's units. */
+const EXTRA_STEP_INSET = 0.1;
+
 /**
  * A staircase for a room of the given size, in pixels: one step per project,
- * lowest first, and the side wall they share.
+ * lowest first, then an empty step above them, and the side wall they all share.
  */
 export function staircase(
   count: number,
@@ -81,14 +91,39 @@ export function staircase(
   height: number,
 ): { steps: Platform[]; side: Point[] } {
   const s = shapeFor(width);
-  const w = (n: number) => n * width;
+  // The back corner of the highest project's top, above the room's foot, per unit of scale.
+  const rise =
+    s.bottom + (count - 1) * (s.backRise + s.step) + s.frontRise + s.backRise;
+  // Across the room, to the empty step's near corner (plus a little), per unit of scale.
+  const reach = s.cornerX + count * s.backWidth + EXTRA_STEP_INSET;
+  // The highest project's step stays in the lower 70% of the room; on desktop the
+  // steps take more of it (up to 80% at 1280px, back to 70% by 1920px).
+  const maxRise =
+    0.7 + 0.1 * progress(width, 1024, 1280) - 0.1 * progress(width, 1280, 1920);
+  // On the widest screens the staircase stops growing with the room (a quarter
+  // smaller by 2560px), so it doesn't look oversized there.
+  const unit =
+    Math.min(
+      width,
+      (maxRise * height) / rise,
+      width >= EXTRA_STEP_WIDTH ? width / reach : Number.POSITIVE_INFINITY,
+    ) *
+    (1 - 0.25 * progress(width, 1440, 2560));
+  const w = (n: number) => n * unit;
   const down = (p: Point): Point => [p[0], p[1] + DEPTH];
   const steps: Platform[] = [];
   const profile: Point[] = [];
   // Each step stands on the back edge of the one below, so the steps' sides
-  // always lie in one plane, whatever the numbers.
-  let corner: Point = [w(s.cornerX), height - w(s.bottom)];
-  for (let i = 0; i < count; i++) {
+  // always lie in one plane. Once shrunk, the staircase keeps to the right, and
+  // on the widest screens slides further right (up to 10% of the room by 2560px)
+  // so less of it shows and it doesn't look bulky.
+  let corner: Point = [
+    Math.max(0, width - unit * reach) +
+      w(s.cornerX) +
+      0.1 * width * progress(width, 1600, 2560),
+    height - w(s.bottom),
+  ];
+  while (steps.length <= count) {
     const left: Point = [
       corner[0] - w(s.frontWidth),
       corner[1] - w(s.frontRise),
@@ -98,14 +133,26 @@ export function staircase(
       corner[1] - w(s.backRise),
     ];
     const back: Point = [left[0] + w(s.backWidth), left[1] - w(s.backRise)];
+    // Centered across the part of the top that's on screen, on a line 30% of the way back.
+    const x = (Math.max(left[0], 0) + Math.min(right[0], width)) / 2;
+    const [dx, dy] = [0.3 * (back[0] - left[0]), 0.3 * (back[1] - left[1])];
+    const y =
+      left[1] +
+      dy +
+      ((x - left[0] - dx) * (corner[1] - left[1])) / (corner[0] - left[0]);
     steps.push({
       top: [corner, right, back, left],
       front: [left, corner, down(corner), down(left)],
-      // The part of the top face that's on screen: on a phone most of it is off the right edge.
-      label: [
-        (Math.max(left[0], 0) + Math.min(right[0], width)) / 2,
-        (left[1] + right[1]) / 2,
+      // 1px past its right edge, under the next step's side: meeting exactly, the
+      // antialiased edge lets the lighter face behind show through as a hairline.
+      side: [
+        corner,
+        [right[0] + 1, right[1]],
+        down([right[0] + 1, right[1]]),
+        down(corner),
       ],
+      riser: w(s.step),
+      label: [x, y],
     });
     profile.push(corner, right);
     corner = [right[0], right[1] - w(s.step)];

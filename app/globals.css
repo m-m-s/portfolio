@@ -4,29 +4,29 @@
   --font-sans: var(--font-switzer), ui-sans-serif, system-ui, sans-serif;
   --font-grotesk:
     var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
+  /* The window's sill: whatever wall it's on, lit by the window above it (inline, so a room that changes the page color changes it too). */
+  --color-sill: color-mix(in srgb, var(--color-page), #fff 40%);
 }
 
 @theme {
-  --color-page: #fefdfd;
+  --color-page: #fdfbf7;
   --color-ink: #171717;
   --color-house-shadow: #8a8984;
   /* Shrinks with the screen so "Product Engineer" never wraps and the house keeps its shape. */
   --text-intro: min(3rem, calc((100vw - 2rem) / 10.6));
-  /* The window: clear panes, the bezel's shading, the sill's top and front edge. */
-  --color-glass: #ffffff;
+  /* The window: clear panes (the homepage's sky color, so the sky looks the same through it) and the bezel's shading. */
+  --color-glass: #fdfbf7;
   --color-bevel: rgb(0 0 0 / 0.14);
-  --color-sill: #f3f2ef;
-  --color-sill-edge: #e2e0db;
   /* About's floor: always a shade darker than the wall, so window light shows on it. */
   --color-floor: #f0eeea;
   /* Gray boxes standing in for images that aren't added yet. */
   --color-placeholder: #e3e2df;
-  /* Projects' wall: a shade darker than the page, so the white step tops stand out against it. */
-  --color-wall: #f6f5f2;
+  /* Projects' wall: a touch darker than the page, so the white step tops show against it. */
+  --color-wall: #f9f7f2;
   /* The Projects platforms: lit top, front in light shade, side in deeper shade. */
   --color-platform-top: #ffffff;
-  --color-platform-front: #ebeae6;
-  --color-platform-side: #dfded9;
+  --color-platform-front: #e3e0d9;
+  --color-platform-side: #d4d1c9;
   /* Photography's placeholder photos, until the real ones are in. */
   --color-photo-1: #e6e5e1;
   --color-photo-2: #dcdbd6;
@@ -87,16 +87,15 @@ body {
   color: var(--color-ink);
 }
 
-/* The whole page takes the room's wall color, so door slabs and halos match it. */
-body:has([data-wall]) {
-  --color-page: var(--color-wall);
-}
-
 /* A soft page-colored rim so small text and icons stay legible over clouds. */
 @utility halo {
   filter: drop-shadow(0 0 1px var(--color-page))
     drop-shadow(0 0 2px var(--color-page))
     drop-shadow(0 0 3px var(--color-page));
+}
+/* The header's text is only over clouds where the full sky shows. */
+[data-sky="window"] ~ header .halo {
+  filter: none;
 }
 
 /* Door links */
@@ -239,27 +238,14 @@ body:has([data-wall]) {
   }
 }
 
-/* A house-shaped door (the logo): the slab is a house drawn behind it in the
-   page color, so the shadow follows it too. */
+/* A house-shaped door (the logo): no slab, just the house swinging over its
+   doorway, so nothing shows around it on any wall. */
 .door-house .door-panel,
 .door.door-house:hover .door-panel {
   /* A block, not inline: as a line of text it gets room for descenders, which
      would stretch the doorway below the house. */
   display: block;
   background: transparent;
-}
-.door-slab {
-  opacity: 0;
-  transition: opacity var(--door-hover) var(--door-ease);
-}
-.door-panel:not([data-door=""]) .door-slab {
-  opacity: 1;
-  transition: none;
-}
-@media (hover: hover) {
-  .door:hover .door-slab {
-    opacity: 1;
-  }
 }
 
 /* Page transitions: the camera walks into and out of rooms. */

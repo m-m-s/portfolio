@@ -1,16 +1,25 @@
-export type Project = { name: string; href: string; tech: string };
+export type Project = {
+  name: string;
+  href: string;
+  /** A few words on what the project is, under its name on Projects. */
+  tagline: string;
+};
 
-// Oldest first. Tech lines are placeholder copy from the Figma mock.
+// Oldest first.
 export const projects: Project[] = [
   {
     name: "Film Jousting",
     href: "/projects/film-jousting",
-    tech: "React Native - Typescript - REST",
+    tagline: "[COPY: Film Jousting tagline]",
   },
-  { name: "Overlook", href: "/projects/overlook", tech: "React - Typescript" },
+  {
+    name: "Overlook",
+    href: "/projects/overlook",
+    tagline: "[COPY: Overlook tagline]",
+  },
   {
     name: "This site",
     href: "/projects/this-site",
-    tech: "React - Typescript - Nextjs",
+    tagline: "[COPY: This site tagline]",
   },
 ];

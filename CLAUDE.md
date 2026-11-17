@@ -57,7 +57,7 @@ docs/design/         Figma exports and references
 - When a component needs text that doesn't exist yet, use an obvious placeholder (`[COPY: about intro]`) and flag it.
 
 ## Design rules
-- One light theme: a white/off-white page at all hours.
+- One light theme: a white/off-white page at all hours. The off-white is a starting point, not a rule: a room can depart from it where that looks better. So far Projects does, with a wall a touch darker than the page (see docs/specs/projects.md).
 - Type: Switzer is the standard typeface. Space Grotesk regular is used for the homepage's connecting words and for the weather/clock line and footer. Fonts load locally with `next/font/local`, from `app/fonts/fonts.ts`. Switzer's license (ITF FFL) allows self-hosting on this site but not sharing the font files publicly, so the Switzer files are git-ignored until hosting is decided. Space Grotesk is OFL and committed.
 - Figma frames are loose mocks showing layout and intent. Spacing and type sizes come from named tokens in the Tailwind theme, starting from Tailwind's defaults and tuned in the browser. Build hierarchy with type size and whitespace.
 - The weather/clock line sits at the top of every page, so every room feels like the same place.
@@ -66,7 +66,7 @@ docs/design/         Figma exports and references
 - Components use the theme tokens for colors, type sizes and spacing, so changing a token updates the whole site.
 
 ## Motion rules
-- Big room-to-room links swing open like doors, outward toward the viewer. Only the text swings. The swing is smooth, not floppy, and hover swings the word slightly ajar.
+- Big room-to-room links swing open like doors, outward toward the viewer. Only the text swings. The swing is smooth, not floppy, and hover swings the word slightly ajar. The exception is the project names on Projects: their platforms rise instead (see docs/specs/projects.md).
 - Page transitions feel like a camera walking up to, into and out of rooms. Use the View Transitions API.
 - `prefers-reduced-motion`: page transitions and door swings become a simple fade. The sky keeps moving as normal.
 - Animations pause when the tab is hidden.

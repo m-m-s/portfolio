@@ -21,8 +21,8 @@ const DISTANCE = 300;
 const EYE = 0.8;
 const FRAME = 2.5;
 const MULLION = 3;
-/** A plain ledge under the window: barely wider than it, sticking out into the room, with a thin front edge. */
-const SILL = { overhang: 2, depth: 6, thickness: 2.5, shadow: 3 };
+/** A plain ledge right under the glass, exactly as wide as it (all of it in the window's light), sticking out into the room, with a soft shadow below. */
+const SILL = { depth: 6, shadow: 3 };
 const FLOOR = 1.7 * H;
 /** How far the floor reaches each way past the window, in its own units: past the edge of any page. */
 const FLOOR_SPAN = 1000;
@@ -58,38 +58,35 @@ const rect = (x0: number, y0: number, x1: number, y1: number): Point[] => [
   [x0, y1],
 ];
 
-const midX = W / 2;
-const midY = H / 2;
-const flatPanes = [
-  rect(FRAME, FRAME, midX - MULLION / 2, midY - MULLION / 2),
-  rect(midX + MULLION / 2, FRAME, W - FRAME, midY - MULLION / 2),
-  rect(FRAME, midY + MULLION / 2, midX - MULLION / 2, H - FRAME),
-  rect(midX + MULLION / 2, midY + MULLION / 2, W - FRAME, H - FRAME),
-];
-
-const S = SILL;
-const flatSill = {
-  top: [
-    [-S.overhang, H, 0],
-    [W + S.overhang, H, 0],
-    [W + S.overhang, H, S.depth],
-    [-S.overhang, H, S.depth],
-  ],
-  front: [
-    [-S.overhang, H, S.depth],
-    [W + S.overhang, H, S.depth],
-    [W + S.overhang, H + S.thickness, S.depth],
-    [-S.overhang, H + S.thickness, S.depth],
-  ],
-} satisfies Record<string, Point3[]>;
-// The faint contact shadow on the wall just under the ledge, from the room's light.
-const under = H + S.thickness;
-const flatSillShadow: Point3[] = [
-  [-S.overhang, under, 0],
-  [W + S.overhang, under, 0],
-  [W + S.overhang, under + S.shadow, 0],
-  [-S.overhang, under + S.shadow, 0],
-];
+/** The window's flat parts, before projection. */
+function flatParts() {
+  const midX = W / 2;
+  const midY = H / 2;
+  const S = SILL;
+  // The ledge sits right under the glass (no strip of wall between them).
+  const ledge = H - FRAME;
+  return {
+    panes: [
+      rect(FRAME, FRAME, midX - MULLION / 2, midY - MULLION / 2),
+      rect(midX + MULLION / 2, FRAME, W - FRAME, midY - MULLION / 2),
+      rect(FRAME, midY + MULLION / 2, midX - MULLION / 2, H - FRAME),
+      rect(midX + MULLION / 2, midY + MULLION / 2, W - FRAME, H - FRAME),
+    ],
+    sillTop: [
+      [FRAME, ledge, 0],
+      [W - FRAME, ledge, 0],
+      [W - FRAME, ledge, S.depth],
+      [FRAME, ledge, S.depth],
+    ] as Point3[],
+    // The faint contact shadow on the wall just under the ledge, from the room's light.
+    sillShadow: [
+      [FRAME, ledge, 0],
+      [W - FRAME, ledge, 0],
+      [W - FRAME, ledge + S.shadow, 0],
+      [FRAME, ledge + S.shadow, 0],
+    ] as Point3[],
+  };
+}
 
 /**
  * The turn, in degrees, at which the window's foot runs across the screen at
@@ -115,12 +112,10 @@ const mirrorIn = (width: number) => (pts: Point[]) =>
 
 function build(turn: number, eye: number) {
   const project = projector(turn, eye);
-  const projected = flatPanes.map((pane) => pane.map(project));
-  const projectedSill = [
-    flatSill.top.map(project),
-    flatSill.front.map(project),
-  ];
-  const all = [...projected.flat(), ...projectedSill.flat()];
+  const flat = flatParts();
+  const projected = flat.panes.map((pane) => pane.map(project));
+  const projectedSill = flat.sillTop.map(project);
+  const all = [...projected.flat(), ...projectedSill];
   const minX = Math.min(...all.map(([x]) => x));
   const minY = Math.min(...all.map(([, y]) => y));
   const shift = ([x, y]: Point): Point => [x - minX, y - minY];
@@ -145,15 +140,13 @@ function build(turn: number, eye: number) {
 
   const plain = {
     panes: projected.map((pane) => pane.map(shift)),
-    sillTop: projectedSill[0].map(shift),
-    sillFront: projectedSill[1].map(shift),
-    sillShadow: flatSillShadow.map((p) => shift(project(p))),
+    sillTop: projectedSill.map(shift),
+    sillShadow: flat.sillShadow.map((p) => shift(project(p))),
     floor,
   };
   const mirrored = {
     panes: plain.panes.map(mirror),
     sillTop: mirror(plain.sillTop),
-    sillFront: mirror(plain.sillFront),
     sillShadow: mirror(plain.sillShadow),
     floor: mirror(floor),
   };
@@ -169,13 +162,13 @@ function build(turn: number, eye: number) {
       Math.min(MAX_SIDEWAYS, -Math.sin(rad(light.azimuth))),
     );
     const inward = Math.max(MIN_INWARD, Math.abs(Math.cos(rad(light.azimuth))));
-    const flat = Math.hypot(side, inward);
+    const length = Math.hypot(side, inward);
     const fall = Math.tan(rad(altitude));
     const onFloor = ([x, y]: Point): Point3 => {
       const t = (LIGHT_REACH * (FLOOR - y)) / fall;
-      return [x + (t * side) / flat, FLOOR, (t * inward) / flat];
+      return [x + (t * side) / length, FLOOR, (t * inward) / length];
     };
-    const cast = flatPanes.map((pane) =>
+    const cast = flat.panes.map((pane) =>
       pane.map((p) => shift(project(onFloor(p)))),
     );
     return flip ? cast.map(mirror) : cast;
@@ -184,8 +177,8 @@ function build(turn: number, eye: number) {
   return { viewW, viewH, plain, mirrored, lightOnFloor };
 }
 
-// One geometry per turn, kept so every render of a window hands the same
-// arrays to its effects.
+// One geometry per turn and eye height, kept so every render of a window hands
+// the same arrays to its effects.
 const built = new Map<string, ReturnType<typeof build>>();
 function geometryFor(turn: number, eye: number) {
   const t = Math.round(turn * 4) / 4;
@@ -198,6 +191,20 @@ function geometryFor(turn: number, eye: number) {
   return g;
 }
 
+/**
+ * The window's shape, for placing it: width over height, and where the ledge's
+ * right-hand front corner is, as shares of the window's width and height.
+ */
+export function windowShape(turn: number, eye = EYE, flip = false) {
+  const g = geometryFor(turn, eye);
+  const [a, b] = (flip ? g.mirrored : g.plain).sillTop.slice(2);
+  const [x, y] = a[0] > b[0] ? a : b;
+  return {
+    aspect: g.viewW / g.viewH,
+    corner: [x / g.viewW, y / g.viewH] as Point,
+  };
+}
+
 const points = (pts: Point[]) =>
   pts.map(([x, y]) => `${x.toFixed(2)},${y.toFixed(2)}`).join(" ");
 
@@ -208,6 +215,7 @@ export function Window({
   flip = false,
   turn = TURN,
   eye = EYE,
+  skyDrop = 0,
 }: {
   className?: string;
   /** Mirrored: the left side toward the viewer. */
@@ -218,6 +226,8 @@ export function Window({
   turn?: number;
   /** The viewer's eye height, as a share of the window's height down from its top. */
   eye?: number;
+  /** Shows the sky as if the window sat this many of its own heights higher (negative: lower), never past the sky's top. */
+  skyDrop?: number;
 }) {
   const box = useRef<HTMLDivElement>(null);
   const glass = useRef<HTMLCanvasElement>(null);
@@ -257,10 +267,11 @@ export function Window({
       ctx.clip();
       ctx.fillStyle = glassColor;
       ctx.fillRect(0, 0, w, h);
-      ctx.drawImage(sky, r.left * dpr, r.top * dpr, w, h, 0, 0, w, h);
+      const skyTop = Math.max(0, r.top - skyDrop * r.height);
+      ctx.drawImage(sky, r.left * dpr, skyTop * dpr, w, h, 0, 0, w, h);
       ctx.restore();
     });
-  }, [watch, shown, viewW]);
+  }, [watch, shown, viewW, skyDrop]);
 
   return (
     <div
@@ -330,7 +341,6 @@ export function Window({
           className="fill-bevel"
         />
         <polygon points={points(view.sillTop)} className="fill-sill" />
-        <polygon points={points(view.sillFront)} className="fill-sill-edge" />
       </svg>
     </div>
   );
