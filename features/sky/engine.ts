@@ -9,13 +9,19 @@ import {
   CLOUDS,
   COUNT,
   FAR,
+  FAR_SIDE_FADE,
   INK,
+  LARGE_CLOUD,
   LAYER,
   type Layer,
+  MAX_LARGE,
   PHONE_CLOUD_SCALE,
   PHONE_WIDTH,
+  REFERENCE,
+  RETUNED_SKIES,
   type Rgb,
   SKY_FRACTION,
+  WIDE_WEIGHT,
   WIDTH,
   WINDOW_CLOUD_SCALE,
 } from "./constants";
@@ -79,6 +85,8 @@ type Drop = {
 };
 
 const FAR_INK_MIX = 0.35;
+/** How much room two copies of the same cloud want between their centres, in mean cloud widths (other pairs: 0.75). */
+const SAME_CLOUD_ROOM = 2.5;
 
 function loadImage(src: string) {
   return new Promise<HTMLImageElement | null>((resolve) => {
@@ -92,6 +100,11 @@ function loadImage(src: string) {
 /** Lets the page paint and respond between clouds, so a slow build doesn't freeze it. */
 function nextTask() {
   return new Promise<void>((resolve) => setTimeout(resolve, 0));
+}
+
+/** Far tiles overlap by their faded sides, so they advance by less than their width. */
+function farStep(s: Sprite) {
+  return Math.max(1, Math.round(s.w * (1 - FAR_SIDE_FADE)));
 }
 
 export function randomSeed() {
@@ -221,12 +234,35 @@ export class SkyEngine {
     if (this.ready) void this.build();
   }
 
+  /** The far strip grows with the sky's height alone: anchored by its bottom, growing any faster would lift its top above where it sits at the reference size. Window pages show a fixed-size window and don't grow. */
+  private get farGrowth() {
+    if (this.scaleOverride === "window") return 1;
+    return Math.max(1, this.H / REFERENCE.height);
+  }
+
+  /** Clouds grow with a blend of the sky's height and the screen's width (WIDE_WEIGHT). */
+  private get cloudGrowth() {
+    if (this.scaleOverride === "window") return 1;
+    const byWidth = this.W / REFERENCE.width;
+    return Math.max(
+      1,
+      this.farGrowth ** (1 - WIDE_WEIGHT) * byWidth ** WIDE_WEIGHT,
+    );
+  }
+
+  /** Extra clouds for the width the grown clouds don't cover, so the spacing stays as tuned. */
+  private get fill() {
+    if (this.scaleOverride === "window") return 1;
+    return Math.max(1, this.W / (REFERENCE.width * this.cloudGrowth));
+  }
+
   private get cloudScale() {
     const phone = this.W < PHONE_WIDTH;
     if (this.scaleOverride === "window")
       return WINDOW_CLOUD_SCALE[phone ? "phone" : "laptop"];
-    if (this.scaleOverride !== null) return this.scaleOverride;
-    return phone ? PHONE_CLOUD_SCALE[this.sky] : 1;
+    const base =
+      this.scaleOverride ?? (phone ? PHONE_CLOUD_SCALE[this.sky] : 1);
+    return base * this.cloudGrowth;
   }
 
   /** Called after every frame is painted. */
@@ -290,12 +326,9 @@ export class SkyEngine {
 
     const farL = this.farL;
     if (farL) {
-      let x = 0;
-      let k = 0;
-      while (x < W) {
-        ctx.drawImage(tinted(farL.sprite, farL.ink, k % 2 === 1), x, farL.y);
-        x += farL.sprite.w;
-        k++;
+      const tile = tinted(farL.sprite, farL.ink, false);
+      for (let x = 0; x < W; x += farStep(farL.sprite)) {
+        ctx.drawImage(tile, x, farL.y);
       }
       this.emitFar(dt);
       this.drawFarDrops(dt);
@@ -378,11 +411,17 @@ export class SkyEngine {
     return s;
   }
 
+  private farSize(k: string) {
+    return this.config.far[k].size * this.farGrowth;
+  }
+
   private farKey(k: string) {
     const f = this.config.far[k];
     const base = this.farBase.get(k);
-    if (!base || !f || (f.size === 1 && f.shade === 1)) return null;
-    return `fr/${k}/${Math.round(base.w * f.size)}/${f.shade}`;
+    if (!base || !f) return null;
+    const size = this.farSize(k);
+    if (size === 1 && f.shade === 1) return null;
+    return `fr/${k}/${Math.round(base.w * size)}/${f.shade}`;
   }
 
   private farSprite(k: string) {
@@ -391,7 +430,7 @@ export class SkyEngine {
     if (!base || !key) return base ?? null;
     let s = this.sprites.get(key);
     if (!s) {
-      s = resizeFar(base, this.config.far[k]);
+      s = resizeFar(base, { ...this.config.far[k], size: this.farSize(k) });
       this.sprites.set(key, s);
     }
     return s;
@@ -425,13 +464,13 @@ export class SkyEngine {
     const r = this.canvas.getBoundingClientRect();
     this.W = r.width;
     this.H = r.height;
-    this.S = this.H * SKY_FRACTION;
+    this.S = this.H * SKY_FRACTION[this.sky];
     const { W, H } = this;
 
     const count = COUNT[this.sky];
     const n = {
-      mid: Math.max(1, Math.round(count.mid)),
-      front: Math.max(1, Math.round(count.front)),
+      mid: Math.max(1, Math.round(count.mid * this.fill)),
+      front: Math.max(1, Math.round(count.front * this.fill)),
     };
     const pickSize = (c: { sizeMin: number; sizeMax: number }) =>
       c.sizeMin + (c.sizeMax - c.sizeMin) * this.rnd();
@@ -447,12 +486,38 @@ export class SkyEngine {
         Math.max(1, Math.ceil(n[name] * 0.6)),
       );
       const span = W * 1.15 + WIDTH[name] * this.cloudScale * 1.6;
-      const items: { sprite: Sprite; w: number; y: number; flip: boolean }[] =
-        [];
+      const items: {
+        id: string;
+        sprite: Sprite;
+        w: number;
+        y: number;
+        flip: boolean;
+      }[] = [];
+      const retuned = RETUNED_SKIES.has(this.sky);
+      // One height per equal slice of the range, so a small layer can't land all high.
+      const spread = retuned
+        ? this.shuffled(
+            Array.from(
+              { length: n[name] },
+              (_, i) => (i + this.rnd()) / n[name],
+            ),
+          )
+        : null;
+      const used = new Map<string, number>();
+      const capped = (id: string) => {
+        if (!retuned) return false;
+        const c = cloudSettings(this.config, name, id);
+        const large = (c.sizeMin + c.sizeMax) / 2 >= LARGE_CLOUD;
+        return large && (used.get(id) ?? 0) >= MAX_LARGE;
+      };
       for (let i = 0; i < n[name]; i++) {
-        const id = hand[Math.floor(this.rnd() * hand.length)];
+        let options = hand.filter((x) => !capped(x));
+        if (!options.length) options = pool.filter((x) => !capped(x));
+        if (!options.length) break;
+        const id = options[Math.floor(this.rnd() * options.length)];
+        used.set(id, (used.get(id) ?? 0) + 1);
         const cs = cloudSettings(this.config, name, id);
-        const u = this.rnd();
+        const u = spread ? spread[i] : this.rnd();
         const size = pickSize(cs);
         if (!this.sprites.has(this.spriteKey(id, name, size).key)) {
           if (await stale()) return false;
@@ -460,6 +525,7 @@ export class SkyEngine {
         const sprite = this.getSprite(id, name, size);
         if (!sprite) continue;
         items.push({
+          id,
           sprite,
           w: sprite.w,
           y: this.placeY(cs.height, u, sprite.h),
@@ -468,8 +534,10 @@ export class SkyEngine {
       }
 
       // Biggest clouds first, each into the most open stretch (best of a few tries).
+      // Two copies of the same cloud want much more room between them: side by
+      // side (one often mirrored) they read as a symmetric pair.
       items.sort((a, b) => b.w - a.w);
-      const placed: { c: number; w: number }[] = [];
+      const placed: { id: string; c: number; w: number }[] = [];
       const gap = (a: number, b: number) => {
         const d = Math.abs(a - b) % span;
         return Math.min(d, span - d);
@@ -483,15 +551,17 @@ export class SkyEngine {
             const x = this.rnd() * span;
             const c = x + it.w / 2;
             let sc = 1e9;
-            for (const p of placed)
-              sc = Math.min(sc, gap(c, p.c) - ((it.w + p.w) / 2) * 0.75);
+            for (const p of placed) {
+              const room = p.id === it.id ? SAME_CLOUD_ROOM : 0.75;
+              sc = Math.min(sc, gap(c, p.c) - ((it.w + p.w) / 2) * room);
+            }
             if (sc > bs) {
               bs = sc;
               bx = x;
             }
           }
         }
-        placed.push({ c: bx + it.w / 2, w: it.w });
+        placed.push({ id: it.id, c: bx + it.w / 2, w: it.w });
         inst.push({
           sprite: it.sprite,
           flip: it.flip,
@@ -539,7 +609,6 @@ export class SkyEngine {
         y: Math.round(this.S - fs.h - f.height * this.S),
       };
       tinted(fs, fink, false);
-      tinted(fs, fink, true);
     }
 
     this.layers = layers;
@@ -694,12 +763,11 @@ export class SkyEngine {
     if (!this.rainOn || !farL || this.farDrops.length > 1600) return;
     const s = farL.sprite;
     const bot = bottoms(s);
+    const step = farStep(s);
     for (let k = 0.13 * this.W * dt; k > 0; k--) {
       if (Math.random() > k) break;
       const x = Math.random() * this.W;
-      const t = Math.floor(x / s.w);
-      const c = Math.floor(x - t * s.w);
-      const col = t % 2 === 1 ? s.w - 1 - c : c;
+      const col = Math.floor(x - Math.floor(x / step) * step);
       const by = bot[col];
       if (by < 0) continue;
       if (this.snow) {

@@ -1,5 +1,6 @@
 // Ported from docs/reference/mock-snowy.html. Keep in step with the mock.
 import type { CloudSettings, FarSettings } from "./config";
+import { FAR_SIDE_FADE } from "./constants";
 
 /** A dithered image as a flat list of dot coordinates: [x0, y0, x1, y1, ...]. */
 export type Sprite = {
@@ -191,7 +192,7 @@ export function ditherCloud(
   return { w, h, pts: fsDither(g, w, h, true), tint: new Map() };
 }
 
-/** Far strips arrive already dithered; thin their dots toward the bottom so they fade out. */
+/** Far strips arrive already dithered; thin their dots toward the bottom so they fade out, and toward each side (linearly, so overlapping tiles add up to full density). */
 export function farFromImage(im: HTMLImageElement): Sprite {
   const { ctx: x } = canvas(im.width, im.height);
   x.drawImage(im, 0, 0);
@@ -199,12 +200,16 @@ export function farFromImage(im: HTMLImageElement): Sprite {
   const pts: number[] = [];
   const H0 = im.height;
   const band = H0 * 0.3;
+  const side = im.width * FAR_SIDE_FADE;
   for (let i = 0; i < im.width * im.height; i++) {
     if (d[i * 4 + 3] <= 128) continue;
     const px = i % im.width;
     const py = (i / im.width) | 0;
     const dd = H0 - 1 - py;
-    if (dd >= band || hv(px, py) < (dd / band) ** 1.3) pts.push(px, py);
+    const keep =
+      Math.min(1, (dd / band) ** 1.3) *
+      Math.min(1, (Math.min(px, im.width - 1 - px) + 0.5) / side);
+    if (hv(px, py) < keep) pts.push(px, py);
   }
   return {
     w: im.width,

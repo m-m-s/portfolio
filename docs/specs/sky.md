@@ -24,7 +24,7 @@ The mock page also contains editing controls (cloud picker, sliders, saving to a
 - `/lab` runs its own copy of the sky, from the same engine, with weather, seed and cloud size switches, plus the house shadow panel. The shared sky stays hidden there. The site's code has no hooks for the lab: the lab builds on it from outside. It is for development only: it exists on the dev server and returns a 404 in production builds.
 
 ## Layers
-- **Far:** one distant strip per visit, picked at random from that weather's far list. It stays still.
+- **Far:** one distant strip per visit, picked at random from that weather's far list. It stays still. It tiles across the screen with each side thinned out over a quarter of its width (`FAR_SIDE_FADE`) and the tiles overlapping by that much, so the joins crossfade instead of showing a seam. (The mock mirrors every other tile instead, which left a dip and a hump at each join on wide screens.)
 - Far strip settings (from the config): Size; Shade, which thickens or thins the dots; Ink, which darkens the dot color from the far grey toward the front ink; and Height, a number that shifts the strip up or down as a fraction of the sky's height.
 - **Middle:** clouds drift slowly. Dots respond gently to the cursor and settle back slowly, which reads as distance.
 - **Front:** clouds drift faster. Dots scatter from the cursor or finger and spring back. Soft and fluffy is the feel.
@@ -40,13 +40,21 @@ The mock page also contains editing controls (cloud picker, sliders, saving to a
 - Seed the random layout with a new random value on each visit. When porting, replace the mock's fixed seed (`seed=11`, `layoutSeed=11`).
 - Each weather has a pool of clouds per layer (the config). Every visit composes a fresh sky from it.
 - Cloud count per weather (middle / front): Sunny 3 / 2, Partly cloudy 5 / 3, Cloudy, Rainy and Snowy 12 / 7.
-- Each copy gets a random size between its Smallest and Largest, a random base height inside its ticked height bands, and is mirrored half the time.
+- Each copy gets a random size between its Smallest and Largest, a random base height inside its ticked height bands, and is mirrored half the time. Two copies of the same cloud are kept well apart (`SAME_CLOUD_ROOM`, 2.5 mean cloud widths between centres, against 0.75 for other pairs): side by side, one usually mirrored, they read as a symmetric pair.
+- Weathers retuned in their mock with the site's scaling (`RETUNED_SKIES`; so far Partly cloudy, whose mock is `docs/reference/mock-partly-cloudy.html` with its settings in `mock-partly-cloudy-settings.md`) also:
+  - **Spread heights:** each layer's heights take one value per equal slice of the range, random within it, slices shuffled, so a small layer can't land all high.
+  - **Cap large clouds:** a cloud whose Smallest–Largest midpoint is 175% or more (`LARGE_CLOUD`) appears at most twice per layer (`MAX_LARGE`). If the hand runs out of allowed clouds the layer draws from the whole list; if every cloud is capped it draws fewer.
+  Add a weather to the list once its mock is retuned.
 - Spacing: each layer places its biggest clouds first, each into the most open stretch of sky (best of a few random tries). Smaller ones fill the gaps, with up to about a quarter overlap. Front and middle are spaced separately, so they overlap each other for depth.
 - Height bands are fractions of the sky's height (`TOP`, `BOT`, `BASE` in the mock). Cloudy, Rainy and Snowy have a fourth band, Lowest. Unlike the mock, which adds Lowest below the other three, all weathers fit their bands between the same `TOP` and `BOT`, so with four bands each one is thinner and the lowest clouds stop at the same depth as in Sunny. The taller sky had dropped them too low. The far strips were raised to match, in their config Heights: Cloudy, Rainy and Snowy from −0.5 to −0.2 (the same squeeze applied to the strip's bottom edge), the low Sunny strip by 0.2 and both Partly cloudy strips by 0.3.
 
 ## Size
-- The canvas covers the full screen height; the sky is its top 40% (`SKY_FRACTION`), tuned in `/lab` on phone and laptop. Clouds in the lower bands, and rain and snow, hang below it.
-- Cloud sizes are the mock's (front 300px, middle 220px, times each cloud's size range) at every screen size, except on phones (narrower than 640px, `PHONE_WIDTH`), where a per-weather scale applies (`PHONE_CLOUD_SCALE`): 100% for Sunny and Partly cloudy, 80% for Cloudy, Rainy and Snowy. Resizing across 640px rebuilds the sky at the other size. A taller sky gives the same clouds more room: the height bands scale with the sky, the clouds don't. `/lab` has a Clouds switch (the weather's own scale, or 100/80/65/50%, or `?scale=0.65`) to compare sizes.
+- The canvas covers the full screen height; the sky is its top part, per weather (`SKY_FRACTION`): 40% for every weather so far (per weather so Sunny and Partly cloudy can differ from the rest; 50% was tried for them and felt too low). Clouds in the lower bands, and rain and snow, hang below it.
+- Cloud sizes are the mock's (front 300px, middle 220px, times each cloud's size range) at every screen size, except on phones (narrower than 640px, `PHONE_WIDTH`), where a per-weather scale applies (`PHONE_CLOUD_SCALE`): 100% for Sunny and Partly cloudy, 80% for Cloudy, Rainy and Snowy. Resizing across 640px rebuilds the sky at the other size. A taller sky gives the same clouds more room: the height bands scale with the sky, the clouds don't.
+- Bigger screens grow the sky, treating a 1440×900 window (`REFERENCE`) as 100%; smaller ones keep the tuned sizes, and phones keep their own scale. Window pages don't grow: their window is a fixed size.
+  - **Far strip:** grows with the screen's height alone (1.42× on a 1280px-tall screen), so its top sits at the same share of the sky as at 1440×900. It's anchored by its bottom, so growing any faster lifted it toward the top of the screen.
+  - **Clouds:** grow by a blend of the screen's height and width, weighted by `WIDE_WEIGHT` (0.5: the geometric mean, 1.59× on 2560×1280). Height alone left them small on a wide screen; width alone (2.06× at 2560) made them too tall for the sky and crowded the top. Each cloud is still dithered fresh at its final size.
+  - **Count:** the grown clouds don't cover all the extra width, so the count scales by the width left over (`fill`: 12% more clouds on 2560×1280), keeping the spacing as tuned.
 
 ## Rain and snow
 - Rain and snow fall from the underside of each front and middle cloud and drift with it, plus a sparse distant fall from the far strip.

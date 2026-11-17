@@ -49,6 +49,12 @@ export const WIDTH: Record<Layer, number> = { front: 300, mid: 220 };
 /** Clouds on pages that show the sky only through a window: smaller, so a few fit in the panes. The window is smaller still on a phone. */
 export const WINDOW_CLOUD_SCALE = { laptop: 0.5, phone: 0.25 };
 
+/** The window the sky was tuned in. Bigger screens grow the clouds and far strip and add clouds to keep the tuned spacing; smaller ones keep the tuned sizes (phones have their own scale). */
+export const REFERENCE = { width: 1440, height: 900 };
+
+/** How much the width counts toward the growth, against the sky's height: 0 grows by height only (wide screens aren't much taller, so the clouds stay smallish), 1 by width only (they crowd the top). */
+export const WIDE_WEIGHT = 0.5;
+
 /** Below this width (Tailwind's sm), clouds use PHONE_CLOUD_SCALE. */
 export const PHONE_WIDTH = 640;
 
@@ -130,5 +136,19 @@ export function bandRanges(sky: Sky) {
   return { ranges, bw };
 }
 
-/** The sky is the top part of the canvas; clouds and rain can hang below it. */
-export const SKY_FRACTION = 0.4;
+/** Weathers retuned in their mock with the site's scaling. They also spread each layer's heights across the range, and cap large clouds (Smallest–Largest midpoint at LARGE_CLOUD or more) at MAX_LARGE per layer. Add a weather here once its mock is retuned. */
+export const RETUNED_SKIES: ReadonlySet<Sky> = new Set(["partly-cloudy"]);
+export const LARGE_CLOUD = 1.75;
+export const MAX_LARGE = 2;
+
+/** Each side of a far strip thins out over this share of its width, and tiles overlap by it, so the joins crossfade instead of showing a seam. */
+export const FAR_SIDE_FADE = 0.25;
+
+/** The sky is this share of the screen's height, per weather; clouds and rain can hang below it. */
+export const SKY_FRACTION: Record<Sky, number> = {
+  sunny: 0.4,
+  "partly-cloudy": 0.4,
+  cloudy: 0.4,
+  rainy: 0.4,
+  snowy: 0.4,
+};
