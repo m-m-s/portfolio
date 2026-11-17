@@ -21,6 +21,8 @@
   --color-floor: #f0eeea;
   /* Gray boxes standing in for images that aren't added yet. */
   --color-placeholder: #e3e2df;
+  /* Thin lines that divide a page: around the project info table, between a project's sections. */
+  --color-rule: #dcdad4;
   /* Projects' wall: a touch darker than the page, so the white step tops show against it. */
   --color-wall: #f9f7f2;
   /* The Projects platforms: lit top, front in light shade, side in deeper shade. */
@@ -56,6 +58,9 @@
   --row-slide-distance: 40vw;
   /* A gallery photo growing out of its row into the slideshow, and back. */
   --photo-grow: 450ms;
+  /* About's window growing into the full sky view (Look outside), and back; and one sky fading into the next there. */
+  --outside-grow: 500ms;
+  --sky-swap: 250ms;
   /* With a mouse, the other gallery photos dim to this while one is hovered. */
   --photo-hover-dim: 0.6;
   /* Room between the intro's text and the house's edges, in em. */
@@ -450,6 +455,35 @@ html[data-photo-motion="step"]::view-transition-new(photo-in) {
   }
 }
 
+/* A project page's blocks below the fold wait out of sight, then rise into place the first time they scroll into view. */
+[data-settle="waiting"] {
+  opacity: 0;
+}
+[data-settle="in"] {
+  animation: settle-up 800ms var(--settle-ease) both;
+}
+@keyframes settle-up {
+  from {
+    opacity: 0;
+    transform: translateY(2rem);
+  }
+}
+
+/* Look outside (About): only the window's glass moves, growing into the full
+   sky view and back; the page fades under it. */
+html[data-sky-view] * {
+  view-transition-name: none;
+}
+html[data-sky-view] [data-view-grow] {
+  view-transition-name: outside;
+}
+html[data-sky-view]::view-transition-group(*),
+html[data-sky-view]::view-transition-old(*),
+html[data-sky-view]::view-transition-new(*) {
+  animation-duration: var(--outside-grow);
+  animation-timing-function: var(--settle-ease);
+}
+
 /* A project slideshow's new text and image. */
 .slide-in {
   animation: slide-in 400ms var(--settle-ease) both;
@@ -478,6 +512,9 @@ html[data-photo-motion="step"]::view-transition-new(photo-in) {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .view-fade {
+    animation: fade-in var(--fade) ease both;
+  }
   .photo-fade {
     animation: fade-in 300ms ease both;
   }
@@ -485,6 +522,9 @@ html[data-photo-motion="step"]::view-transition-new(photo-in) {
     animation: none;
   }
   .slide-in {
+    animation-name: fade-in;
+  }
+  [data-settle="in"] {
     animation-name: fade-in;
   }
   .door-panel {

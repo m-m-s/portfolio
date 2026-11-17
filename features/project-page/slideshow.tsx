@@ -3,6 +3,7 @@
 import { type CSSProperties, useId, useState } from "react";
 import type { Photo } from "@/content/photography";
 import { MediaBox } from "./media";
+import { RichText } from "./rich-text";
 import type { Side, Slide } from "./types";
 
 function SlideText({ slide, titleId }: { slide: Slide; titleId: string }) {
@@ -15,7 +16,9 @@ function SlideText({ slide, titleId }: { slide: Slide; titleId: string }) {
       )}
       <div className="space-y-4">
         {slide.paragraphs.map((p) => (
-          <p key={p}>{p}</p>
+          <p key={p}>
+            <RichText text={p} />
+          </p>
         ))}
       </div>
     </>
@@ -35,11 +38,13 @@ export function Slideshow({
   slides: Slide[];
 }) {
   const [index, setIndex] = useState(0);
-  const [back, setBack] = useState(false);
+  // Which way the last move went: nothing slides in until the reader moves.
+  const [dir, setDir] = useState(0);
   const go = (to: number) => {
-    setBack(to < index);
+    setDir(Math.sign(to - index));
     setIndex(to);
   };
+  const slideIn = dir ? "slide-in" : "";
   const id = useId();
   const slide = slides[index];
   const shown = slide.image ?? image;
@@ -48,16 +53,18 @@ export function Slideshow({
     <section
       aria-roledescription="slideshow"
       aria-labelledby={slide.title ? `${id}-title` : undefined}
-      style={{ "--slide-from": back ? "-0.75rem" : "0.75rem" } as CSSProperties}
+      style={
+        { "--slide-from": dir < 0 ? "-0.75rem" : "0.75rem" } as CSSProperties
+      }
       className="grid items-start gap-6 sm:grid-cols-2 sm:gap-8"
     >
       <MediaBox
         key={shown.src ?? shown.alt}
         media={shown}
-        className={`slide-in ${imageSide === "right" ? "sm:order-last" : ""}`}
+        className={`${slideIn} ${imageSide === "right" ? "sm:order-last" : ""}`}
       />
       <div>
-        <div key={index} aria-live="polite" className="slide-in">
+        <div key={index} aria-live="polite" className={slideIn}>
           <SlideText slide={slide} titleId={`${id}-title`} />
         </div>
         <div className="mt-6 flex items-center gap-3 font-grotesk text-sm">

@@ -303,7 +303,11 @@ export function Window({
           )}
         </svg>
       )}
-      <canvas ref={glass} className="absolute inset-0 h-full w-full" />
+      <canvas
+        ref={glass}
+        data-window-glass
+        className="absolute inset-0 h-full w-full"
+      />
       <svg
         aria-hidden="true"
         viewBox={`0 0 ${g.viewW} ${g.viewH}`}

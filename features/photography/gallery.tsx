@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useMemo, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import type { Photo } from "@/content/photography";
+import { scopedTransition } from "@/features/transitions/scoped-transition";
 import { useRowMotion } from "./row-motion";
 
 const GRAYS = ["bg-photo-1", "bg-photo-2", "bg-photo-3"];
@@ -41,30 +42,13 @@ function PhotoFill({
 /** `at` is the photo's place in the whole gallery, row after row. `stepped` once the visitor has moved off the photo they opened (reduced motion fades those in). */
 type Open = { at: number; stepped?: boolean };
 
-let lastMotion = 0;
-
-/** Runs a DOM change as a slideshow view transition: "grow" morphs the `[data-grow]` photo between its row and the slideshow, "step" slides it out and the next one in. */
+/** "grow" morphs the `[data-grow]` photo between its row and the slideshow, "step" slides it out and the next one in. */
 function photoMotion(
   kind: "grow" | "step",
   update: () => void,
-  done = () => {},
+  done?: () => void,
 ) {
-  if (
-    !document.startViewTransition ||
-    matchMedia("(prefers-reduced-motion: reduce)").matches
-  ) {
-    update();
-    done();
-    return;
-  }
-  const root = document.documentElement;
-  const run = ++lastMotion;
-  root.dataset.photoMotion = kind;
-  document.startViewTransition(update).finished.finally(() => {
-    // A newer transition may already be running under the same attribute.
-    if (run === lastMotion) delete root.dataset.photoMotion;
-    done();
-  });
+  scopedTransition("photoMotion", kind, update, done);
 }
 
 export function Gallery({ rows }: { rows: Photo[][] }) {
