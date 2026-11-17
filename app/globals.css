@@ -61,6 +61,11 @@
   /* About's window growing into the full sky view (Look outside), and back; and one sky fading into the next there. */
   --outside-grow: 500ms;
   --sky-swap: 250ms;
+  /* Look outside's big window: its distance from the screen's sides, top and bottom, and its frame. */
+  --outside-x: 22vw;
+  --outside-top: 7vh;
+  --outside-bottom: 18vh;
+  --outside-frame: 0.75rem;
   /* With a mouse, the other gallery photos dim to this while one is hovered. */
   --photo-hover-dim: 0.6;
   /* Room between the intro's text and the house's edges, in em. */
@@ -482,6 +487,58 @@ html[data-sky-view]::view-transition-old(*),
 html[data-sky-view]::view-transition-new(*) {
   animation-duration: var(--outside-grow);
   animation-timing-function: var(--settle-ease);
+}
+
+/* The big window shows a screen-sized sky, so the clouds keep their homepage
+   size; it starts at the window's top, so the window frames the whole cloud band. */
+.outside-window {
+  position: fixed;
+  inset: var(--outside-top) var(--outside-x) var(--outside-bottom);
+  overflow: hidden;
+  border: var(--outside-frame) solid var(--color-page);
+  background: var(--color-glass);
+  box-shadow: 0 0.5rem 2rem rgb(0 0 0 / 0.08);
+}
+.outside-window > canvas {
+  position: absolute;
+  left: calc(-1 * (var(--outside-x) + var(--outside-frame)));
+  top: 0;
+  width: 100vw;
+  height: 100dvh;
+}
+/* The glass's bevel, over the sky. */
+.outside-window::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  box-shadow: inset 0.15rem 0.15rem 0.5rem var(--color-bevel);
+}
+.outside-controls {
+  top: calc(100dvh - var(--outside-bottom) + 1.5rem);
+}
+@media (width < 40rem) {
+  :root {
+    --outside-x: 1rem;
+    --outside-top: 12vh;
+  }
+}
+
+dialog:focus-visible {
+  outline: none;
+}
+
+/* Every window opens Look outside with a mouse: a pointer and a slightly brighter glass on hover. */
+@media (hover: hover) and (pointer: fine) {
+  [data-window] {
+    cursor: pointer;
+  }
+  [data-window-glass] {
+    transition: filter var(--door-hover) ease;
+  }
+  [data-window]:hover [data-window-glass] {
+    filter: brightness(1.04);
+  }
 }
 
 /* A project slideshow's new text and image. */

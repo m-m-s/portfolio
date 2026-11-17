@@ -2,26 +2,17 @@ import { FoodMapButton } from "@/components/food-map";
 import { RoomLink } from "@/components/room-link";
 import { Window } from "@/components/window";
 import { type AboutPart, aboutHeading, aboutParagraphs } from "@/content/about";
-import { LookOutside } from "@/features/sky/sky-view";
-import { getWeather, type Weather } from "@/features/weather/get-weather";
+import { LookOutsideButton } from "@/features/sky/sky-view";
 
 /** The food-map button is an inline block, which can't share a wrapped line with the text after it, so trailing punctuation rides inside it. */
-function Part({
-  part,
-  tail,
-  live,
-}: {
-  part: AboutPart;
-  tail: string;
-  live: Weather;
-}) {
+function Part({ part, tail }: { part: AboutPart; tail: string }) {
   if (typeof part === "string") return part;
   if ("action" in part && part.action === "weather") {
     return (
-      <LookOutside live={live}>
+      <LookOutsideButton>
         {part.text}
         {tail && <span className="font-normal">{tail}</span>}
-      </LookOutside>
+      </LookOutsideButton>
     );
   }
   if ("action" in part && part.action === "food-map") {
@@ -65,10 +56,9 @@ function glued(paragraph: AboutPart[]) {
   return out;
 }
 
-export default async function About() {
-  const live = await getWeather();
+export default function About() {
   return (
-    <main className="relative isolate grid flex-1 content-start px-4 py-12 sm:grid-cols-[minmax(0,34rem)_1fr] sm:gap-x-12 sm:px-8 sm:pt-24 lg:pl-[10%] xl:grid-cols-[minmax(0,40rem)_1fr] 2xl:grid-cols-[minmax(0,46rem)_1fr] 2xl:text-lg">
+    <main className="relative isolate grid flex-1 content-start px-4 py-12 sm:grid-cols-[minmax(0,34rem)_1fr] sm:gap-x-12 sm:px-8 sm:pt-24 lg:pl-[10%] xl:grid-cols-[minmax(0,40rem)_1fr] 2xl:grid-cols-[minmax(0,46rem)_1fr] 2xl:pl-[20%] 2xl:text-lg">
       <h1 className="max-sm:halo self-end pt-40 text-4xl font-bold sm:pt-0 sm:text-5xl">
         {aboutHeading}
       </h1>
@@ -89,7 +79,6 @@ export default async function About() {
                 key={typeof part === "string" ? part : part.text}
                 part={part}
                 tail={tail}
-                live={live}
               />
             ))}
           </p>

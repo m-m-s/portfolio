@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef } from "react";
 import { useSky } from "@/features/sky/sky-provider";
+import { useLookOutside } from "@/features/sky/sky-view";
 
 import { type HouseShadow, useLiveLight } from "./house";
 
@@ -232,6 +233,7 @@ export function Window({
   const box = useRef<HTMLDivElement>(null);
   const glass = useRef<HTMLCanvasElement>(null);
   const { watch } = useSky();
+  const lookOutside = useLookOutside();
   const id = useId();
   const light = useLiveLight();
   const g = geometryFor(turn, eye);
@@ -274,9 +276,16 @@ export function Window({
   }, [watch, shown, viewW, skyDrop]);
 
   return (
+    // A mouse shortcut to Look outside; touch would trip it while reading or scrolling past.
     <div
       ref={box}
       aria-hidden="true"
+      data-window
+      onClick={() => {
+        if (matchMedia("(hover: hover) and (pointer: fine)").matches) {
+          lookOutside();
+        }
+      }}
       style={{ aspectRatio: `${g.viewW} / ${g.viewH}` }}
       className={`relative ${className}`}
     >

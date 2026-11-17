@@ -6,6 +6,7 @@ A room with a window. Reference: docs/design/about.png.
 - Shell as usual: house logo top left, weather/clock line top right, footer bottom right.
 - Heading "Hi, I'm Maggie," in large Switzer bold.
 - On wide screens (from 1280px), paragraphs zigzag down the page as in the frame: every other one is shifted right, keeping its full width, so it ends further right than the flush ones. Shifted but not widened, an indent just looks like a narrower paragraph. On smaller screens there's no room to shift, so they sit flush left.
+- The text column starts 10% in from the left from 1024px, and 20% in on the widest screens (from 1536px), so text and window read as one composition instead of leaving a wide empty middle.
 - The text column widens on wider screens (34rem, 40rem from 1280px, 46rem from 1536px, where the body text also steps up a size), so the copy doesn't sit in a narrow strip.
 - The window sits on the right, beside the text.
 - **Phone:** the window is large (15rem) and sits top right, behind the heading and first paragraph. The text stays on top, with a page-colored halo (`halo`) so it reads over the clouds.
@@ -17,7 +18,7 @@ A room with a window. Reference: docs/design/about.png.
 - Link targets:
   - [a living library for screenshots] → `/projects/overlook`
   - [a way to discover movies and decide what to watch] → `/projects/film-jousting`
-  - [weather] → styled like the other bracketed phrases. Its behavior comes later.
+  - [weather] → opens Look outside (see below).
   - [behind a camera] → `/photography`
   - [thinking about my next meal] → opens the food map (see below)
   - [a team I care about] → `mailto:maggiemshen@gmail.com`
@@ -28,6 +29,15 @@ A room with a window. Reference: docs/design/about.png.
 - Image file: `public/about/food-map.png`. Use a placeholder image until it's added.
 - Closes on its own after a few seconds (start at 4, tuned in the browser).
 - On a phone it opens centered on screen.
+
+## Look outside
+Clicking [weather] shows off the sky system: the window becomes a full-size view of the sky. With a mouse, clicking any window opens it too, on About and Projects alike (a pointer, and the glass brightens slightly on hover); on touch screens only [weather] does, since a tap on the window would trip it while reading or scrolling past. The view lives in the site shell (`LookOutsideProvider` in `SiteSky`), so every room's window can open it.
+- The window's glass grows out of its spot into a big window (a view transition, `--outside-grow`, 0.5s), while the page fades under it. The big window keeps a margin of page around it (`--outside-x` 22vw at the sides, 1rem on a phone; `--outside-top` 7vh, 12vh on a phone; `--outside-bottom` 18vh, where the controls sit) and has a white frame (`--outside-frame`) with the small window's bevel and a soft shadow. Its sky is screen-sized, so clouds are their homepage size, and starts at the window's top so the window frames the whole cloud band. On a phone the window is narrow, so its clouds are drawn at 60% of their usual width (`PHONE_VIEW_SCALE` in `sky-view.tsx`); the far strip keeps its size. The view runs its own copy of the sky at full size (`features/sky/sky-view.tsx`), with drifting clouds, dots that scatter from the cursor, and rain or snow; it fades in as soon as it's built. The room's own window sky keeps running underneath.
+- A line under the window, in Space Grotesk: `← Live from New York: partly cloudy, 41° →`, with a smaller `Close` under it, set apart from the line. The arrows' clickable areas reach well past the glyphs (about 50×44px). The arrows, arrow keys and touch swipes step through the other four skies, named on their own (`← Snowy →`), starting from today's weather and wrapping both ways. Each change fades the old sky out and the new one in once built (`--sky-swap`).
+- Close, Esc or a click on the sky shrinks it back into the window, and focus returns to [weather]. The browser's Back (button or swipe) closes it too and stays on About: opening adds a history entry for the same address, and closing any other way removes it.
+- Reduced motion: it fades open instead of growing; the sky still moves.
+- [weather] is a button, like the food map's. The view is a `<dialog>`; opening it focuses the dialog itself rather than its first arrow, so a mouse opening doesn't show a focus ring.
+- Later: once the This site project page explains the system, the line gets a `how this sky works →` link.
 
 ## The window
 - A shared `Window` component, also used on the Projects page.
