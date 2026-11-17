@@ -92,8 +92,7 @@ export function SkyProvider({
     <SkyContext value={value}>
       <div
         aria-hidden="true"
-        style={{ viewTransitionName: "sky" }}
-        className={`pointer-events-none fixed inset-0 -z-10 ${full ? "" : "invisible"}`}
+        className={`[view-transition-name:sky] pointer-events-none fixed inset-0 -z-10 ${full ? "" : "invisible"}`}
       >
         <canvas ref={canvas} className="with-sky block h-full w-full" />
       </div>

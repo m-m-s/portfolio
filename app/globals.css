@@ -54,6 +54,10 @@
   --row-slide: 1600ms;
   --row-ease: cubic-bezier(0.33, 1, 0.68, 1);
   --row-slide-distance: 40vw;
+  /* A gallery photo growing out of its row into the slideshow, and back. */
+  --photo-grow: 450ms;
+  /* With a mouse, the other gallery photos dim to this while one is hovered. */
+  --photo-hover-dim: 0.6;
   /* Room between the intro's text and the house's edges, in em. */
   --house-pad: 0.35;
   --house-pad-x: 0.5;
@@ -418,6 +422,54 @@ html[data-nav] .row-in {
   }
 }
 
+[data-photo] {
+  transition: opacity 300ms ease;
+}
+@media (hover: hover) {
+  [data-gallery]:has([data-photo]:hover) [data-photo]:not(:hover) {
+    opacity: var(--photo-hover-dim);
+  }
+}
+
+/* The gallery slideshow's view transitions (data-photo-motion): "grow" morphs the
+   photo between its row and the slideshow; "step" slides the current photo out
+   and the next in, toward --photo-dir (1 for next, -1 for previous). Only the
+   photo moves; the page fades under the backdrop. */
+html[data-photo-motion] * {
+  view-transition-name: none;
+}
+html[data-photo-motion="grow"] [data-grow] {
+  view-transition-name: photo;
+}
+html[data-photo-motion="step"] [data-grow] {
+  view-transition-name: photo-in;
+}
+html[data-photo-motion="step"] [data-grow][data-leaving] {
+  view-transition-name: photo-out;
+}
+html[data-photo-motion]::view-transition-group(*),
+html[data-photo-motion]::view-transition-old(*),
+html[data-photo-motion]::view-transition-new(*) {
+  animation-duration: var(--photo-grow);
+  animation-timing-function: var(--settle-ease);
+}
+html[data-photo-motion="step"]::view-transition-old(photo-out) {
+  animation-name: photo-out;
+}
+html[data-photo-motion="step"]::view-transition-new(photo-in) {
+  animation-name: photo-in;
+}
+@keyframes photo-out {
+  to {
+    transform: translateX(calc(var(--photo-dir) * -100vw));
+  }
+}
+@keyframes photo-in {
+  from {
+    transform: translateX(calc(var(--photo-dir) * 100vw));
+  }
+}
+
 /* A project slideshow's new text and image. */
 .slide-in {
   animation: slide-in 400ms var(--settle-ease) both;
@@ -446,6 +498,9 @@ html[data-nav] .row-in {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .photo-fade {
+    animation: fade-in 300ms ease both;
+  }
   .row-in {
     animation: none;
   }
