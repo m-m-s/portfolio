@@ -1,8 +1,9 @@
 "use client";
 
 import { type CSSProperties, useId, useState } from "react";
+import type { Photo } from "@/content/photography";
 import { MediaBox } from "./media";
-import type { Media, Side, Slide } from "./types";
+import type { Side, Slide } from "./types";
 
 function SlideText({ slide, titleId }: { slide: Slide; titleId: string }) {
   return (
@@ -29,7 +30,7 @@ export function Slideshow({
   imageSide,
   slides,
 }: {
-  image: Media;
+  image: Photo;
   imageSide: Side;
   slides: Slide[];
 }) {

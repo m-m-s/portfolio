@@ -214,11 +214,6 @@ export class SkyEngine {
     if (first) this.onReady?.();
   }
 
-  reshuffle(seed = randomSeed()) {
-    this.layoutSeed = seed;
-    if (this.ready) void this.build();
-  }
-
   /** Overrides the weather's cloud scale (null goes back to it). Keeps the layout. */
   setCloudScale(scale: number | "window" | null) {
     if (scale === this.scaleOverride) return;
@@ -286,7 +281,8 @@ export class SkyEngine {
 
   private readonly frame = (now: number) => {
     const { ctx, W, H } = this;
-    const dt = Math.min(0.05, (now - this.last) / 1000);
+    // A frame can be stamped slightly before the wake that requested it.
+    const dt = Math.min(0.05, Math.max(0, now - this.last) / 1000);
     this.last = now;
     ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
     ctx.imageSmoothingEnabled = true;
@@ -390,14 +386,12 @@ export class SkyEngine {
   }
 
   private farSprite(k: string) {
-    const f = this.config.far[k];
     const base = this.farBase.get(k);
-    if (!base || !f) return null;
-    if (f.size === 1 && f.shade === 1) return base;
-    const key = `fr/${k}/${Math.round(base.w * f.size)}/${f.shade}`;
+    const key = this.farKey(k);
+    if (!base || !key) return base ?? null;
     let s = this.sprites.get(key);
     if (!s) {
-      s = resizeFar(base, f);
+      s = resizeFar(base, this.config.far[k]);
       this.sprites.set(key, s);
     }
     return s;

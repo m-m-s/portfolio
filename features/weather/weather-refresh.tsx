@@ -3,8 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-const MAX_AGE = 60 * 60 * 1000; // 1 hour
-const CHECK_EVERY = 60 * 1000; // 1 minute
+const MAX_AGE = 60 * 60 * 1000;
+const CHECK_EVERY = 60 * 1000;
 
 export function WeatherRefresh() {
   const router = useRouter();

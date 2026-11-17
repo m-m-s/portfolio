@@ -1,4 +1,4 @@
-export type IntroPart = { text: string; href?: string };
+type IntroPart = { text: string; href?: string };
 
 export const intro: IntroPart[][] = [
   [{ text: "Hi, I'm" }],

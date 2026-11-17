@@ -3,7 +3,7 @@ import { MANHATTAN } from "./nyc";
 const RAD = Math.PI / 180;
 
 /** Altitude above the horizon and azimuth clockwise from north, in degrees, seen from Manhattan. */
-export type SkyPosition = { altitude: number; azimuth: number };
+type SkyPosition = { altitude: number; azimuth: number };
 
 const daysSince2000 = (date: Date) =>
   date.getTime() / 86_400_000 + 2440587.5 - 2451545;

@@ -19,7 +19,6 @@ One continuous gallery, images only.
 - Static rows (`features/photography/gallery.tsx`, data in `content/photography.ts`): each row scrolls sideways natively (touch, trackpad) with its scrollbar hidden. Rows are 14rem tall on a phone, 20rem from 640px, and 28rem (at most 60% of the screen's height) from 1024px, with 2.5rem between rows on a phone and 5rem from 640px. Placeholder grays are the `photo-1` to `photo-3` theme tokens.
 - The slideshow is a native `<dialog>`; its grow and slide are view transitions (`photoMotion` in `gallery.tsx`, styles under `data-photo-motion` in `app/globals.css`, timing `--photo-grow`, 450ms). See Slideshow.
 - Row motion (`features/photography/row-motion.ts`, slide-in in `app/globals.css`): see Motion. Tuning: `--row-slide` (1.6s), `--row-ease` and `--row-slide-distance` (40vw) in CSS; drift, edge and fling constants at the top of `row-motion.ts`.
-- Not yet: loading far rows only when they come near.
 
 ## Motion
 - Rows slide in from alternating sides (left, right, left…) and keep drifting in that direction while slowing to a stop, as one continuous motion with no pause. All rows arrive at the same time, with no stagger and no fade: the blank space a row leaves as it comes in is on purpose. Arriving through a room transition, the slide waits until the room is revealed (`--settle-delay`).
@@ -38,8 +37,7 @@ One continuous gallery, images only.
 - Reduced motion: no grow or slide; photos fade in as they change.
 
 ## Performance
-- Photos in rows visible on the first screen load right away (marked priority with `next/image`).
-- Every other photo loads when its row comes within about one screen height of view, so it's ready before the visitor reaches it.
+- Photos use `next/image`'s default lazy loading: on-screen photos load right away, the rest as they come within a screen or two of view (down the page or along a row). No photo is marked `preload`; once the real photos are in, decide whether the first one should be.
 - Rows move with CSS transforms only, so the page stays smooth with many photos.
 
 ## Done when

@@ -1,10 +1,4 @@
-/** An image, or a gray placeholder of the same shape until `src` is added. */
-export type Media = {
-  src?: string;
-  alt: string;
-  /** Width over height. */
-  ratio: number;
-};
+import type { Photo } from "@/content/photography";
 
 export type Side = "left" | "right";
 
@@ -12,14 +6,14 @@ export type Slide = {
   title?: string;
   paragraphs: string[];
   /** Replaces the slideshow's image while this slide shows. */
-  image?: Media;
+  image?: Photo;
 };
 
 export type Block =
   | { type: "paragraph"; text: string }
-  | { type: "image-text"; image: Media; imageSide: Side; text: string }
+  | { type: "image-text"; image: Photo; imageSide: Side; text: string }
   | { type: "two-columns"; columns: [string, string] }
-  | { type: "slideshow"; image: Media; imageSide: Side; slides: Slide[] };
+  | { type: "slideshow"; image: Photo; imageSide: Side; slides: Slide[] };
 
 export type ProjectPage = {
   platform: string;

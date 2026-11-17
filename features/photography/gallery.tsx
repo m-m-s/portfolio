@@ -16,12 +16,10 @@ function PhotoFill({
   photo,
   shade,
   sizes,
-  priority = false,
 }: {
   photo: Photo;
   shade: string;
   sizes: string;
-  priority?: boolean;
 }) {
   return photo.src ? (
     <Image
@@ -29,7 +27,6 @@ function PhotoFill({
       alt={photo.alt}
       fill
       sizes={sizes}
-      priority={priority}
       className="object-cover"
     />
   ) : (
@@ -165,7 +162,6 @@ export function Gallery({ rows }: { rows: Photo[][] }) {
                     photo={photo}
                     shade={shade(r, p)}
                     sizes="(min-width: 1024px) 50rem, (min-width: 640px) 36rem, 25rem"
-                    priority={r < 2}
                   />
                 </button>
               ))}

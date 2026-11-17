@@ -156,21 +156,15 @@ body:has([data-wall]) {
   );
 }
 
-/* The swinging door casts a shadow, light from the upper left. */
+/* While it moves the door is a solid slab, casting a shadow with light from the upper left. */
 .door-panel:not([data-door=""]) {
   background: var(--color-page);
-}
-@media (hover: hover) {
-  .door:hover .door-panel {
-    background: var(--color-page);
-  }
-}
-.door-panel:not([data-door=""]) {
   filter: drop-shadow(var(--door-shadow));
 }
 
 @media (hover: hover) {
   .door:hover .door-panel {
+    background: var(--color-page);
     filter: drop-shadow(var(--door-shadow));
   }
   .door:hover .door-panel[data-door=""] {

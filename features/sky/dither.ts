@@ -20,18 +20,13 @@ function canvas(w: number, h: number) {
 }
 
 /** A stable pseudo-random value per pixel. */
-export function hv(x: number, y: number) {
+function hv(x: number, y: number) {
   let n = (x * 374761393 + y * 668265263) | 0;
   n = Math.imul(n ^ (n >>> 13), 1274126177);
   return ((n ^ (n >>> 16)) >>> 0) / 4294967296;
 }
 
-export function boxBlur(
-  src: ArrayLike<number>,
-  w: number,
-  h: number,
-  r: number,
-) {
+function boxBlur(src: ArrayLike<number>, w: number, h: number, r: number) {
   const a = Float32Array.from(src);
   const b = new Float32Array(src.length);
   for (let p = 0; p < 3; p++) {
@@ -77,7 +72,7 @@ const FS: readonly (readonly [number, number, number])[] = [
 ];
 
 /** Serpentine Floyd–Steinberg. With skip, pixels below 0 are outside the shape. */
-export function fsDither(g: Float32Array, w: number, h: number, skip: boolean) {
+function fsDither(g: Float32Array, w: number, h: number, skip: boolean) {
   const pts: number[] = [];
   for (let y = 0; y < h; y++) {
     const ltr = y % 2 === 0;

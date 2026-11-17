@@ -112,10 +112,10 @@ export const FAR = [
 
 // Height bands, in sky heights, set by a cloud's bottom edge. Past 1 hangs below the sky.
 // Every weather's bands share TOP to BOT, so a fourth band makes each one thinner.
-export const TOP = 0.3;
-export const BOT = 1.3;
+const TOP = 0.3;
+const BOT = 1.3;
 
-export function bandsFor(sky: Sky): Band[] {
+function bandsFor(sky: Sky): Band[] {
   const extra = sky === "cloudy" || sky === "rainy" || sky === "snowy";
   return extra ? ["high", "mid", "low", "lowest"] : ["high", "mid", "low"];
 }
