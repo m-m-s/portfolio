@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useRef } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { useSky } from "@/features/sky/sky-provider";
 import { useLookOutside } from "@/features/sky/sky-view";
 
@@ -28,21 +28,21 @@ const FLOOR = 1.7 * H;
 /** How far the floor reaches each way past the window, in its own units: past the edge of any page. */
 const FLOOR_SPAN = 1000;
 /** Light steeper or shallower than this would throw the patch off the floor or hide it under the window. */
-const LIGHT_ALTITUDE = { min: 35, max: 70 };
+const LIGHT_ALTITUDE = { min: 50, max: 70 };
 /** Light always comes in through the window, at least this much head-on, and at most this much sideways. */
 const MIN_INWARD = 0.5;
 const MAX_SIDEWAYS = 0.6;
-/** How far the light travels across the floor, shortened so the patch stays in the room in front of the camera. */
-const LIGHT_REACH = 0.25;
+/** Where the light starts on the floor, as a share of the true distance from the wall: as if the window sat lower, so the patch stays in the room in front of the camera. The patch itself keeps its true shape. */
+const LIGHT_START = 0;
 /** The light on the floor, as a multiple of the house shadow's strength (so it's bright in sun, faint under clouds and at night). */
 const LIGHT_STRENGTH = 1.2;
 
 const rad = (deg: number) => (deg * Math.PI) / 180;
 
-function projector(turn: number, eye: number) {
+function projector(turn: number, eye: number, width = W) {
   const t = rad(turn);
   return ([x, y, z = 0]: [number, number, number?]): Point => {
-    const across = x - W / 2;
+    const across = x - width / 2;
     const depth = across * Math.sin(t) + z * Math.cos(t);
     const scale = DISTANCE / (DISTANCE - depth);
     return [
@@ -60,7 +60,7 @@ const rect = (x0: number, y0: number, x1: number, y1: number): Point[] => [
 ];
 
 /** The window's flat parts, before projection. */
-function flatParts() {
+function flatParts(W: number) {
   const midX = W / 2;
   const midY = H / 2;
   const S = SILL;
@@ -111,9 +111,9 @@ export function turnForSlope(slope: number, eye = EYE) {
 const mirrorIn = (width: number) => (pts: Point[]) =>
   pts.map(([x, y]): Point => [width - x, y]);
 
-function build(turn: number, eye: number) {
-  const project = projector(turn, eye);
-  const flat = flatParts();
+function build(turn: number, eye: number, W: number) {
+  const project = projector(turn, eye, W);
+  const flat = flatParts(W);
   const projected = flat.panes.map((pane) => pane.map(project));
   const projectedSill = flat.sillTop.map(project);
   const all = [...projected.flat(), ...projectedSill];
@@ -165,8 +165,10 @@ function build(turn: number, eye: number) {
     const inward = Math.max(MIN_INWARD, Math.abs(Math.cos(rad(light.azimuth))));
     const length = Math.hypot(side, inward);
     const fall = Math.tan(rad(altitude));
+    // The panes' foot lands LIGHT_START of its true distance out; everything above it lands the true distance further on.
+    const foot = H - FRAME;
     const onFloor = ([x, y]: Point): Point3 => {
-      const t = (LIGHT_REACH * (FLOOR - y)) / fall;
+      const t = (LIGHT_START * (FLOOR - foot) + (foot - y)) / fall;
       return [x + (t * side) / length, FLOOR, (t * inward) / length];
     };
     const cast = flat.panes.map((pane) =>
@@ -181,12 +183,12 @@ function build(turn: number, eye: number) {
 // One geometry per turn and eye height, kept so every render of a window hands
 // the same arrays to its effects.
 const built = new Map<string, ReturnType<typeof build>>();
-function geometryFor(turn: number, eye: number) {
+function geometryFor(turn: number, eye: number, width = W) {
   const t = Math.round(turn * 4) / 4;
-  const key = `${t} ${eye}`;
+  const key = `${t} ${eye} ${width}`;
   let g = built.get(key);
   if (!g) {
-    g = build(t, eye);
+    g = build(t, eye, width);
     built.set(key, g);
   }
   return g;
@@ -217,6 +219,7 @@ export function Window({
   turn = TURN,
   eye = EYE,
   skyDrop = 0,
+  wide,
 }: {
   className?: string;
   /** Mirrored: the left side toward the viewer. */
@@ -229,14 +232,25 @@ export function Window({
   eye?: number;
   /** Shows the sky as if the window sat this many of its own heights higher (negative: lower), never past the sky's top. */
   skyDrop?: number;
+  /** On the widest screens (from 1536px), the window's width in its own units, against 100 normally (its height is 150): wider panes, same height. */
+  wide?: number;
 }) {
   const box = useRef<HTMLDivElement>(null);
   const glass = useRef<HTMLCanvasElement>(null);
   const { watch } = useSky();
   const lookOutside = useLookOutside();
+  const [wideScreen, setWideScreen] = useState(false);
+  useEffect(() => {
+    if (!wide) return;
+    const query = matchMedia("(min-width: 96rem)");
+    const update = () => setWideScreen(query.matches);
+    update();
+    query.addEventListener("change", update);
+    return () => query.removeEventListener("change", update);
+  }, [wide]);
   const id = useId();
   const light = useLiveLight();
-  const g = geometryFor(turn, eye);
+  const g = geometryFor(turn, eye, wide && wideScreen ? wide : W);
   const view = flip ? g.mirrored : g.plain;
   const shown = view.panes;
   const viewW = g.viewW;

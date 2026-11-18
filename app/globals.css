@@ -15,10 +15,10 @@
   /* Shrinks with the screen so "Product Engineer" never wraps and the house keeps its shape. */
   --text-intro: min(3rem, calc((100vw - 2rem) / 10.6));
   /* The window: clear panes (the homepage's sky color, so the sky looks the same through it) and the bezel's shading. */
-  --color-glass: #fdfbf7;
+  --color-glass: #ffffff;
   --color-bevel: rgb(0 0 0 / 0.14);
   /* About's floor: always a shade darker than the wall, so window light shows on it. */
-  --color-floor: #f0eeea;
+  --color-floor: #ebe9e4;
   /* Gray boxes standing in for images that aren't added yet. */
   --color-placeholder: #e3e2df;
   /* Thin lines that divide a page: around the project info table, between a project's sections. */

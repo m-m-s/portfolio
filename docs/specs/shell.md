@@ -41,6 +41,9 @@ Example: `[sun icon] Sunny 58°    06:10:37 PM ET`
 - Mainly clear (code 1) is grouped with Sunny for now. Maggie may try a version with a few wisps.
 - Fog (45, 48) shows Cloudy for now. Maggie is deciding whether fog gets its own sky.
 
+## Shell margins
+The house logo and the weather/clock line sit in the top corners, and the footer in the bottom right, at the same distance from the edges: 1rem on a phone, 2rem from 640px, 3rem from 1024px and 4rem from 1536px (with matching room above the header and below the footer), so they don't crowd the edges of a wide screen.
+
 ## Footer
 
 Text links, written out: `Email   LinkedIn   GitHub`. Typeface: Space Grotesk regular.

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { InlineButton } from "./inline-button";
 
 const OPEN_FOR = 4000;
 
@@ -31,15 +32,14 @@ export function FoodMapButton({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      <button
-        type="button"
+      <InlineButton
         aria-expanded={open}
         onPointerDown={(e) => e.stopPropagation()}
         onClick={() => setOpened((n) => n + 1)}
-        className="cursor-pointer font-bold hover:underline"
+        className="font-bold hover:underline"
       >
         {children}
-      </button>
+      </InlineButton>
       {open &&
         createPortal(
           <div

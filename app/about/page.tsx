@@ -4,7 +4,7 @@ import { Window } from "@/components/window";
 import { type AboutPart, aboutHeading, aboutParagraphs } from "@/content/about";
 import { LookOutsideButton } from "@/features/sky/sky-view";
 
-/** The food-map button is an inline block, which can't share a wrapped line with the text after it, so trailing punctuation rides inside it. */
+/** Punctuation right after a phrase rides inside it, in regular weight, so it never wraps onto a line by itself. */
 function Part({ part, tail }: { part: AboutPart; tail: string }) {
   if (typeof part === "string") return part;
   if ("action" in part && part.action === "weather") {
@@ -58,13 +58,14 @@ function glued(paragraph: AboutPart[]) {
 
 export default function About() {
   return (
-    <main className="relative isolate grid flex-1 content-start px-4 py-12 sm:grid-cols-[minmax(0,34rem)_1fr] sm:gap-x-12 sm:px-8 sm:pt-24 lg:pl-[10%] xl:grid-cols-[minmax(0,40rem)_1fr] 2xl:grid-cols-[minmax(0,46rem)_1fr] 2xl:pl-[20%] 2xl:text-lg">
+    <main className="relative isolate grid flex-1 content-start px-4 py-12 sm:grid-cols-[minmax(0,34rem)_1fr] sm:gap-x-12 sm:px-12 sm:pt-24 md:px-16 lg:px-[10%] xl:grid-cols-[minmax(0,40rem)_1fr] 2xl:grid-cols-[minmax(0,46rem)_1fr] 2xl:pl-[20%]">
       <h1 className="max-sm:halo self-end pt-40 text-4xl font-bold sm:pt-0 sm:text-5xl">
         {aboutHeading}
       </h1>
       <Window
         floorLight
-        className="w-60 max-sm:absolute max-sm:top-4 max-sm:right-4 max-sm:-z-10 sm:row-span-2 sm:row-start-1 sm:col-start-2 sm:-mt-12 sm:w-56 sm:justify-self-center"
+        wide={130}
+        className="w-60 max-sm:absolute max-sm:top-4 max-sm:right-4 max-sm:-z-10 sm:row-span-2 sm:row-start-1 sm:col-start-2 sm:-mt-12 sm:w-56 sm:justify-self-center 2xl:h-[26.25rem] 2xl:w-auto"
       />
       <div className="max-sm:halo mt-6 space-y-6 xl:space-y-12">
         {aboutParagraphs.map((paragraph, i) => (

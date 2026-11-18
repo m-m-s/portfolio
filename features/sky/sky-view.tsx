@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
+import { InlineButton } from "@/components/inline-button";
 import { scopedTransition } from "@/features/transitions/scoped-transition";
 import type { Weather } from "@/features/weather/get-weather";
 import { SKIES, SKY_LABELS, type Sky } from "@/features/weather/sky";
@@ -31,14 +32,13 @@ export function useLookOutside() {
 export function LookOutsideButton({ children }: { children: React.ReactNode }) {
   const lookOutside = useLookOutside();
   return (
-    <button
-      type="button"
+    <InlineButton
       aria-haspopup="dialog"
       onClick={lookOutside}
-      className="cursor-pointer font-bold hover:underline"
+      className="font-bold hover:underline"
     >
       {children}
-    </button>
+    </InlineButton>
   );
 }
 

@@ -6,15 +6,17 @@ A room with a window. Reference: docs/design/about.png.
 - Shell as usual: house logo top left, weather/clock line top right, footer bottom right.
 - Heading "Hi, I'm Maggie," in large Switzer bold.
 - On wide screens (from 1280px), paragraphs zigzag down the page as in the frame: every other one is shifted right, keeping its full width, so it ends further right than the flush ones. Shifted but not widened, an indent just looks like a narrower paragraph. On smaller screens there's no room to shift, so they sit flush left.
-- The text column starts 10% in from the left from 1024px, and 20% in on the widest screens (from 1536px), so text and window read as one composition instead of leaving a wide empty middle.
+- Type stays the same size on every screen from 640px up: 16px body, 48px heading. Larger type on the widest screens felt too big.
+- Margins above phone size: 3rem at the sides from 640px, 4rem from 768px, and 10% on both sides from 1024px. On the widest screens (from 1536px) the text starts 20% in from the left, so text and window read as one composition instead of leaving a wide empty middle.
 - The text column widens on wider screens (34rem, 40rem from 1280px, 46rem from 1536px, where the body text also steps up a size), so the copy doesn't sit in a narrow strip.
 - The window sits on the right, beside the text.
+- **Window size:** 14rem wide from 640px. On the widest screens (from 1536px) it's wider but not taller: the window's shape widens from 100 to 130 units (its height is 150; `wide` on `<Window>`), and its height stays 26.25rem, so the floor keeps its place and only the panes and their light on the floor get wider.
 - **Phone:** the window is large (15rem) and sits top right, behind the heading and first paragraph. The text stays on top, with a page-colored halo (`halo`) so it reads over the clouds.
 
 ## Copy and links
 - Copy lives in `content/` (see CLAUDE.md).
 - Link phrases are Switzer bold and keep their square brackets on the page: `[a living library for screenshots]`.
-- Punctuation right after the food-map button (`.`) rides inside it, in regular weight, so it never wraps onto a line by itself (a button can't share a wrapped line with the text after it).
+- Punctuation right after a link or button phrase (`.`) rides inside it, in regular weight, so it never wraps onto a line by itself.
 - Link targets:
   - [a living library for screenshots] → `/projects/overlook`
   - [a way to discover movies and decide what to watch] → `/projects/film-jousting`
@@ -22,7 +24,7 @@ A room with a window. Reference: docs/design/about.png.
   - [behind a camera] → `/photography`
   - [thinking about my next meal] → opens the food map (see below)
   - [a team I care about] → `mailto:maggiemshen@gmail.com`
-- These are inline links, not doors: they don't swing (only big links do, see shell.md). They underline on hover, brackets included. Links to rooms still get the camera walk into the room (`RoomLink`). Phrases that open something on the page are buttons, so they work by keyboard and screen reader.
+- These are inline links, not doors: they don't swing (only big links do, see shell.md). They underline on hover, brackets included. Links to rooms still get the camera walk into the room (`RoomLink`). Phrases that open something on the page are buttons that wrap like the text around them (`InlineButton`: `role="button"`, focusable, Enter and Space), so a long phrase near a line's end doesn't jump whole to the next line and leave its paragraph looking narrower; they work by keyboard and screen reader.
 
 ## Food map
 - Clicking or tapping [thinking about my next meal] opens the food map image as a card on the right side of the page, over the window area. Reference: docs/design/about-food-map.png.
@@ -36,23 +38,23 @@ Clicking [weather] shows off the sky system: the window becomes a full-size view
 - A line under the window, in Space Grotesk: `← Live from New York: partly cloudy, 41° →`, with a smaller `Close` under it, set apart from the line. The arrows' clickable areas reach well past the glyphs (about 50×44px). The arrows, arrow keys and touch swipes step through the other four skies, named on their own (`← Snowy →`), starting from today's weather and wrapping both ways. Each change fades the old sky out and the new one in once built (`--sky-swap`).
 - Close, Esc or a click on the sky shrinks it back into the window, and focus returns to [weather]. The browser's Back (button or swipe) closes it too and stays on About: opening adds a history entry for the same address, and closing any other way removes it.
 - Reduced motion: it fades open instead of growing; the sky still moves.
-- [weather] is a button, like the food map's. The view is a `<dialog>`; opening it focuses the dialog itself rather than its first arrow, so a mouse opening doesn't show a focus ring.
+- [weather] is an inline button, like the food map's. The view is a `<dialog>`; opening it focuses the dialog itself rather than its first arrow, so a mouse opening doesn't show a focus ring.
 - Later: once the This site project page explains the system, the line gets a `how this sky works →` link.
 
 ## The window
 - A shared `Window` component, also used on the Projects page.
-- A four-pane window seen at an angle: it's turned on its vertical axis with its right side toward the viewer, so the right edge is taller and the top slopes up to the right, as if seen from near its foot. No frame is drawn: the panes sit on the wall itself, each shown sitting back by a faint shadow along its top and left edges (the bezel). A light ledge runs right under the glass, exactly as wide as the panes, so all of it sits in the window's light: just a top surface with no front edge, lighter than the wall because it catches the window's light (the wall mixed 40% toward white), and a faint soft shadow on the wall just under it (`SILL`), so it reads as a light shelf, not a built object. The glass is the homepage's page color, so the sky looks the same through it.
+- A four-pane window seen at an angle: it's turned on its vertical axis with its right side toward the viewer, so the right edge is taller and the top slopes up to the right, as if seen from near its foot. No frame is drawn: the panes sit on the wall itself, each shown sitting back by a faint shadow along its top and left edges (the bezel). A light ledge runs right under the glass, exactly as wide as the panes, so all of it sits in the window's light: just a top surface with no front edge, lighter than the wall because it catches the window's light (the wall mixed 40% toward white), and a faint soft shadow on the wall just under it (`SILL`), so it reads as a light shelf, not a built object. The glass is pure white (`glass` token, `#ffffff`), a touch lighter than the wall, so it reads as daylight from outside.
 - The angle, eye height and frame sizes are constants at the top of `components/window.tsx`; the bezel color is the `bevel` token, and the sill's is `sill`, a lit version of the page color, so it matches any wall the window is on.
 - Through the panes you see the live NYC sky: the site's one shared sky, showing the part that's behind the window on screen (see sky.md). For it to show clouds, the window sits in the top part of the page.
 - The sky through the panes isn't skewed by the angle: it's far away, so it looks the same as it would straight on, like a real window.
 - The clouds drift as usual. The window is view-only: the dots stay put under the cursor.
 
 ## Light on the floor
-- The room has a floor a shade darker than the wall (`floor` theme token), so there's always contrast and the window's light can show on it in the page's white.
+- The room has a floor a shade darker than the wall (`floor` theme token, `#ebe9e4`, darkened from `#f0eeea` for more contrast), so there's always contrast and the window's light can show on it in the page's white.
 - The room is worked out in 3D with the same camera as the window (`components/window.tsx`): the window sits in a wall turned 32° (`TURN`), and the floor is level about two-thirds of a window-height below the window (`FLOOR`). The floor's edge is where that wall meets it, so it slopes with the wall's turn.
 - The light is the window's four panes projected along the light onto the floor, then drawn in perspective, in the page color.
 - It follows the same light as the homepage shadow (`useLiveLight` in `components/house.tsx`): the sun by day and the moon by night, bright in sun, faint under clouds and at night (`LIGHT_STRENGTH`), always there. On page load it fades in with the sky. Morning light throws it left, afternoon right.
-- Stylized to stay in the room: the light's height is held between 35° and 70° (`LIGHT_ALTITUDE`), it always comes in through the window and at most so far sideways (`MIN_INWARD`, `MAX_SIDEWAYS`), and its travel across the floor is shortened (`LIGHT_REACH`).
+- The patch is the true projection of the four panes along the light, so its length, lean and mullion lines match the window and the sun's angle. Stylized to stay in the room: it starts at the foot of the wall below the window (`LIGHT_START` 0, as if the window sat lower; shortening the whole projection instead squashed its shape), the light's height is held between 50° and 70° (`LIGHT_ALTITUDE`; lower, the patch runs off the page), and it always comes in through the window and at most so far sideways (`MIN_INWARD`, `MAX_SIDEWAYS`).
 - On About only (`<Window floorLight>`), at every width.
 
 ## Done when
