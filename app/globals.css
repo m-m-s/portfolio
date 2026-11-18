@@ -15,7 +15,7 @@
   /* Shrinks with the screen so "Product Engineer" never wraps and the house keeps its shape. */
   --text-intro: min(3rem, calc((100vw - 2rem) / 10.6));
   /* The window: clear panes (the homepage's sky color, so the sky looks the same through it) and the bezel's shading. */
-  --color-glass: #ffffff;
+  --color-glass: #fdfbf7;
   --color-bevel: rgb(0 0 0 / 0.14);
   /* About's floor: always a shade darker than the wall, so window light shows on it. */
   --color-floor: #ebe9e4;
@@ -58,7 +58,7 @@
   --row-slide-distance: 40vw;
   /* A gallery photo growing out of its row into the slideshow, and back. */
   --photo-grow: 450ms;
-  /* About's window growing into the full sky view (Look outside), and back; and one sky fading into the next there. */
+  /* A window growing into Look outside's view, and back; and one sky fading into the next there. */
   --outside-grow: 500ms;
   --sky-swap: 250ms;
   /* Look outside's big window: its distance from the screen's sides, top and bottom, and its frame. */
@@ -474,7 +474,7 @@ html[data-photo-motion="step"]::view-transition-new(photo-in) {
   }
 }
 
-/* Look outside (About): only the window's glass moves, growing into the full
+/* Look outside: only the window's glass moves, growing into the full
    sky view and back; the page fades under it. */
 html[data-sky-view] * {
   view-transition-name: none;
@@ -496,7 +496,8 @@ html[data-sky-view]::view-transition-new(*) {
   inset: var(--outside-top) var(--outside-x) var(--outside-bottom);
   overflow: hidden;
   border: var(--outside-frame) solid var(--color-page);
-  background: var(--color-glass);
+  /* The homepage's color, so the view's sky matches the homepage's. */
+  background: var(--color-page);
   box-shadow: 0 0.5rem 2rem rgb(0 0 0 / 0.08);
 }
 .outside-window > canvas {

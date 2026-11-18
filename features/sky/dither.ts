@@ -1,4 +1,3 @@
-// Ported from docs/reference/mock-snowy.html. Keep in step with the mock.
 import type { CloudSettings, FarSettings } from "./config";
 import { FAR_SIDE_FADE } from "./constants";
 

@@ -58,7 +58,7 @@ function glued(paragraph: AboutPart[]) {
 
 export default function About() {
   return (
-    <main className="relative isolate grid flex-1 content-start px-4 py-12 sm:grid-cols-[minmax(0,34rem)_1fr] sm:gap-x-12 sm:px-12 sm:pt-24 md:px-16 lg:px-[10%] xl:grid-cols-[minmax(0,40rem)_1fr] 2xl:grid-cols-[minmax(0,46rem)_1fr] 2xl:pl-[20%]">
+    <main className="relative grid [--color-page:var(--color-wall)] before:fixed before:inset-0 before:-z-10 before:bg-wall flex-1 content-start px-4 py-12 sm:grid-cols-[minmax(0,34rem)_1fr] sm:gap-x-12 sm:px-12 sm:pt-24 md:px-16 lg:px-[10%] xl:grid-cols-[minmax(0,40rem)_1fr] 2xl:grid-cols-[minmax(0,46rem)_1fr] 2xl:pl-[20%]">
       <h1 className="max-sm:halo self-end pt-40 text-4xl font-bold sm:pt-0 sm:text-5xl">
         {aboutHeading}
       </h1>

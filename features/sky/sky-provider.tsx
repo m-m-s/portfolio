@@ -11,6 +11,7 @@ import {
   useState,
 } from "react";
 import type { Sky } from "@/features/weather/sky";
+import { WINDOW_FOR_FULL_CLOUDS } from "./constants";
 import { randomSeed, SkyEngine } from "./engine";
 
 type Draw = (sky: HTMLCanvasElement) => void;
@@ -18,6 +19,8 @@ type Draw = (sky: HTMLCanvasElement) => void;
 type SkyContextValue = {
   /** Calls draw with the sky's canvas after every frame. Returns an unsubscribe. */
   watch: (draw: Draw) => () => void;
+  /** A window on the page reports its width, so its clouds are sized to it. */
+  setWindowWidth: (width: number) => void;
   weather: Sky;
 };
 
@@ -41,6 +44,8 @@ export function SkyProvider({
   const watchers = useRef(new Set<Draw>());
   const [watching, setWatching] = useState(0);
   const [seed, setSeed] = useState<number | null>(null);
+  // Until a window reports in: the desktop About window's width.
+  const [windowWidth, setWindowWidth] = useState(WINDOW_FOR_FULL_CLOUDS / 2);
   const full = usePathname() === "/";
 
   useEffect(() => {
@@ -61,12 +66,10 @@ export function SkyProvider({
     };
   }, []);
 
-  const scale = full ? null : "window";
-
   // Before show, so the first build already uses it.
   useEffect(() => {
-    engine.current?.setCloudScale(scale);
-  }, [scale]);
+    engine.current?.setWindowWidth(full ? null : windowWidth);
+  }, [full, windowWidth]);
 
   useEffect(() => {
     if (seed !== null) engine.current?.show(weather, seed);
@@ -86,7 +89,10 @@ export function SkyProvider({
     };
   }, []);
 
-  const value = useMemo(() => ({ watch, weather }), [watch, weather]);
+  const value = useMemo(
+    () => ({ watch, setWindowWidth, weather }),
+    [watch, weather],
+  );
 
   return (
     <SkyContext value={value}>

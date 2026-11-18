@@ -1,7 +1,5 @@
 import type { Sky } from "@/features/weather/sky";
 
-// PLACEHOLDER icons until the real set is chosen.
-
 const CLOUD =
   "M7 18h10a4 4 0 0 0 .5-7.97A5.5 5.5 0 0 0 7 11a3.5 3.5 0 0 0 0 7Z";
 

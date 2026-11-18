@@ -1,4 +1,3 @@
-// Tables ported from docs/reference/mock-snowy.html.
 import type { Sky } from "@/features/weather/sky";
 
 export type Layer = "mid" | "front";
@@ -46,8 +45,11 @@ export const LAYER = {
 
 export const WIDTH: Record<Layer, number> = { front: 300, mid: 220 };
 
-/** Clouds on pages that show the sky only through a window: smaller, so a few fit in the panes. The window is smaller still on a phone. */
-export const WINDOW_CLOUD_SCALE = { laptop: 0.5, phone: 0.25 };
+/** On pages that show the sky through a window, clouds scale with the window's width: full size for a window this wide, in px, and in proportion either side (half size in a 224px window). */
+export const WINDOW_FOR_FULL_CLOUDS = 448;
+
+/** Window clouds never go smaller than this, however small the window: smaller dithers lose the clouds' shapes. */
+export const MIN_WINDOW_CLOUDS = 0.45;
 
 /** The window the sky was tuned in. Bigger screens grow the clouds and far strip and add clouds to keep the tuned spacing; smaller ones keep the tuned sizes (phones have their own scale). */
 export const REFERENCE = { width: 1440, height: 900 };
@@ -55,8 +57,7 @@ export const REFERENCE = { width: 1440, height: 900 };
 /** How much the width counts toward the growth, against the sky's height: 0 grows by height only (wide screens aren't much taller, so the clouds stay smallish), 1 by width only (they crowd the top). */
 export const WIDE_WEIGHT = 0.5;
 
-/** Below this width (Tailwind's sm), clouds use PHONE_CLOUD_SCALE. */
-export const PHONE_WIDTH = 640;
+export const SMALL_SCREEN = 640;
 
 /** Multiplies every cloud's width on phones, per weather. */
 export const PHONE_CLOUD_SCALE: Record<Sky, number> = {

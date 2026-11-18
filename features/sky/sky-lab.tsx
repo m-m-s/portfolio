@@ -40,7 +40,7 @@ export function SkyLab() {
   const sun = date && sunPosition(date);
   const moon = date && moonPosition(date);
 
-  // ?seed=11&weather=snowy reproduces a sky (e.g. to compare with the mock).
+  // ?seed=11&weather=snowy reproduces a sky.
   useEffect(() => {
     const q = new URLSearchParams(window.location.search);
     const w = q.get("weather");

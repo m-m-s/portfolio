@@ -1,6 +1,3 @@
-// Ported from docs/reference/mock-snowy.html (build, frame, rain and dots).
-// The order of random draws in build() matches the mock, so a seed gives the
-// same sky in both.
 import type { Sky } from "@/features/weather/sky";
 import { cloudSettings, configFor, type SkyConfig } from "./config";
 import {
@@ -15,15 +12,16 @@ import {
   LAYER,
   type Layer,
   MAX_LARGE,
+  MIN_WINDOW_CLOUDS,
   PHONE_CLOUD_SCALE,
-  PHONE_WIDTH,
   REFERENCE,
   RETUNED_SKIES,
   type Rgb,
   SKY_FRACTION,
+  SMALL_SCREEN,
   WIDE_WEIGHT,
   WIDTH,
-  WINDOW_CLOUD_SCALE,
+  WINDOW_FOR_FULL_CLOUDS,
 } from "./constants";
 import {
   bottoms,
@@ -124,7 +122,9 @@ export class SkyEngine {
   private rainOn = false;
   private seed = 1;
   private layoutSeed = 1;
-  private scaleOverride: number | "window" | null = null;
+  private scaleOverride: number | null = null;
+  /** Set while the sky is seen only through a window: its width, in px. */
+  private windowWidth: number | null = null;
 
   private readonly src = new Map<string, HTMLImageElement>();
   private readonly farBase = new Map<string, Sprite>();
@@ -228,21 +228,28 @@ export class SkyEngine {
   }
 
   /** Overrides the weather's cloud scale (null goes back to it). Keeps the layout. */
-  setCloudScale(scale: number | "window" | null) {
+  setCloudScale(scale: number | null) {
     if (scale === this.scaleOverride) return;
     this.scaleOverride = scale;
     if (this.ready) void this.build();
   }
+  /** Shows the sky only through a window this wide (null: the full sky). Rounded, so small resizes don't rebuild it. */
+  setWindowWidth(width: number | null) {
+    const rounded = width === null ? null : Math.round(width / 16) * 16;
+    if (rounded === this.windowWidth) return;
+    this.windowWidth = rounded;
+    if (this.ready) void this.build();
+  }
 
-  /** The far strip grows with the sky's height alone: anchored by its bottom, growing any faster would lift its top above where it sits at the reference size. Window pages show a fixed-size window and don't grow. */
+  /** The far strip grows with the sky's height alone: anchored by its bottom, growing any faster would lift its top above where it sits at the reference size. In a window it keeps its size. */
   private get farGrowth() {
-    if (this.scaleOverride === "window") return 1;
+    if (this.windowWidth !== null) return 1;
     return Math.max(1, this.H / REFERENCE.height);
   }
 
   /** Clouds grow with a blend of the sky's height and the screen's width (WIDE_WEIGHT). */
   private get cloudGrowth() {
-    if (this.scaleOverride === "window") return 1;
+    if (this.windowWidth !== null) return 1;
     const byWidth = this.W / REFERENCE.width;
     return Math.max(
       1,
@@ -252,14 +259,18 @@ export class SkyEngine {
 
   /** Extra clouds for the width the grown clouds don't cover, so the spacing stays as tuned. */
   private get fill() {
-    if (this.scaleOverride === "window") return 1;
+    if (this.windowWidth !== null) return 1;
     return Math.max(1, this.W / (REFERENCE.width * this.cloudGrowth));
   }
 
   private get cloudScale() {
-    const phone = this.W < PHONE_WIDTH;
-    if (this.scaleOverride === "window")
-      return WINDOW_CLOUD_SCALE[phone ? "phone" : "laptop"];
+    if (this.windowWidth !== null) {
+      return Math.max(
+        MIN_WINDOW_CLOUDS,
+        this.windowWidth / WINDOW_FOR_FULL_CLOUDS,
+      );
+    }
+    const phone = this.W < SMALL_SCREEN;
     const base =
       this.scaleOverride ?? (phone ? PHONE_CLOUD_SCALE[this.sky] : 1);
     return base * this.cloudGrowth;

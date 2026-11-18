@@ -5,7 +5,6 @@ export type AboutPart =
 
 export const aboutHeading = "Hi, I'm Maggie,";
 
-/** Transcribed from docs/design/about.png; close to final. */
 export const aboutParagraphs: AboutPart[][] = [
   [
     "a product thinker, builder, and fixer. I love making tools that turn messy, real-world information into something structured and interactive, and finding fun solutions that expand the ways people interact with their world. I've been building ",

@@ -6,11 +6,11 @@ import { InlineButton } from "@/components/inline-button";
 import { scopedTransition } from "@/features/transitions/scoped-transition";
 import type { Weather } from "@/features/weather/get-weather";
 import { SKIES, SKY_LABELS, type Sky } from "@/features/weather/sky";
-import { PHONE_WIDTH } from "./constants";
+import { SMALL_SCREEN } from "./constants";
 import { randomSeed, SkyEngine } from "./engine";
 
 /** On a phone the window is narrow, so its clouds are drawn smaller than the homepage's: this share of their width. */
-const PHONE_VIEW_SCALE = 0.6;
+const PHONE_VIEW_SCALE = 0.45;
 /** A swipe shorter than this, in pixels, isn't a swipe. */
 const SWIPE = 40;
 
@@ -69,7 +69,7 @@ export function LookOutsideProvider({
     const e = new SkyEngine(c);
     e.setInteractive(true);
     e.setActive(true);
-    if (window.innerWidth < PHONE_WIDTH) e.setCloudScale(PHONE_VIEW_SCALE);
+    if (window.innerWidth < SMALL_SCREEN) e.setCloudScale(PHONE_VIEW_SCALE);
     engine.current = e;
     void e.show(live.sky, randomSeed()).then(() => setReady(true));
     return () => {
@@ -141,10 +141,19 @@ export function LookOutsideProvider({
     }, swap);
   };
 
+  // Each half stays whole, so a narrow screen breaks the line only between them.
   const label =
-    at === 0
-      ? `Live from New York: ${SKY_LABELS[shown].toLowerCase()}${live.temperature === null ? "" : `, ${live.temperature}°`}`
-      : SKY_LABELS[shown];
+    at === 0 ? (
+      <>
+        <span className="whitespace-nowrap">Live from New York:</span>{" "}
+        <span className="whitespace-nowrap">
+          {SKY_LABELS[shown].toLowerCase()}
+          {live.temperature === null ? "" : `, ${live.temperature}°`}
+        </span>
+      </>
+    ) : (
+      SKY_LABELS[shown]
+    );
 
   return (
     <LookOutsideContext value={openView}>
@@ -196,7 +205,10 @@ export function LookOutsideProvider({
               ←
             </button>
             {/* Wide enough for the live line, so the arrows stay put as it changes. */}
-            <p aria-live="polite" className="w-[30ch] text-center">
+            <p
+              aria-live="polite"
+              className="w-[min(30ch,100vw-9rem)] text-center"
+            >
               {label}
             </p>
             <button

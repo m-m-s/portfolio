@@ -21,7 +21,6 @@ const row = (n: number, shapes: Shape[]): Photo[] =>
     ratio: SHAPES[shape],
   }));
 
-/** Placeholder rows, in order; swapping in the real photos changes only this list. */
 export const photoRows: Photo[][] = [
   row(1, ["3:2", "2:3", "16:9", "3:4", "3:2", "4:3", "2:3"]),
   row(2, [

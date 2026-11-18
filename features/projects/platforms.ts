@@ -51,7 +51,7 @@ const DESKTOP: Shape = {
 };
 
 /** The room widths the two shapes are tuned for; between them the numbers blend. */
-const PHONE_WIDTH = 390;
+const DESIGN_PHONE_WIDTH = 390;
 const DESKTOP_WIDTH = 1280;
 
 /** How far the faces run below the room's foot, so they reach past the page's bottom. */
@@ -62,7 +62,7 @@ export const progress = (x: number, from: number, to: number) =>
   Math.min(1, Math.max(0, (x - from) / (to - from)));
 
 function shapeFor(width: number): Shape {
-  const t = progress(width, PHONE_WIDTH, DESKTOP_WIDTH);
+  const t = progress(width, DESIGN_PHONE_WIDTH, DESKTOP_WIDTH);
   const mix = (key: keyof Shape) =>
     PHONE[key] + (DESKTOP[key] - PHONE[key]) * t;
   return Object.fromEntries(

@@ -237,7 +237,7 @@ export function Window({
 }) {
   const box = useRef<HTMLDivElement>(null);
   const glass = useRef<HTMLCanvasElement>(null);
-  const { watch } = useSky();
+  const { watch, setWindowWidth } = useSky();
   const lookOutside = useLookOutside();
   const [wideScreen, setWideScreen] = useState(false);
   useEffect(() => {
@@ -254,6 +254,14 @@ export function Window({
   const view = flip ? g.mirrored : g.plain;
   const shown = view.panes;
   const viewW = g.viewW;
+
+  useEffect(() => {
+    const el = box.current;
+    if (!el) return;
+    const observer = new ResizeObserver(() => setWindowWidth(el.offsetWidth));
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [setWindowWidth]);
 
   useEffect(() => {
     const el = box.current;
@@ -304,7 +312,7 @@ export function Window({
       className={`relative ${className}`}
     >
       {floorLight && (
-        // Behind the page's text: the page needs `isolate` so this stays above its background.
+        // Behind the page's text but above the room's wall, a layer the page paints before it.
         <svg
           aria-hidden="true"
           viewBox={`0 0 ${g.viewW} ${g.viewH}`}
