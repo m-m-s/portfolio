@@ -9,30 +9,30 @@
 }
 
 @theme {
-  --color-page: #fdfbf7;
+  --color-page: #fcfbf9;
   --color-ink: #171717;
-  --color-house-shadow: #8a8984;
+  --color-house-shadow: #898986;
   /* Shrinks with the screen so "Product Engineer" never wraps and the house keeps its shape. */
   --text-intro: min(3rem, calc((100vw - 2rem) / 10.6));
   /* The window: clear panes (the homepage's sky color, so the sky looks the same through it) and the bezel's shading. */
-  --color-glass: #fdfbf7;
+  --color-glass: #fcfbf9;
   --color-bevel: rgb(0 0 0 / 0.14);
   /* About's floor: always a shade darker than the wall, so window light shows on it. */
-  --color-floor: #ebe9e4;
+  --color-floor: #eae9e7;
   /* Gray boxes standing in for images that aren't added yet. */
-  --color-placeholder: #e3e2df;
+  --color-placeholder: #e2e2e0;
   /* Thin lines that divide a page: around the project info table, between a project's sections. */
-  --color-rule: #dcdad4;
+  --color-rule: #dbdad7;
   /* Projects' wall: a touch darker than the page, so the white step tops show against it. */
-  --color-wall: #f9f7f2;
+  --color-wall: #f8f7f5;
   /* The Projects platforms: lit top, front in light shade, side in deeper shade. */
   --color-platform-top: #ffffff;
-  --color-platform-front: #e3e0d9;
-  --color-platform-side: #d4d1c9;
+  --color-platform-front: #e2e0dd;
+  --color-platform-side: #d3d1cd;
   /* Photography's placeholder photos, until the real ones are in. */
-  --color-photo-1: #e6e5e1;
-  --color-photo-2: #dcdbd6;
-  --color-photo-3: #eeede9;
+  --color-photo-1: #e5e5e3;
+  --color-photo-2: #dbdbd8;
+  --color-photo-3: #ededeb;
 }
 
 :root {
