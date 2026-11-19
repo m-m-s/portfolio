@@ -5,6 +5,11 @@ export type AboutPart =
 
 export const aboutHeading = "Hi, I'm Maggie,";
 
+export const foodMapDescription =
+  "a google maps screenshot with new york city covered in different colored pins";
+
+export const foodMapCredit = "Map data ©2026 Google";
+
 export const aboutParagraphs: AboutPart[][] = [
   [
     "a product thinker, builder, and fixer. I love making tools that turn messy, real-world information into something structured and interactive, and finding fun solutions that expand the ways people interact with their world. I've been building ",

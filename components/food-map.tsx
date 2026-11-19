@@ -1,7 +1,10 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { foodMapCredit, foodMapDescription } from "@/content/about";
+import foodMap from "../public/about/food-map.png";
 import { InlineButton } from "./inline-button";
 
 const OPEN_FOR = 4000;
@@ -44,11 +47,20 @@ export function FoodMapButton({ children }: { children: React.ReactNode }) {
         createPortal(
           <div
             ref={card}
-            role="img"
-            aria-label="[COPY: food map description]"
-            className="fixed inset-x-0 top-1/2 z-20 mx-auto flex aspect-square w-64 -translate-y-1/2 animate-[fade-in_300ms_ease-out] items-center justify-center bg-glass text-sm text-ink/50 shadow-lg sm:inset-x-auto sm:top-[22%] sm:right-[10%] sm:w-72 sm:translate-y-0"
+            className="fixed inset-x-4 top-1/2 z-20 overflow-hidden mx-auto -translate-y-1/2 animate-[fade-in_300ms_ease-out] bg-glass shadow-lg sm:inset-x-auto sm:top-[22%] sm:right-[10%] sm:w-96 sm:translate-y-0 lg:w-[28rem]"
           >
-            [IMAGE: food map]
+            <Image
+              src={foodMap}
+              alt={foodMapDescription}
+              sizes="(min-width: 1024px) 28rem, (min-width: 640px) 24rem, 100vw"
+              placeholder="blur"
+              loading="eager"
+              className="block h-auto w-full"
+            />
+            {/* Google requires its credit beside the map, legible, where it prints it itself. */}
+            <p className="absolute right-0 bottom-0 bg-glass/80 px-1.5 py-0.5 font-grotesk text-xs text-ink/70">
+              {foodMapCredit}
+            </p>
           </div>,
           document.body,
         )}
