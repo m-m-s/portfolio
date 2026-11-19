@@ -56,7 +56,7 @@ Text links, written out: `Email   LinkedIn   GitHub`. Typeface: Space Grotesk re
 
 ## Door links
 
-A reusable `DoorLink` component for every big bold link (Switzer bold), on any page. Small links inside running text (like the About paragraphs) are not doors: they underline on hover, and links to rooms use `RoomLink` so the camera still walks in.
+A reusable `DoorLink` component for every big bold link (Switzer bold), on any page. Small links inside running text (like the About paragraphs) are not doors: they underline on hover, and switch pages without the camera walk, even into a room.
 
 - **Click:** the link text swings open like a door, hinged on its left edge, outward toward the viewer. Only the text swings. The swing is smooth, not floppy (0.45s to start). The camera starts moving the instant the link is clicked, and the door swings open while the camera pushes in (full overlap, no pause). The door is a slab in the page color with the word on it, with some room around the letters (invisible at rest). It's cut from the page: behind it is the paper underneath, a shade darker and recessed with a soft shadow along the cut. The door casts a soft shadow.
 - **Coming back:** the page you return to loads normally, with every door closed. No reverse swing.
@@ -82,7 +82,7 @@ The camera walks up to, into and out of rooms. Built with the View Transitions A
 - **Back/forward** start at the top of the page instead of restoring the scroll position (the price of animating them). A phone's swipe-back gesture keeps the browser's own animation instead.
 - The weather/clock line and footer stay still while the rest of the page moves.
 - **The sky** stays still too, and only fades: from the whole sky on Home to just the window in a room, in step with the rooms' crossfade (see sky.md).
-- **Only walks between rooms animate:** site links and the back and forward buttons mark their navigation as a walk (`ROOM_WALK` in `features/transitions/direction.ts`), and only those play the room transition. React can start a page transition on its own (when the page first loads, and when the weather refreshes), and those show no animation, so nothing ever covers the walk-up.
+- **Only walks between rooms animate:** door links and the back and forward buttons mark their navigation as a walk (inline text links don't) (`ROOM_WALK` in `features/transitions/direction.ts`), and only those play the room transition. React can start a page transition on its own (when the page first loads, and when the weather refreshes), and those show no animation, so nothing ever covers the walk-up.
 - Timings are CSS variables in `app/globals.css` (`--door-swing`, `--camera`, `--walk-up`, `--door-nudge`).
 - **Reduced motion:** a simple fade.
 

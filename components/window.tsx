@@ -312,7 +312,7 @@ export function Window({
       className={`relative ${className}`}
     >
       {floorLight && (
-        // Behind the page's text but above the room's wall, a layer the page paints before it.
+        // Behind the page's text: the page needs `isolate` so this stays above its background.
         <svg
           aria-hidden="true"
           viewBox={`0 0 ${g.viewW} ${g.viewH}`}
