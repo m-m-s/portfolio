@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "node scripts/fetch-fonts.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "biome check",
@@ -22,6 +23,7 @@
     "@types/node": "^26.6.6",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vercel/blob": "2.8.2",
     "tailwindcss": "^4.3.5",
     "typescript": "^7.0.2"
   }
