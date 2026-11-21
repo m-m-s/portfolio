@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useLayoutEffect, useRef } from "react";
 import { prepareNavigation, ROOM_WALK } from "@/features/transitions/direction";
+import { usePath } from "@/features/transitions/use-path";
 
 type DoorLinkProps = {
   href: string;
@@ -18,7 +18,7 @@ export function DoorLink({
   className = "",
   ...rest
 }: DoorLinkProps) {
-  const pathname = usePathname();
+  const pathname = usePath();
   const door = useRef<HTMLSpanElement>(null);
 
   // Next keeps visited pages alive but hidden, so this runs when the page is

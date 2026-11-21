@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useLayoutEffect, useRef, useState } from "react";
 import { turnForSlope, Window, windowShape } from "@/components/window";
 import type { Project } from "@/content/projects";
 import { prepareNavigation } from "@/features/transitions/direction";
+import { usePath } from "@/features/transitions/use-path";
 import {
   type Platform,
   type Point,
@@ -87,7 +88,7 @@ const points = (pts: Point[]) =>
 export function ProjectPlatforms({ projects }: { projects: Project[] }) {
   const room = useRef<HTMLDivElement>(null);
   const router = useRouter();
-  const pathname = usePathname();
+  const pathname = usePath();
   const [hovered, setHovered] = useState<number | null>(null);
   const [chosen, setChosen] = useState<number | null>(null);
 

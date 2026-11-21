@@ -1,6 +1,5 @@
 "use client";
 
-import { usePathname } from "next/navigation";
 import {
   createContext,
   useCallback,
@@ -10,6 +9,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { usePath } from "@/features/transitions/use-path";
 import type { Sky } from "@/features/weather/sky";
 import { WINDOW_FOR_FULL_CLOUDS } from "./constants";
 import { randomSeed, SkyEngine } from "./engine";
@@ -46,7 +46,7 @@ export function SkyProvider({
   const [seed, setSeed] = useState<number | null>(null);
   // Until a window reports in: the desktop About window's width.
   const [windowWidth, setWindowWidth] = useState(WINDOW_FOR_FULL_CLOUDS / 2);
-  const full = usePathname() === "/";
+  const full = usePath() === "/";
 
   useEffect(() => {
     const c = canvas.current;

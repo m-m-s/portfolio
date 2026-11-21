@@ -1,11 +1,12 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, ViewTransition } from "react";
+import { usePath } from "@/features/transitions/use-path";
 import { prepareNavigation, ROOM_WALK } from "./direction";
 
 export function RoomTransition({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
+  const pathname = usePath();
   const router = useRouter();
   const current = useRef(pathname);
 
