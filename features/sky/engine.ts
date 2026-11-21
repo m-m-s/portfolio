@@ -98,8 +98,14 @@ type Drop = {
 };
 
 const FAR_INK_MIX = 0.35;
-/** How much room two copies of the same cloud want between their centres, in mean cloud widths (other pairs: 0.75). */
+/** How much room two clouds want between their centres, in mean cloud sizes: under 1 lets them overlap a little. */
+const CLOUD_ROOM = 0.75;
+/** The same for two copies of the same cloud. */
 const SAME_CLOUD_ROOM = 2.5;
+/** A cloud takes the best spaced of this many random spots. */
+const TRIES = 8;
+/** A front cloud stacked on a middle one looks at this many spots on screen for open sky. */
+const MOVE_TRIES = 32;
 
 function loadImage(src: string) {
   return new Promise<HTMLImageElement | null>((resolve) => {
@@ -578,6 +584,8 @@ export class SkyEngine {
       c.sizeMin + (c.sizeMax - c.sizeMin) * this.rnd();
 
     const layers: Partial<Record<Layer, CloudLayer>> = {};
+    // Where the middle layer's clouds show as the sky opens, for the front layer to keep clear of.
+    const onScreen: { x: number; y: number; w: number; h: number }[] = [];
     for (const name of ["mid", "front"] as const) {
       const pool = CLOUDS.filter(
         (id) => this.config[name][id] && this.src.has(id),
@@ -639,27 +647,61 @@ export class SkyEngine {
       // Two copies of the same cloud want much more room between them: side by
       // side (one often mirrored) they read as a symmetric pair.
       items.sort((a, b) => b.w - a.w);
+      const margin = Math.max(...items.map((it) => it.w));
+      const track = span + margin;
+      const off = this.rnd() * span;
       const placed: { id: string; c: number; w: number }[] = [];
       const gap = (a: number, b: number) => {
-        const d = Math.abs(a - b) % span;
-        return Math.min(d, span - d);
+        const d = Math.abs(a - b) % track;
+        return Math.min(d, track - d);
       };
+      const screenX = (x0: number) => ((x0 + off) % track) - margin;
       const inst: Cloud[] = [];
       for (const it of items) {
-        let bx = this.rnd() * span;
-        let bs = -1e9;
+        let bx = this.rnd() * track;
+        const h = it.sprite.h;
+        const spacing = (x: number) => {
+          let sc = 1e9;
+          for (const p of placed) {
+            const room = p.id === it.id ? SAME_CLOUD_ROOM : CLOUD_ROOM;
+            sc = Math.min(
+              sc,
+              gap(x + it.w / 2, p.c) - ((it.w + p.w) / 2) * room,
+            );
+          }
+          return sc;
+        };
         if (placed.length) {
-          for (let t = 0; t < 8; t++) {
-            const x = this.rnd() * span;
-            const c = x + it.w / 2;
-            let sc = 1e9;
-            for (const p of placed) {
-              const room = p.id === it.id ? SAME_CLOUD_ROOM : 0.75;
-              sc = Math.min(sc, gap(c, p.c) - ((it.w + p.w) / 2) * room);
-            }
-            if (sc > bs) {
-              bs = sc;
+          let best = -1e9;
+          for (let t = 0; t < TRIES; t++) {
+            const x = this.rnd() * track;
+            const sc = spacing(x);
+            if (sc > best) {
+              best = sc;
               bx = x;
+            }
+          }
+        }
+        const sx = screenX(bx);
+        const clear = (x: number) =>
+          onScreen.every(
+            (q) =>
+              Math.abs(x + it.w / 2 - (q.x + q.w / 2)) >=
+                ((it.w + q.w) / 2) * CLOUD_ROOM ||
+              Math.abs(it.y + h / 2 - (q.y + q.h / 2)) >=
+                ((h + q.h) / 2) * CLOUD_ROOM,
+          );
+        // A cloud that opens the sky stacked on the middle layer moves to an open
+        // stretch of the screen, if there is one: a full sky stays layered.
+        if (sx < W && sx + it.w > 0 && !clear(sx)) {
+          let best = -1e9;
+          for (let t = 0; t < MOVE_TRIES; t++) {
+            const x = -it.w / 2 + this.rnd() * W;
+            const x0 = (((x + margin - off) % track) + track) % track;
+            const sc = spacing(x0);
+            if (clear(x) && sc > best) {
+              best = sc;
+              bx = x0;
             }
           }
         }
@@ -674,16 +716,21 @@ export class SkyEngine {
         });
       }
       inst.sort((a, b) => a.y + a.sprite.h - (b.y + b.sprite.h));
-      const margin = Math.max(...inst.map((o) => o.sprite.w));
+      for (const o of inst) {
+        const x = screenX(o.x0);
+        if (x < W && x + o.sprite.w > 0) {
+          onScreen.push({ x, y: o.y, w: o.sprite.w, h: o.sprite.h });
+        }
+      }
       const ink = INK[this.sky][name];
       layers[name] = {
         ...LAYER[name],
         name,
         ink,
         inst,
-        span: span + margin,
+        span: track,
         margin,
-        off: this.rnd() * span,
+        off,
       };
       for (const o of inst) tinted(o.sprite, ink, o.flip);
     }
