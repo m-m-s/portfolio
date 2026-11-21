@@ -52,10 +52,10 @@
   --door-nudge: 5000ms;
   --walk-up: 1600ms;
   --sky-fade: 1200ms;
-  /* Gallery rows slide in from alternating sides, from this far off. */
+  /* Gallery rows slide in from alternating sides, from fully off screen. */
   --row-slide: 1600ms;
   --row-ease: cubic-bezier(0.33, 1, 0.68, 1);
-  --row-slide-distance: 40vw;
+  --row-slide-distance: 100vw;
   /* A gallery photo growing out of its row into the slideshow, and back. */
   --photo-grow: 450ms;
   /* A window growing into Look outside's view, and back; and one sky fading into the next there. */
@@ -496,6 +496,10 @@ html[data-sky-view]::view-transition-new(*) {
   animation-duration: var(--outside-grow);
   animation-timing-function: var(--settle-ease);
 }
+html[data-sky-view="fade"]::view-transition-old(*),
+html[data-sky-view="fade"]::view-transition-new(*) {
+  animation-duration: var(--sky-swap);
+}
 
 /* The big window shows a screen-sized sky, so the clouds keep their homepage
    size; it starts at the window's top, so the window frames the whole cloud band. */
@@ -504,10 +508,6 @@ html[data-sky-view]::view-transition-new(*) {
   inset: var(--outside-top) var(--outside-x) var(--outside-bottom);
   overflow: hidden;
   border: var(--outside-frame) solid var(--color-page);
-html[data-sky-view="fade"]::view-transition-old(*),
-html[data-sky-view="fade"]::view-transition-new(*) {
-  animation-duration: var(--sky-swap);
-}
   /* The homepage's color, so the view's sky matches the homepage's. */
   background: var(--color-page);
   box-shadow: 0 0.5rem 2rem rgb(0 0 0 / 0.08);

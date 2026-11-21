@@ -1,81 +1,104 @@
 import { type RefObject, useEffect } from "react";
 
-/** Drift in px per px/s of page scroll speed, up to DRIFT_MAX px. */
-const DRIFT_PER_SPEED = 0.03;
-const DRIFT_MAX = 48;
-/** How quickly the drift follows the scroll, and settles back once it stops (per second). */
-const DRIFT_EASE = 5;
-/** A pause in scroll events longer than this, in ms, means scrolling stopped. */
-const SCROLL_REST = 120;
-/** Hovering this share of the screen's width at either side scrolls a row, up to EDGE_SPEED px/s at the very edge. */
+/** Rows travel this many px per px of page scroll, each in its own direction. */
+const SCROLL_TRAVEL = 0.4;
+/** Hovering this share of the screen's width at either side moves a row, up to EDGE_SPEED px/s at the very edge. */
 const EDGE = 0.12;
 const EDGE_SPEED = 900;
-/** A mouse drag shorter than this, in px, is a click. */
-const DRAG_SLOP = 5;
+/** A drag shorter than this, in px, is a tap or click. */
+const DRAG_SLOP = 6;
 /** How quickly a flung row slows down (per second). */
 const FRICTION = 4;
 
 type Row = {
   el: HTMLElement;
-  /** 1 if the row moves right, -1 left. */
+  track: HTMLElement;
+  photos: HTMLElement[];
+  /** 1 if the row travels right as the page scrolls down, -1 left. */
   dir: number;
-  drift: number;
+  /** How far the track has moved left from where it starts, in px. */
+  offset: number;
   fling: number;
-  /** Sub-pixel scroll not yet applied: scrollLeft can round small steps away. */
-  carry: number;
+  /** Measured: each photo's right edge in the track, the track's first left edge, and one lap of the loop. */
+  ends: number[];
+  start: number;
+  lap: number;
+  /** The shift each photo has now: 0, or one lap for a photo gone past the left edge. */
+  shifts: number[];
 };
 
 type Drag = {
   row: Row;
+  id: number;
   startX: number;
-  startScroll: number;
+  startOffset: number;
   lastX: number;
   lastT: number;
   speed: number;
   moved: boolean;
 };
 
-/** Drifts rows on page scroll, scrolls them when the mouse hovers a screen edge, and lets a mouse drag and fling them. Rows are the `[data-row]` elements, their value the direction they move. */
+/** Moves the `[data-row]` elements as endless loops: each holds a `[data-track]` of photos, and a photo that leaves one end comes round at the other. Rows travel with the page scroll, and move by swipe, drag, sideways trackpad swipe and, with a mouse, hovering a screen edge. */
 export function useRowMotion(container: RefObject<HTMLElement | null>) {
   useEffect(() => {
     const root = container.current;
     if (!root) return;
     const rows: Row[] = [
       ...root.querySelectorAll<HTMLElement>("[data-row]"),
-    ].map((el) => ({
-      el,
-      dir: Number(el.dataset.row),
-      drift: 0,
-      fling: 0,
-      carry: 0,
-    }));
+    ].flatMap((el) => {
+      const track = el.querySelector<HTMLElement>("[data-track]");
+      if (!track) return [];
+      return [
+        {
+          el,
+          track,
+          photos: [...track.children] as HTMLElement[],
+          dir: Number(el.dataset.row),
+          offset: 0,
+          fling: 0,
+          ends: [],
+          start: 0,
+          lap: 0,
+          shifts: [],
+        },
+      ];
+    });
     const still = matchMedia("(prefers-reduced-motion: reduce)");
     const mouse = matchMedia("(hover: hover) and (pointer: fine)");
 
     let raf = 0;
     let last = 0;
     let scrollY = window.scrollY;
-    let scrolledAt = -Infinity;
-    let scrollSpeed = 0;
     let pointer: { x: number; y: number } | null = null;
     let drag: Drag | null = null;
     let swallowClick = false;
 
-    const scrollBy = (row: Row, px: number) => {
-      const { el } = row;
-      const max = el.scrollWidth - el.clientWidth;
-      if ((px < 0 && el.scrollLeft <= 0) || (px > 0 && el.scrollLeft >= max)) {
-        row.carry = 0;
-        return false;
+    const measure = () => {
+      for (const row of rows) {
+        const gap = Number.parseFloat(getComputedStyle(row.track).columnGap);
+        const first = row.photos[0];
+        const final = row.photos.at(-1);
+        if (!first || !final) continue;
+        row.start = first.offsetLeft;
+        row.ends = row.photos.map((p) => p.offsetLeft + p.offsetWidth);
+        row.lap = final.offsetLeft + final.offsetWidth + gap - row.start;
+        row.shifts = row.photos.map(() => -1);
       }
-      row.carry += px;
-      const whole = Math.trunc(row.carry);
-      el.scrollLeft += whole;
-      row.carry -= whole;
-      return true;
     };
 
-    /** The edge-hover scroll speed at the pointer's x, before checking which row it's over. */
+    const place = (row: Row) => {
+      if (!row.lap) return;
+      const o = ((row.offset % row.lap) + row.lap) % row.lap;
+      row.track.style.transform = o ? `translateX(${-o}px)` : "";
+      row.photos.forEach((photo, i) => {
+        const shift = row.ends[i] - o < 0 ? row.lap : 0;
+        if (shift === row.shifts[i]) return;
+        photo.style.transform = shift ? `translateX(${shift}px)` : "";
+        row.shifts[i] = shift;
+      });
+    };
+
+    /** The edge-hover speed at the pointer's x, before checking which row it's over. */
     const edgePull = () => {
       if (!pointer || drag) return 0;
       const zone = window.innerWidth * EDGE;
@@ -85,7 +108,7 @@ export function useRowMotion(container: RefObject<HTMLElement | null>) {
       return 0;
     };
 
-    const rowUnder = (y: number) =>
+    const rowAt = (y: number) =>
       rows.find((row) => {
         const box = row.el.getBoundingClientRect();
         return y >= box.top && y <= box.bottom;
@@ -95,39 +118,28 @@ export function useRowMotion(container: RefObject<HTMLElement | null>) {
       // A frame can be stamped slightly before the wake that requested it.
       const dt = Math.min(0.05, Math.max(0, now - last) / 1000);
       last = now;
-      const scrolling = now - scrolledAt < SCROLL_REST;
-      if (!scrolling) scrollSpeed = 0;
-      const target = still.matches
-        ? 0
-        : Math.min(DRIFT_MAX, scrollSpeed * DRIFT_PER_SPEED);
-      const follow = 1 - Math.exp(-DRIFT_EASE * dt);
-      let moving = scrolling || drag !== null;
+      let moving = drag !== null;
 
-      // Measure before any writes, so the frame never forces a second layout.
       const pull = edgePull();
       const hovered =
         pull && pointer && !document.querySelector("dialog[open]")
-          ? rowUnder(pointer.y)
+          ? rowAt(pointer.y)
           : undefined;
-      if (hovered && scrollBy(hovered, pull * dt)) moving = true;
+      if (hovered) {
+        hovered.offset += pull * dt;
+        moving = true;
+      }
 
       for (const row of rows) {
         if (row.fling && drag?.row !== row) {
           row.fling *= Math.exp(-FRICTION * dt);
-          if (Math.abs(row.fling) < 20 || !scrollBy(row, row.fling * dt)) {
-            row.fling = 0;
-          } else moving = true;
+          if (Math.abs(row.fling) < 20) row.fling = 0;
+          else {
+            row.offset += row.fling * dt;
+            moving = true;
+          }
         }
-
-        row.drift += (target - row.drift) * follow;
-        if (target === 0 && row.drift < 0.1) row.drift = 0;
-        else moving = true;
-        const transform = row.drift
-          ? `translateX(${row.dir * row.drift}px)`
-          : "";
-        if (row.el.style.transform !== transform) {
-          row.el.style.transform = transform;
-        }
+        place(row);
       }
       raf = moving ? requestAnimationFrame(frame) : 0;
     };
@@ -139,25 +151,43 @@ export function useRowMotion(container: RefObject<HTMLElement | null>) {
     };
 
     const onScroll = () => {
-      const now = performance.now();
-      const gap = Math.max(16, now - scrolledAt);
-      const speed = (Math.abs(window.scrollY - scrollY) / gap) * 1000;
-      scrollSpeed = scrollSpeed * 0.5 + speed * 0.5;
+      const dy = window.scrollY - scrollY;
       scrollY = window.scrollY;
-      scrolledAt = now;
+      if (still.matches) return;
+      for (const row of rows) row.offset -= row.dir * dy * SCROLL_TRAVEL;
+      wake();
+    };
+
+    const onPointerDown = (e: PointerEvent) => {
+      if (drag || (e.pointerType === "mouse" && e.button !== 0)) return;
+      const el = (e.target as Element).closest<HTMLElement>("[data-row]");
+      const row = rows.find((r) => r.el === el);
+      if (!row) return;
+      row.fling = 0;
+      drag = {
+        row,
+        id: e.pointerId,
+        startX: e.clientX,
+        startOffset: row.offset,
+        lastX: e.clientX,
+        lastT: e.timeStamp,
+        speed: 0,
+        moved: false,
+      };
       wake();
     };
 
     const onPointerMove = (e: PointerEvent) => {
-      if (e.pointerType !== "mouse") return;
-      pointer = mouse.matches ? { x: e.clientX, y: e.clientY } : null;
-      // Released outside the window, where no pointerup arrives.
-      if (drag && e.buttons === 0) endDrag(false);
-      if (drag) {
+      if (e.pointerType === "mouse") {
+        pointer = mouse.matches ? { x: e.clientX, y: e.clientY } : null;
+        // Released outside the window, where no pointerup arrives.
+        if (drag && e.buttons === 0) endDrag(false);
+      }
+      if (drag && e.pointerId === drag.id) {
         const dx = e.clientX - drag.startX;
         if (!drag.moved && Math.abs(dx) > DRAG_SLOP) drag.moved = true;
         if (drag.moved) {
-          drag.row.el.scrollLeft = drag.startScroll - dx;
+          drag.row.offset = drag.startOffset - dx;
           const gap = Math.max(1, e.timeStamp - drag.lastT);
           const speed = (-(e.clientX - drag.lastX) / gap) * 1000;
           drag.speed = drag.speed * 0.6 + speed * 0.4;
@@ -168,25 +198,7 @@ export function useRowMotion(container: RefObject<HTMLElement | null>) {
       if (drag || edgePull()) wake();
     };
 
-    const onPointerDown = (e: PointerEvent) => {
-      if (e.pointerType !== "mouse" || e.button !== 0) return;
-      const el = (e.target as Element).closest<HTMLElement>("[data-row]");
-      const row = rows.find((r) => r.el === el);
-      if (!row) return;
-      row.fling = 0;
-      drag = {
-        row,
-        startX: e.clientX,
-        startScroll: row.el.scrollLeft,
-        lastX: e.clientX,
-        lastT: e.timeStamp,
-        speed: 0,
-        moved: false,
-      };
-      wake();
-    };
-
-    /** Without a fling when the release happened unseen, since the last speed is stale. */
+    /** Without a fling when the release went unseen or the browser took the gesture (a page scroll), since the last speed is stale. */
     const endDrag = (fling: boolean) => {
       if (!drag) return;
       if (drag.moved) {
@@ -201,7 +213,25 @@ export function useRowMotion(container: RefObject<HTMLElement | null>) {
       wake();
     };
 
-    const onPointerUp = () => endDrag(true);
+    const onPointerUp = (e: PointerEvent) => {
+      if (drag && e.pointerId === drag.id) endDrag(true);
+    };
+    const onPointerCancel = (e: PointerEvent) => {
+      if (drag && e.pointerId === drag.id) endDrag(false);
+    };
+
+    const onWheel = (e: WheelEvent) => {
+      if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+      const el = (e.target as Element).closest<HTMLElement>("[data-row]");
+      const row = rows.find((r) => r.el === el);
+      if (!row) return;
+      // Also keeps the browser's swipe-to-go-back from firing.
+      e.preventDefault();
+      row.fling = 0;
+      row.offset +=
+        e.deltaMode === WheelEvent.DOM_DELTA_LINE ? e.deltaX * 16 : e.deltaX;
+      wake();
+    };
 
     const onClick = (e: MouseEvent) => {
       if (!swallowClick) return;
@@ -210,19 +240,45 @@ export function useRowMotion(container: RefObject<HTMLElement | null>) {
       swallowClick = false;
     };
 
+    // A photo reached by Tab comes into view.
+    const onFocus = (e: FocusEvent) => {
+      const el = (e.target as Element).closest<HTMLElement>("[data-row]");
+      const row = rows.find((r) => r.el === el);
+      if (!row || !(e.target instanceof HTMLElement)) return;
+      const box = e.target.getBoundingClientRect();
+      const view = row.el.getBoundingClientRect();
+      if (box.left >= view.left && box.right <= view.right) return;
+      row.fling = 0;
+      row.offset += box.left - view.left - row.start;
+      wake();
+    };
+
     const onLeave = () => {
       pointer = null;
     };
+
+    measure();
+    for (const row of rows) place(row);
+    const resize = new ResizeObserver(() => {
+      measure();
+      for (const row of rows) place(row);
+    });
+    resize.observe(root);
 
     const abort = new AbortController();
     const opts = { signal: abort.signal, passive: true };
     window.addEventListener("scroll", onScroll, opts);
     window.addEventListener("pointermove", onPointerMove, opts);
     window.addEventListener("pointerup", onPointerUp, opts);
-    window.addEventListener("pointercancel", onPointerUp, opts);
+    window.addEventListener("pointercancel", onPointerCancel, opts);
     window.addEventListener("blur", onLeave, opts);
     document.documentElement.addEventListener("pointerleave", onLeave, opts);
     root.addEventListener("pointerdown", onPointerDown, opts);
+    root.addEventListener("focusin", onFocus, opts);
+    root.addEventListener("wheel", onWheel, {
+      signal: abort.signal,
+      passive: false,
+    });
     root.addEventListener("click", onClick, {
       signal: abort.signal,
       capture: true,
@@ -233,8 +289,12 @@ export function useRowMotion(container: RefObject<HTMLElement | null>) {
 
     return () => {
       abort.abort();
+      resize.disconnect();
       cancelAnimationFrame(raf);
-      for (const row of rows) row.el.style.transform = "";
+      for (const row of rows) {
+        row.track.style.transform = "";
+        for (const photo of row.photos) photo.style.transform = "";
+      }
     };
   }, [container]);
 }

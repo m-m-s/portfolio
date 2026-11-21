@@ -130,25 +130,27 @@ export function Gallery({ rows }: { rows: Photo[][] }) {
           >
             <div
               data-row={r % 2 ? -1 : 1}
-              className="flex gap-3 overflow-x-auto px-4 select-none [scrollbar-width:none] sm:gap-4 sm:px-8"
+              className="touch-pan-y overflow-x-clip select-none"
             >
-              {row.map((photo, p) => (
-                <button
-                  key={photo.src ?? photo.alt}
-                  type="button"
-                  aria-label={`Open ${photo.alt}`}
-                  data-photo={starts[r] + p}
-                  onClick={() => openPhoto({ at: starts[r] + p })}
-                  style={{ aspectRatio: photo.ratio }}
-                  className="relative h-56 flex-none cursor-zoom-in overflow-hidden sm:h-80 lg:h-[min(28rem,60vh)]"
-                >
-                  <PhotoFill
-                    photo={photo}
-                    shade={shade(r, p)}
-                    sizes="(min-width: 1024px) 50rem, (min-width: 640px) 36rem, 25rem"
-                  />
-                </button>
-              ))}
+              <div data-track className="flex gap-3 px-4 sm:gap-4 sm:px-8">
+                {row.map((photo, p) => (
+                  <button
+                    key={photo.src ?? photo.alt}
+                    type="button"
+                    aria-label={`Open ${photo.alt}`}
+                    data-photo={starts[r] + p}
+                    onClick={() => openPhoto({ at: starts[r] + p })}
+                    style={{ aspectRatio: photo.ratio }}
+                    className="relative h-56 flex-none cursor-zoom-in overflow-hidden sm:h-80 lg:h-[min(28rem,60vh)]"
+                  >
+                    <PhotoFill
+                      photo={photo}
+                      shade={shade(r, p)}
+                      sizes="(min-width: 1024px) 50rem, (min-width: 640px) 36rem, 25rem"
+                    />
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         ))}
@@ -193,11 +195,11 @@ export function Gallery({ rows }: { rows: Photo[][] }) {
           swipeFrom.current = null;
           if (Math.abs(dx) > SWIPE) step(dx < 0 ? 1 : -1);
         }}
-        className="m-0 max-h-none max-w-none bg-transparent p-0 backdrop:bg-page/95"
+        className="m-0 max-h-none max-w-none touch-pinch-zoom bg-transparent p-0 backdrop:bg-page/95"
       >
         {open && current && (
           // The photo fits a fixed stage above the nav, so the nav never moves between photo shapes.
-          <div className="pointer-events-none grid h-dvh w-screen grid-rows-[minmax(0,1fr)_auto] gap-4 px-8 pt-10 pb-6 sm:px-16 sm:pt-16 sm:pb-8">
+          <div className="pointer-events-none grid h-dvh w-screen grid-rows-[minmax(0,1fr)_auto] gap-2 px-8 pt-10 sm:px-16 sm:pt-16">
             <div className="grid place-items-center [container-type:size]">
               <div
                 key={current.photo.src ?? current.photo.alt}
@@ -215,19 +217,20 @@ export function Gallery({ rows }: { rows: Photo[][] }) {
                 />
               </div>
             </div>
-            <div className="pointer-events-auto flex items-center justify-center gap-8 justify-self-center font-grotesk text-sm">
+            {/* Each arrow fills its side of the line, so a near miss still steps instead of closing. */}
+            <div className="pointer-events-auto -mx-8 grid grid-cols-[1fr_auto_1fr] font-grotesk text-sm sm:-mx-16">
               <button
                 type="button"
                 aria-label="Previous photo"
                 onClick={() => step(-1)}
-                className="cursor-pointer px-1"
+                className="cursor-pointer pt-4 pr-7 pb-8 text-right sm:pb-10"
               >
                 ←
               </button>
               <button
                 type="button"
                 onClick={close}
-                className="cursor-pointer text-xs hover:underline"
+                className="cursor-pointer pt-4 pb-8 text-xs hover:underline sm:pb-10"
               >
                 Close
               </button>
@@ -235,7 +238,7 @@ export function Gallery({ rows }: { rows: Photo[][] }) {
                 type="button"
                 aria-label="Next photo"
                 onClick={() => step(1)}
-                className="cursor-pointer px-1"
+                className="cursor-pointer pt-4 pb-8 pl-7 text-left sm:pb-10"
               >
                 →
               </button>
