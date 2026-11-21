@@ -103,6 +103,12 @@ body {
     drop-shadow(0 0 2px var(--color-page))
     drop-shadow(0 0 3px var(--color-page));
 }
+/* Where the whole sky shows, a finger dragging across it stays with the
+   clouds instead of the browser taking the gesture over to pan the page. */
+body:has([data-sky="full"]) {
+  touch-action: pinch-zoom;
+}
+
 /* The header's text is only over clouds where the full sky shows. */
 [data-sky="window"] ~ header .halo {
   filter: none;
