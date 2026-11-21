@@ -4,7 +4,11 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { intro } from "@/content/home";
 import { useSky } from "@/features/sky/sky-provider";
 import type { Sky } from "@/features/weather/sky";
-import { moonPosition, sunPosition } from "@/features/weather/sun-and-moon";
+import {
+  isNight,
+  moonPosition,
+  sunPosition,
+} from "@/features/weather/sun-and-moon";
 import { DoorLink } from "./door-link";
 
 /** How the shadow is cast, anchored at the house's bottom edge. */
@@ -60,7 +64,7 @@ export function castShadow(
 ): HouseShadow {
   const weather = WEATHER_LIGHT[sky];
   const sun = sunPosition(date);
-  const moon = sun.altitude > 0 ? null : moonPosition(date);
+  const moon = isNight(date) ? moonPosition(date) : null;
   const light = moon ?? sun;
   // Stylized so a shadow is always there: a moon below the horizon still casts, and the shadow always falls behind.
   const altitude = Math.max(6, Math.abs(light.altitude));

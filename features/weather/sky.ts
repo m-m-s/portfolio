@@ -16,6 +16,11 @@ export const SKY_LABELS: Record<Sky, string> = {
   snowy: "Snowy",
 };
 
+/** The condition's name for the weather line: a sunny sky at night is clear. */
+export function conditionLabel(sky: Sky, night: boolean) {
+  return night && sky === "sunny" ? "Clear" : SKY_LABELS[sky];
+}
+
 export function skyFromWeatherCode(code: number): Sky {
   if (code === 0 || code === 1) return "sunny";
   if (code === 2) return "partly-cloudy";

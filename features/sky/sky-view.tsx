@@ -5,7 +5,13 @@ import { flushSync } from "react-dom";
 import { InlineButton } from "@/components/inline-button";
 import { scopedTransition } from "@/features/transitions/scoped-transition";
 import type { Weather } from "@/features/weather/get-weather";
-import { SKIES, SKY_LABELS, type Sky } from "@/features/weather/sky";
+import {
+  conditionLabel,
+  SKIES,
+  SKY_LABELS,
+  type Sky,
+} from "@/features/weather/sky";
+import { useMoon } from "@/features/weather/use-moon";
 import { SMALL_SCREEN } from "./constants";
 import { preloadSkies, randomSeed, SkyEngine } from "./engine";
 
@@ -59,6 +65,7 @@ export function LookOutsideProvider({
   const [open, setOpen] = useState(false);
   const [at, setAt] = useState(0);
   const [ready, setReady] = useState(false);
+  const moon = useMoon();
   // Today's weather first, then the rest in the usual order.
   const order: Sky[] = [live.sky, ...SKIES.filter((s) => s !== live.sky)];
   const shown = order[at];
@@ -140,7 +147,7 @@ export function LookOutsideProvider({
       <>
         <span className="whitespace-nowrap">Live from New York:</span>{" "}
         <span className="whitespace-nowrap">
-          {SKY_LABELS[shown].toLowerCase()}
+          {conditionLabel(shown, moon !== null).toLowerCase()}
           {live.temperature === null ? "" : `, ${live.temperature}°`}
         </span>
       </>

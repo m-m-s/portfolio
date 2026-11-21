@@ -44,8 +44,36 @@ export function sunPosition(date: Date): SkyPosition {
   return fromManhattan(ra, dec, d);
 }
 
-/** Low-precision lunar position (Astronomical Almanac), good to about 1°, and the share of the moon that's lit (0 new, 1 full). */
-export function moonPosition(date: Date): SkyPosition & { lit: number } {
+/** Sunrise and sunset as published: the sun's top edge on the horizon, allowing for refraction. */
+const HORIZON = -0.833;
+
+export function isNight(date: Date) {
+  return sunPosition(date).altitude < HORIZON;
+}
+
+/** The next sunrise or sunset after `from`. */
+export function nextSunChange(from: Date) {
+  const night = isNight(from);
+  const STEP = 10 * 60_000;
+  let before = from.getTime();
+  let after = before + STEP;
+  // There's one within a day all year at New York's latitude.
+  while (isNight(new Date(after)) === night && after - before < 86_400_000) {
+    before = after;
+    after += STEP;
+  }
+  while (after - before > 1000) {
+    const mid = (before + after) / 2;
+    if (isNight(new Date(mid)) === night) before = mid;
+    else after = mid;
+  }
+  return new Date(after);
+}
+
+/** Low-precision lunar position (Astronomical Almanac), good to about 1°; the share of the moon that's lit (0 new, 1 full); and whether it's waxing, lit on the right as seen from New York. */
+export function moonPosition(
+  date: Date,
+): SkyPosition & { lit: number; waxing: boolean } {
   const d = daysSince2000(date);
   const t = d / 36525;
   const s = (a: number, b: number) => Math.sin((a + b * t) * RAD);
@@ -74,8 +102,13 @@ export function moonPosition(date: Date): SkyPosition & { lit: number } {
     Math.sin(lat) * Math.cos(tilt) +
       Math.cos(lat) * Math.sin(tilt) * Math.sin(lon),
   );
-  const elongation = Math.cos(lat) * Math.cos(lon - sunLongitude(d));
-  return { ...fromManhattan(ra, dec, d), lit: (1 - elongation) / 2 };
+  const fromSun = lon - sunLongitude(d);
+  const elongation = Math.cos(lat) * Math.cos(fromSun);
+  return {
+    ...fromManhattan(ra, dec, d),
+    lit: (1 - elongation) / 2,
+    waxing: Math.sin(fromSun) > 0,
+  };
 }
 
 /** Today in New York at the given minutes past midnight. */

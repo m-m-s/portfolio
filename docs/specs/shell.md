@@ -14,6 +14,7 @@ Example: `[sun icon] Sunny 58°    06:10:37 PM ET`
 - Condition uses the five sky names: Sunny, Partly cloudy, Cloudy, Rainy, Snowy (ids `sunny`, `partly-cloudy`, `cloudy`, `rainy`, `snowy`).
 - Temperature in Fahrenheit, shown with the degree sign only (`58°`).
 - Icons: one per sky. The set is still to be chosen, so use a simple placeholder icon until then.
+- **Night:** while the sun is down over Manhattan (below −0.833°, the published sunrise and sunset), the sun in the Sunny and Partly cloudy icons becomes the moon in tonight's real phase, and Sunny reads **Clear**. The moon is drawn like the sun: the lit part outlined and the dark part a faint tint, so a full moon is the sun's disc without its rays, and the lit side follows the moon (right while waxing, left while waning, as seen from New York). Look outside's live line says "clear" too; the skies it steps through keep their names. Night is worked out in the browser from the sun's position (`isNight` and `nextSunChange` in `features/weather/sun-and-moon.ts`, `useMoon` in `features/weather/use-moon.ts`): one timer is set for the next sunrise or sunset, rechecked when a tab comes back, so it switches to the minute regardless of the weather cache. The house shadow switches to moonlight by the same rule. The server can't know, so it renders day; the line is still hidden until it fades in with the sky, by which time the browser has set it.
 
 **Time**
 - New York time, 12-hour with seconds, leading zero on the hour, followed by `ET` (`06:10:37 PM ET`).
