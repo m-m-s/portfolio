@@ -95,6 +95,49 @@ function loadImage(src: string) {
   });
 }
 
+// Shared by every sky on the page, so a second sky never fetches what another already has.
+const cloudImages = new Map<string, Promise<HTMLImageElement | null>>();
+const farStrips = new Map<string, Promise<Sprite | null>>();
+
+function cached<T>(
+  cache: Map<string, Promise<T | null>>,
+  key: string,
+  load: () => Promise<T | null>,
+) {
+  let p = cache.get(key);
+  if (!p) {
+    p = load().then((v) => {
+      // A failed load can be tried again later.
+      if (v === null) cache.delete(key);
+      return v;
+    });
+    cache.set(key, p);
+  }
+  return p;
+}
+
+const cloudImage = (id: string) =>
+  cached(cloudImages, id, () => loadImage(`/sky/clouds/${id}.png`));
+const farStrip = (k: string) =>
+  cached(farStrips, k, async () => {
+    const im = await loadImage(`/sky/strips/${k}.png`);
+    return im && farFromImage(im);
+  });
+
+/** Starts loading these weathers' images, so showing them later only has to draw. */
+export function preloadSkies(skies: readonly Sky[]) {
+  for (const sky of skies) {
+    const config = configFor(sky);
+    for (const id of new Set([
+      ...Object.keys(config.front),
+      ...Object.keys(config.mid),
+    ])) {
+      void cloudImage(id);
+    }
+    for (const k of Object.keys(config.far)) void farStrip(k);
+  }
+}
+
 /** Lets the page paint and respond between clouds, so a slow build doesn't freeze it. */
 function nextTask() {
   return new Promise<void>((resolve) => setTimeout(resolve, 0));
@@ -210,12 +253,12 @@ export class SkyEngine {
     );
     await Promise.all([
       ...clouds.map(async (c) => {
-        const im = await loadImage(`/sky/clouds/${c}.png`);
+        const im = await cloudImage(c);
         if (im) this.src.set(c, im);
       }),
       ...strips.map(async (k) => {
-        const im = await loadImage(`/sky/strips/${k}.png`);
-        if (im) this.farBase.set(k, farFromImage(im));
+        const base = await farStrip(k);
+        if (base) this.farBase.set(k, base);
       }),
     ]);
     if (id !== this.loadId) return;

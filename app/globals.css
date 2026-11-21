@@ -474,12 +474,12 @@ html[data-photo-motion="step"]::view-transition-new(photo-in) {
   }
 }
 
-/* Look outside: only the window's glass moves, growing into the full
-   sky view and back; the page fades under it. */
+/* Look outside: opening, only the window's glass moves, growing into the
+   full sky view while the page fades under it; closing, the view fades out. */
 html[data-sky-view] * {
   view-transition-name: none;
 }
-html[data-sky-view] [data-view-grow] {
+html[data-sky-view="grow"] [data-view-grow] {
   view-transition-name: outside;
 }
 html[data-sky-view]::view-transition-group(*),
@@ -496,6 +496,10 @@ html[data-sky-view]::view-transition-new(*) {
   inset: var(--outside-top) var(--outside-x) var(--outside-bottom);
   overflow: hidden;
   border: var(--outside-frame) solid var(--color-page);
+html[data-sky-view="fade"]::view-transition-old(*),
+html[data-sky-view="fade"]::view-transition-new(*) {
+  animation-duration: var(--sky-swap);
+}
   /* The homepage's color, so the view's sky matches the homepage's. */
   background: var(--color-page);
   box-shadow: 0 0.5rem 2rem rgb(0 0 0 / 0.08);

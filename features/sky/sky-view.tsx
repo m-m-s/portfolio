@@ -7,7 +7,7 @@ import { scopedTransition } from "@/features/transitions/scoped-transition";
 import type { Weather } from "@/features/weather/get-weather";
 import { SKIES, SKY_LABELS, type Sky } from "@/features/weather/sky";
 import { SMALL_SCREEN } from "./constants";
-import { randomSeed, SkyEngine } from "./engine";
+import { preloadSkies, randomSeed, SkyEngine } from "./engine";
 
 /** On a phone the window is narrow, so its clouds are drawn smaller than the homepage's: this share of their width. */
 const PHONE_VIEW_SCALE = 0.45;
@@ -90,6 +90,7 @@ export function LookOutsideProvider({
   });
 
   const openView = () => {
+    preloadSkies(SKIES);
     const from = glass();
     if (from) from.dataset.viewGrow = "";
     scopedTransition("skyView", "grow", () => {
@@ -112,22 +113,14 @@ export function LookOutsideProvider({
       inHistory.current = false;
       if (!byBack) history.back();
     }
-    const to = glass();
-    scopedTransition(
-      "skyView",
-      "grow",
-      () => {
-        if (to) to.dataset.viewGrow = "";
-        d.close();
-        flushSync(() => setOpen(false));
-      },
-      () => {
-        if (to) delete to.dataset.viewGrow;
-      },
-    );
+    scopedTransition("skyView", "fade", () => {
+      d.close();
+      flushSync(() => setOpen(false));
+    });
   };
 
-  const step = (by: 1 | -1) => {
+  /** 0 re-rolls the weather showing into a new arrangement. */
+  const step = (by: 1 | -1 | 0) => {
     const next = (at + by + order.length) % order.length;
     setAt(next);
     setReady(false);
@@ -182,7 +175,7 @@ export function LookOutsideProvider({
           swipeFrom.current = null;
           if (Math.abs(dx) > SWIPE) step(dx < 0 ? 1 : -1);
         }}
-        className="m-0 h-dvh max-h-none w-screen max-w-none bg-page p-0 backdrop:bg-transparent"
+        className="m-0 h-dvh max-h-none w-screen max-w-none touch-pinch-zoom bg-page p-0 backdrop:bg-transparent"
       >
         <div
           data-view-grow
@@ -209,7 +202,15 @@ export function LookOutsideProvider({
               aria-live="polite"
               className="w-[min(30ch,100vw-9rem)] text-center"
             >
-              {label}
+              {label}{" "}
+              <button
+                type="button"
+                aria-label="New clouds"
+                onClick={() => step(0)}
+                className="-my-2 cursor-pointer px-1.5 py-2 text-ink/40 hover:text-ink"
+              >
+                ↻
+              </button>
             </p>
             <button
               type="button"
