@@ -1,5 +1,8 @@
+import type { Metadata } from "next";
 import { photoRows } from "@/content/photography";
 import { Gallery } from "@/features/photography/gallery";
+
+export const metadata: Metadata = { title: "Photography" };
 
 export default function Photography() {
   return (

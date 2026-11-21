@@ -1,5 +1,8 @@
+import type { Metadata } from "next";
 import { projects } from "@/content/projects";
 import { ProjectPlatforms } from "@/features/projects/project-platforms";
+
+export const metadata: Metadata = { title: "Projects" };
 
 export default function Projects() {
   return (

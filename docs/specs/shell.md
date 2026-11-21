@@ -65,6 +65,9 @@ A reusable `DoorLink` component for every big bold link (Switzer bold), on any p
 - **Idle swing (homepage):** the links take turns doing a small swing to invite a click, starting with Product Engineer (the projects), then Photographer and Maggie Shen, looping. Each idle swing opens slowly (about 2s), lingers open for half a second, then drifts shut (about 2.5s). Its shadow and the doorway fade out over the last part of the close and are gone just before it shuts, so the slab settles flat into the page. The first swing comes after 3.5 seconds of no activity (mouse, scroll, keys), soon enough to show early that the words are links; after that, every 30 seconds while the visitor stays idle. Any activity restarts the wait. The cycle pauses while the visitor hovers a link or the tab is hidden.
 - **Reduced motion:** the swing becomes a fade.
 
+**Page titles**
+- Each page has its own title, so tabs, history and bookmarks tell the rooms apart and screen readers announce the room on arrival: `About · Maggie Shen`, `Projects · Maggie Shen`, `Photography · Maggie Shen`, and each project page under its name from `content/projects.ts` (`Film Jousting · Maggie Shen`). The homepage is just `Maggie Shen`. The ` · Maggie Shen` ending is a template in `app/layout.tsx`.
+
 **House logo**
 - The house logo goes home from every page, alongside the browser back button.
 - It swings open like a door when clicked, using the same `DoorLink` motion.

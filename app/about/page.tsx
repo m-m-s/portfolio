@@ -1,8 +1,11 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { FoodMapButton } from "@/components/food-map";
 import { Window } from "@/components/window";
 import { type AboutPart, aboutHeading, aboutParagraphs } from "@/content/about";
 import { LookOutsideButton } from "@/features/sky/sky-view";
+
+export const metadata: Metadata = { title: "About" };
 
 /** Punctuation right after a phrase rides inside it, in regular weight, so it never wraps onto a line by itself. */
 function Part({ part, tail }: { part: AboutPart; tail: string }) {

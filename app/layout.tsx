@@ -9,7 +9,7 @@ import { spaceGrotesk, switzer } from "./fonts/fonts";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Maggie Shen",
+  title: { default: "Maggie Shen", template: "%s · Maggie Shen" },
   description: "[COPY: site description]",
 };
 
