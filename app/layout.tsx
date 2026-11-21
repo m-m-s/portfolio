@@ -21,11 +21,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="flex min-h-full flex-col bg-page font-sans text-ink">
         <SiteSky>
-          <header className="flex items-start justify-between gap-4 px-4 pt-6 sm:px-8 sm:pt-8 lg:px-12 lg:pt-10 2xl:px-16 2xl:pt-12">
-            <HouseLogo />
-            <div className="ml-auto">
-              <WeatherClockLine />
-            </div>
+          {/* Fixed at the header's inset: change both together. */}
+          <HouseLogo />
+          <header className="flex items-start justify-end px-4 pt-6 sm:px-8 sm:pt-8 lg:px-12 lg:pt-10 2xl:px-16 2xl:pt-12">
+            <WeatherClockLine />
           </header>
           <RoomTransition>{children}</RoomTransition>
           <Footer />

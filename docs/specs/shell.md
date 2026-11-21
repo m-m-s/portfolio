@@ -70,6 +70,7 @@ A reusable `DoorLink` component for every big bold link (Switzer bold), on any p
 
 **House logo**
 - The house logo goes home from every page, alongside the browser back button.
+- It stays in its corner while the page scrolls (fixed at the header's inset), so the way home is always at hand on long pages; the weather/clock line scrolls away with the page. It has the page-colored rim (`halo`), so it stays legible over text and photos passing under it.
 - It swings open like a door when clicked, using the same `DoorLink` motion.
 - Its shape is the homepage house outline (chimney, roof slope, body), traced from the intro at desktop size and rounded. It has no slab: only the house itself swings, over a doorway cut to the logo's shape, so nothing shows around it on any wall color. The favicon (`app/icon.svg`) is the same shape, in ink, switching to the page color when the browser is in dark mode so it shows on a dark tab bar.
 
