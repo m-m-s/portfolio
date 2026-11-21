@@ -98,13 +98,9 @@ type Drop = {
 };
 
 const FAR_INK_MIX = 0.35;
-/** How much room two clouds want between their centres, in mean cloud sizes: under 1 lets them overlap a little. */
 const CLOUD_ROOM = 0.75;
-/** The same for two copies of the same cloud. */
 const SAME_CLOUD_ROOM = 2.5;
-/** A cloud takes the best spaced of this many random spots. */
 const TRIES = 8;
-/** A front cloud stacked on a middle one looks at this many spots on screen for open sky. */
 const MOVE_TRIES = 32;
 
 function loadImage(src: string) {
@@ -584,7 +580,6 @@ export class SkyEngine {
       c.sizeMin + (c.sizeMax - c.sizeMin) * this.rnd();
 
     const layers: Partial<Record<Layer, CloudLayer>> = {};
-    // Where the middle layer's clouds show as the sky opens, for the front layer to keep clear of.
     const onScreen: { x: number; y: number; w: number; h: number }[] = [];
     for (const name of ["mid", "front"] as const) {
       const pool = CLOUDS.filter(
@@ -691,8 +686,6 @@ export class SkyEngine {
               Math.abs(it.y + h / 2 - (q.y + q.h / 2)) >=
                 ((h + q.h) / 2) * CLOUD_ROOM,
           );
-        // A cloud that opens the sky stacked on the middle layer moves to an open
-        // stretch of the screen, if there is one: a full sky stays layered.
         if (sx < W && sx + it.w > 0 && !clear(sx)) {
           let best = -1e9;
           for (let t = 0; t < MOVE_TRIES; t++) {

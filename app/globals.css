@@ -575,7 +575,6 @@ dialog:focus-visible {
     opacity: 0;
   }
 }
-/* Over 4.5s: in for 0.3s, open until 4s, out for 0.5s. */
 @keyframes food-map {
   0% {
     opacity: 0;
