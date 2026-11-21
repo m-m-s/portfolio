@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 
-const FIRST_WAIT = 10_000;
+const FIRST_WAIT = 3_500;
 const LATER_WAIT = 30_000;
 const ACTIVITY = ["pointermove", "pointerdown", "keydown", "scroll", "wheel"];
 
@@ -15,7 +15,10 @@ export function IdleSwing({ children }: { children: React.ReactNode }) {
     const doors = [...root.querySelectorAll<HTMLElement>("[data-door]")];
     if (doors.length === 0) return;
 
-    let next = 0;
+    let next = Math.max(
+      0,
+      doors.findIndex((d) => d.closest('a[href="/projects"]')),
+    );
     let wait = FIRST_WAIT;
     let timer: ReturnType<typeof setTimeout>;
 
