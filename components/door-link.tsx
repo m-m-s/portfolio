@@ -43,24 +43,34 @@ export function DoorLink({
         if (!el) return;
 
         // The swing plays inside the page transition (see globals.css), with the
-        // door as its own layer. Until that starts, the door holds its current
-        // angle. The layer would inherit that angle too, so it's placed by the
-        // unrotated link box instead and the CSS does one turn from the hover angle.
+        // door as its own layer, turning from --door-from.
         const root = document.documentElement;
         const box = el.parentElement?.getBoundingClientRect();
-        const ajar = el.parentElement?.matches(":hover");
+        const slab = getComputedStyle(el);
+        const ajar =
+          matchMedia("(hover: hover)").matches &&
+          el.parentElement?.matches(":hover");
         root.style.setProperty(
           "--door-from",
           ajar ? "var(--door-ajar)" : "0deg",
         );
-        // The slab extends past the link box by its padding.
-        const slab = getComputedStyle(el);
-        const padX = Number.parseFloat(slab.paddingLeft);
-        const padY = Number.parseFloat(slab.paddingTop);
-        root.style.setProperty("--door-x", `${(box?.left ?? 0) - padX}px`);
-        root.style.setProperty("--door-y", `${(box?.top ?? 0) - padY}px`);
         root.style.setProperty("--door-font", slab.fontSize);
-        el.style.transform = getComputedStyle(el).transform;
+        if (ajar) {
+          // Until the transition starts, the door holds its hover angle. Its
+          // layer would inherit that angle too, so it's placed by the unrotated
+          // link box instead (the slab extends past it by its padding). The
+          // browser's own placement is only left alone otherwise, because on a
+          // phone it also allows for the address bar, which this can't see.
+          const padX = Number.parseFloat(slab.paddingLeft);
+          const padY = Number.parseFloat(slab.paddingTop);
+          root.style.setProperty("--door-x", `${(box?.left ?? 0) - padX}px`);
+          root.style.setProperty("--door-y", `${(box?.top ?? 0) - padY}px`);
+          root.dataset.doorAjar = "";
+          el.style.transform = slab.transform;
+        } else {
+          delete root.dataset.doorAjar;
+          el.style.transform = "none";
+        }
         el.dataset.door = "leaving";
         el.style.viewTransitionName = "door";
         if (box) {

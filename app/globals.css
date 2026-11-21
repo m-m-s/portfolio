@@ -295,6 +295,8 @@ body:has([data-sky="full"]) {
 }
 ::view-transition-group(door) {
   animation: none;
+}
+html[data-door-ajar]::view-transition-group(door) {
   transform: translate(var(--door-x), var(--door-y));
 }
 
