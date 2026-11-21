@@ -6,6 +6,7 @@ import {
   CLOUDS,
   COUNT,
   FAR,
+  FAR_LAYER,
   FAR_SIDE_FADE,
   INK,
   LARGE_CLOUD,
@@ -32,7 +33,14 @@ import {
   tinted,
 } from "./dither";
 
-type Physics = (typeof LAYER)[Layer];
+type Physics = {
+  readonly speed: number;
+  readonly radius: number;
+  readonly push: number;
+  readonly spring: number;
+  readonly damp: number;
+  readonly maxv: number;
+};
 
 type DotBuffer = {
   n: number;
@@ -65,7 +73,14 @@ type CloudLayer = Physics & {
   off: number;
 };
 
-type FarLayer = { sprite: Sprite; ink: Rgb; y: number };
+type FarLayer = Physics & {
+  sprite: Sprite;
+  ink: Rgb;
+  y: number;
+  off: number;
+  /** Tiles whose dots are stirred, by their place in the row of tiles. */
+  stirred: Map<number, Cloud>;
+};
 
 type Drop = {
   x: number;
@@ -358,6 +373,7 @@ export class SkyEngine {
       if (this.stoppedAt) {
         const away = (now - this.stoppedAt) / 1000;
         for (const L of Object.values(this.layers)) L.off += L.speed * away;
+        if (this.farL) this.farL.off += this.farL.speed * away;
         this.stoppedAt = 0;
       }
       this.last = now;
@@ -380,8 +396,40 @@ export class SkyEngine {
 
     const farL = this.farL;
     if (farL) {
-      const tile = tinted(farL.sprite, farL.ink, false);
-      for (let x = 0; x < W; x += farStep(farL.sprite)) {
+      farL.off += farL.speed * dt;
+      const s = farL.sprite;
+      const tile = tinted(s, farL.ink, false);
+      const step = farStep(s);
+      const R = farL.radius;
+      const ly = this.py - farL.y;
+      for (let n = Math.floor(-farL.off / step) - 1; ; n++) {
+        const x = n * step + farL.off;
+        if (x >= W) break;
+        if (x + s.w < 0) continue;
+        const lx = this.px - x;
+        const near = lx > -R && lx < s.w + R && ly > -R && ly < s.h + R;
+        let o = farL.stirred.get(n);
+        if (near && !o) {
+          o = {
+            sprite: s,
+            flip: false,
+            x0: 0,
+            y: farL.y,
+            buf: this.alloc(farL, s),
+            p: null,
+          };
+          farL.stirred.set(n, o);
+          this.wake(o);
+        }
+        if (o?.p) {
+          if (this.step(farL, o, lx, ly, near) === 0 && !near) {
+            farL.stirred.delete(n);
+          } else {
+            this.paint(farL, o);
+            ctx.drawImage(o.p.c, x - o.p.m, farL.y - o.p.m);
+            continue;
+          }
+        }
         ctx.drawImage(tile, x, farL.y);
       }
       this.emitFar(dt);
@@ -658,9 +706,12 @@ export class SkyEngine {
         Math.round(c + (ink.front[i] - c) * f.ink),
       ) as unknown as Rgb;
       farL = {
+        ...FAR_LAYER,
         sprite: fs,
         ink: fink,
         y: Math.round(this.S - fs.h - f.height * this.S),
+        off: this.farL?.off ?? 0,
+        stirred: new Map(),
       };
       tinted(fs, fink, false);
     }
@@ -748,7 +799,7 @@ export class SkyEngine {
     o.p = p;
   }
 
-  private step(L: CloudLayer, o: Cloud, lx: number, ly: number, near: boolean) {
+  private step(L: Physics, o: Cloud, lx: number, ly: number, near: boolean) {
     const s = o.sprite;
     const p = o.buf;
     const R = L.radius;
@@ -787,7 +838,7 @@ export class SkyEngine {
     return moving;
   }
 
-  private paint(L: CloudLayer, o: Cloud) {
+  private paint(L: { ink: Rgb }, o: Cloud) {
     const p = o.buf;
     const [r, g, b] = L.ink;
     const col = (255 << 24) | (b << 16) | (g << 8) | r;
@@ -821,7 +872,8 @@ export class SkyEngine {
     for (let k = 0.13 * this.W * dt; k > 0; k--) {
       if (Math.random() > k) break;
       const x = Math.random() * this.W;
-      const col = Math.floor(x - Math.floor(x / step) * step);
+      const u = x - farL.off;
+      const col = Math.floor(u - Math.floor(u / step) * step);
       const by = bot[col];
       if (by < 0) continue;
       if (this.snow) {

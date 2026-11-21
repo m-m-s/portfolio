@@ -43,6 +43,16 @@ export const LAYER = {
   },
 } as const;
 
+/** The far strip: it drifts at a third of the middle layer's speed, and its dots stir for the cursor or a finger more faintly than any cloud's. */
+export const FAR_LAYER = {
+  speed: 0.8,
+  radius: 36,
+  push: 0.15,
+  spring: 0.02,
+  damp: 0.9,
+  maxv: 0.35,
+} as const;
+
 export const WIDTH: Record<Layer, number> = { front: 300, mid: 220 };
 
 /** On pages that show the sky through a window, clouds scale with the window's width: full size for a window this wide, in px, and in proportion either side (half size in a 224px window). */
