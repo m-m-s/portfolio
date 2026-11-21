@@ -6,13 +6,11 @@
  */
 export function InlineButton({
   onClick,
-  onPointerDown,
   className = "",
   children,
   ...aria
 }: {
   onClick: () => void;
-  onPointerDown?: (e: React.PointerEvent) => void;
   className?: string;
   children: React.ReactNode;
   "aria-expanded"?: boolean;
@@ -24,7 +22,6 @@ export function InlineButton({
       role="button"
       tabIndex={0}
       onClick={onClick}
-      onPointerDown={onPointerDown}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();

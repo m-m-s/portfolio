@@ -575,6 +575,21 @@ dialog:focus-visible {
     opacity: 0;
   }
 }
+/* Over 4.5s: in for 0.3s, open until 4s, out for 0.5s. */
+@keyframes food-map {
+  0% {
+    opacity: 0;
+    animation-timing-function: ease-out;
+  }
+  7%,
+  89% {
+    opacity: 1;
+    animation-timing-function: ease-in;
+  }
+  100% {
+    opacity: 0;
+  }
+}
 @keyframes door-fade {
   50% {
     opacity: 0.35;

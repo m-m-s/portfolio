@@ -31,7 +31,7 @@ A room with a window. Reference: docs/design/about.png.
 - Clicking or tapping [thinking about my next meal] opens the food map image as a card on the right side of the page, over the window area. Reference: docs/design/about-food-map.png.
 - The image is a screenshot of Maggie's saved places on Google Maps (`public/about/food-map.png`, 938×1133). The card takes its shape: nearly the full width on a phone (1rem margins), 24rem from 640px and 28rem from 1024px; a blurred preview shows the instant it opens, and the image loads straight away. Its description is in `content/about.ts`, as is Google's credit, "Map data ©2026 Google", shown in the map's bottom-right corner where Google prints it: Google requires the credit next to the map and legible (not in the footer).
 - Image file: `public/about/food-map.png`. Use a placeholder image until it's added.
-- It fades in (0.3s) and closes on its own after 4 seconds (`OPEN_FOR`), or sooner on Esc or a click or tap outside it, fading out a little slower (`--fade`, 0.5s, easing in) so it doesn't vanish abruptly. Clicking the phrase again while it fades brings it back.
+- It's a popover. It fades in, stays 4 seconds, and fades out. Esc or a click or tap outside closes it at once.
 - Closes on its own after a few seconds (start at 4, tuned in the browser).
 - On a phone it opens centered on screen.
 
