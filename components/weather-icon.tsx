@@ -22,10 +22,8 @@ function Sun({ cx = 12, cy = 12, r = 4 }) {
   );
 }
 
-/** A sliver this thin, or less, is drawn as a new moon. */
 const NEW_MOON = 0.03;
 
-/** Tonight's phase, drawn like the sun: the lit part outlined, the dark part a faint tint, so a full moon is the sun's disc without its rays. The terminator is half an ellipse, bulging toward the lit side until half full, then away from it. */
 function MoonPhase({ moon, cx = 12, cy = 12, r = 6 }: { moon: Moon } & Disc) {
   const rx = r * Math.abs(1 - 2 * moon.lit);
   const top = `${cx} ${cy - r}`;
@@ -55,7 +53,6 @@ function MoonPhase({ moon, cx = 12, cy = 12, r = 6 }: { moon: Moon } & Disc) {
 
 type Disc = { cx?: number; cy?: number; r?: number };
 
-/** By day the sun, by night tonight's moon. */
 function Light({ moon, ...disc }: { moon: Moon | null } & Disc) {
   return moon ? <MoonPhase moon={moon} {...disc} /> : <Sun {...disc} />;
 }

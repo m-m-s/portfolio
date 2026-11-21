@@ -3,7 +3,7 @@
 import { usePath } from "@/features/transitions/use-path";
 import { DoorLink } from "./door-link";
 
-/** The homepage house's outline at desktop size, rounded. app/icon.svg is the same shape. It stays put while the page scrolls, at the header's inset, so the way home is always at hand. */
+/** app/icon.svg is the same shape: change both together. */
 export function HouseLogo() {
   const pathname = usePath();
   if (pathname === "/") return null;

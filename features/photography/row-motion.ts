@@ -1,29 +1,21 @@
 import { type RefObject, useEffect } from "react";
 
-/** Rows travel this many px per px of page scroll, each in its own direction. */
 const SCROLL_TRAVEL = 0.4;
-/** Hovering this share of the screen's width at either side moves a row, up to EDGE_SPEED px/s at the very edge. */
 const EDGE = 0.12;
 const EDGE_SPEED = 900;
-/** A drag shorter than this, in px, is a tap or click. */
 const DRAG_SLOP = 6;
-/** How quickly a flung row slows down (per second). */
 const FRICTION = 4;
 
 type Row = {
   el: HTMLElement;
   track: HTMLElement;
   photos: HTMLElement[];
-  /** 1 if the row travels right as the page scrolls down, -1 left. */
   dir: number;
-  /** How far the track has moved left from where it starts, in px. */
   offset: number;
   fling: number;
-  /** Measured: each photo's right edge in the track, the track's first left edge, and one lap of the loop. */
   ends: number[];
   start: number;
   lap: number;
-  /** The shift each photo has now: 0, or one lap for a photo gone past the left edge. */
   shifts: number[];
 };
 
@@ -38,7 +30,6 @@ type Drag = {
   moved: boolean;
 };
 
-/** Moves the `[data-row]` elements as endless loops: each holds a `[data-track]` of photos, and a photo that leaves one end comes round at the other. Rows travel with the page scroll, and move by swipe, drag, sideways trackpad swipe and, with a mouse, hovering a screen edge. */
 export function useRowMotion(container: RefObject<HTMLElement | null>) {
   useEffect(() => {
     const root = container.current;
@@ -98,7 +89,6 @@ export function useRowMotion(container: RefObject<HTMLElement | null>) {
       });
     };
 
-    /** The edge-hover speed at the pointer's x, before checking which row it's over. */
     const edgePull = () => {
       if (!pointer || drag) return 0;
       const zone = window.innerWidth * EDGE;
@@ -240,7 +230,6 @@ export function useRowMotion(container: RefObject<HTMLElement | null>) {
       swallowClick = false;
     };
 
-    // A photo reached by Tab comes into view.
     const onFocus = (e: FocusEvent) => {
       const el = (e.target as Element).closest<HTMLElement>("[data-row]");
       const row = rows.find((r) => r.el === el);

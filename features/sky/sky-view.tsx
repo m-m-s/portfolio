@@ -15,26 +15,21 @@ import { useMoon } from "@/features/weather/use-moon";
 import { SMALL_SCREEN } from "./constants";
 import { preloadSkies, randomSeed, SkyEngine } from "./engine";
 
-/** On a phone the window is narrow, so its clouds are drawn smaller than the homepage's: this share of their width. */
 const PHONE_VIEW_SCALE = 0.45;
-/** A swipe shorter than this, in pixels, isn't a swipe. */
 const SWIPE = 40;
 
-/** The window the view grows out of and shrinks back into. */
 function glass() {
   return document.querySelector<HTMLElement>("[data-window-glass]");
 }
 
 const LookOutsideContext = createContext<(() => void) | null>(null);
 
-/** Opens Look outside: the room's window grows into a big window, and the arrows step through every weather. */
 export function useLookOutside() {
   const open = useContext(LookOutsideContext);
   if (!open) throw new Error("useLookOutside needs a LookOutsideProvider");
   return open;
 }
 
-/** A link phrase that opens Look outside. */
 export function LookOutsideButton({ children }: { children: React.ReactNode }) {
   const lookOutside = useLookOutside();
   return (
@@ -48,7 +43,6 @@ export function LookOutsideButton({ children }: { children: React.ReactNode }) {
   );
 }
 
-/** Holds the Look outside view, shared by every page: [weather] on About and every window open it. */
 export function LookOutsideProvider({
   live,
   children,
@@ -60,13 +54,11 @@ export function LookOutsideProvider({
   const canvas = useRef<HTMLCanvasElement>(null);
   const engine = useRef<SkyEngine | null>(null);
   const swipeFrom = useRef<number | null>(null);
-  // True while the history entry added on opening is the current one.
   const inHistory = useRef(false);
   const [open, setOpen] = useState(false);
   const [at, setAt] = useState(0);
   const [ready, setReady] = useState(false);
   const moon = useMoon();
-  // Today's weather first, then the rest in the usual order.
   const order: Sky[] = [live.sky, ...SKIES.filter((s) => s !== live.sky)];
   const shown = order[at];
 
@@ -126,7 +118,6 @@ export function LookOutsideProvider({
     });
   };
 
-  /** 0 re-rolls the weather showing into a new arrangement. */
   const step = (by: 1 | -1 | 0) => {
     const next = (at + by + order.length) % order.length;
     setAt(next);
@@ -141,7 +132,6 @@ export function LookOutsideProvider({
     }, swap);
   };
 
-  // Each half stays whole, so a narrow screen breaks the line only between them.
   const label =
     at === 0 ? (
       <>
@@ -204,7 +194,6 @@ export function LookOutsideProvider({
             >
               ←
             </button>
-            {/* Wide enough for the live line, so the arrows stay put as it changes. */}
             <p
               aria-live="polite"
               className="w-[min(30ch,100vw-9rem)] text-center"

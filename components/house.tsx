@@ -11,26 +11,19 @@ import {
 } from "@/features/weather/sun-and-moon";
 import { DoorLink } from "./door-link";
 
-/** How the shadow is cast, anchored at the house's bottom edge. */
 export type HouseShadow = {
-  /** Degrees; positive leans the shadow right. */
   lean: number;
-  /** 0 to 1: how far it reaches up behind the house, as a share of the house's height. */
   reach: number;
   opacity: number;
-  /** In em. */
   blur: number;
-  /** Where the light comes from, in degrees: above the horizon (as cast, always above it) and clockwise from north. */
   altitude: number;
   azimuth: number;
 };
 
 export type ShadowTuning = {
   length: number;
-  /** How upright the shadow stands against a sideways light: higher leans it less. */
   depth: number;
   strength: number;
-  /** Moon shadow strength as a share of the sun's. */
   moonlight: number;
   blur: number;
 };
@@ -39,7 +32,6 @@ const MIN_REACH = 0.6;
 /** Degrees: a light low in the east or west would otherwise lay the shadow nearly flat. */
 const MAX_LEAN = 40;
 
-/** Clouds soften the light: a fainter, blurrier shadow. Multiplies the tuning's strength and blur. */
 const WEATHER_LIGHT: Record<Sky, { strength: number; blur: number }> = {
   sunny: { strength: 1, blur: 0.5 },
   "partly-cloudy": { strength: 0.8, blur: 0.8 },
@@ -56,7 +48,6 @@ export const SHADOW_TUNING: ShadowTuning = {
   blur: 0.15,
 };
 
-/** The house faces south, seen from the front: morning sun (east) throws the shadow left, evening right. At night the moon casts it. */
 export function castShadow(
   date: Date,
   sky: Sky,
@@ -66,11 +57,9 @@ export function castShadow(
   const sun = sunPosition(date);
   const moon = isNight(date) ? moonPosition(date) : null;
   const light = moon ?? sun;
-  // Stylized so a shadow is always there: a moon below the horizon still casts, and the shadow always falls behind.
   const altitude = Math.max(6, Math.abs(light.altitude));
   const rad = Math.PI / 180;
   const long = Math.min(4, 1 / Math.tan(altitude * rad)) * t.length;
-  // The direction alone sets the lean, so length never changes the angle.
   const lean =
     Math.atan2(
       -Math.sin(light.azimuth * rad),
@@ -90,7 +79,6 @@ export function castShadow(
 
 type Box = { left: number; right: number; top: number; bottom: number };
 
-/** The intro's outline: a chimney around the first line, a body around the rest, the roof cut from the second line's end to the third line's foot. */
 function outline(lines: Box[], padX: number, pad: number) {
   const [chimney, roofLine, eaveLine, ...rest] = lines;
   const body = [roofLine, eaveLine, ...rest];
@@ -118,7 +106,6 @@ function outline(lines: Box[], padX: number, pad: number) {
     .join(" ");
 }
 
-/** The live NYC light (sun or moon, softened by the sky's weather), recast every minute. Null until mounted. */
 export function useLiveLight() {
   const { weather } = useSky();
   const [light, setLight] = useState<HouseShadow | null>(null);

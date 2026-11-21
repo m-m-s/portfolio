@@ -6,7 +6,6 @@ import { foodMapCredit, foodMapDescription } from "@/content/about";
 import foodMap from "../public/about/food-map.png";
 import { InlineButton } from "./inline-button";
 
-/** A link phrase that briefly shows the food map: over the window on wide screens, centred on a phone. */
 export function FoodMapButton({ children }: { children: React.ReactNode }) {
   const card = useRef<HTMLSpanElement>(null);
   const [open, setOpen] = useState(false);

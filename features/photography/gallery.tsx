@@ -8,9 +8,7 @@ import { scopedTransition } from "@/features/transitions/scoped-transition";
 import { useRowMotion } from "./row-motion";
 
 const GRAYS = ["bg-photo-1", "bg-photo-2", "bg-photo-3"];
-/** A swipe shorter than this, in pixels, isn't a swipe. */
 const SWIPE = 40;
-/** A trackpad swipe ends when its scroll events pause this long, in ms. */
 const WHEEL_REST = 150;
 
 function PhotoFill({
@@ -39,10 +37,8 @@ function PhotoFill({
   );
 }
 
-/** `at` is the photo's place in the whole gallery, row after row. `stepped` once the visitor has moved off the photo they opened (reduced motion fades those in). */
 type Open = { at: number; stepped?: boolean };
 
-/** "grow" morphs the `[data-grow]` photo between its row and the slideshow, "step" slides it out and the next one in. */
 function photoMotion(
   kind: "grow" | "step",
   update: () => void,
@@ -61,7 +57,6 @@ export function Gallery({ rows }: { rows: Photo[][] }) {
 
   const shade = (row: number, photo: number) =>
     GRAYS[(row + photo) % GRAYS.length];
-  // The rows only shape the layout: the slideshow runs through every photo in order.
   const { places, starts } = useMemo(() => {
     const starts: number[] = [];
     const places = rows.flatMap((row, r) => {
@@ -198,7 +193,6 @@ export function Gallery({ rows }: { rows: Photo[][] }) {
         className="m-0 max-h-none max-w-none touch-pinch-zoom bg-transparent p-0 backdrop:bg-page/95"
       >
         {open && current && (
-          // The photo fits a fixed stage above the nav, so the nav never moves between photo shapes.
           <div className="pointer-events-none grid h-dvh w-screen grid-rows-[minmax(0,1fr)_auto] gap-2 px-8 pt-10 sm:px-16 sm:pt-16">
             <div className="grid place-items-center [container-type:size]">
               <div
@@ -217,7 +211,6 @@ export function Gallery({ rows }: { rows: Photo[][] }) {
                 />
               </div>
             </div>
-            {/* Each arrow fills its side of the line, so a near miss still steps instead of closing. */}
             <div className="pointer-events-auto -mx-8 grid grid-cols-[1fr_auto_1fr] font-grotesk text-sm sm:-mx-16">
               <button
                 type="button"

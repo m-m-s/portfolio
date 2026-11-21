@@ -1,7 +1,6 @@
 import type { CloudSettings, FarSettings } from "./config";
 import { FAR_SIDE_FADE } from "./constants";
 
-/** A dithered image as a flat list of dot coordinates: [x0, y0, x1, y1, ...]. */
 export type Sprite = {
   w: number;
   h: number;
@@ -19,7 +18,6 @@ function canvas(w: number, h: number) {
   return { c, ctx };
 }
 
-/** A stable pseudo-random value per pixel. */
 function hv(x: number, y: number) {
   let n = (x * 374761393 + y * 668265263) | 0;
   n = Math.imul(n ^ (n >>> 13), 1274126177);
@@ -71,7 +69,6 @@ const FS: readonly (readonly [number, number, number])[] = [
   [1, 1, 1 / 16],
 ];
 
-/** Serpentine Floyd–Steinberg. With skip, pixels below 0 are outside the shape. */
 function fsDither(g: Float32Array, w: number, h: number, skip: boolean) {
   const pts: number[] = [];
   for (let y = 0; y < h; y++) {
@@ -96,7 +93,6 @@ function fsDither(g: Float32Array, w: number, h: number, skip: boolean) {
   return Int16Array.from(pts);
 }
 
-/** Photo to dots at its final width: stretch its tones, apply contrast, brightness and Lighter, dither. */
 export function ditherCloud(
   im: HTMLImageElement,
   width: number,
@@ -116,7 +112,6 @@ export function ditherCloud(
     al[i] = d[i * 4 + 3] / 255;
   }
 
-  // Fade the edges so nothing ends in a hard line.
   {
     const fw = Math.max(2, w * 0.06);
     const fh = Math.max(2, h * 0.06);
@@ -136,7 +131,6 @@ export function ditherCloud(
     }
   }
 
-  // Lift a dark cut-out rim to the tone just inside it.
   {
     const solid = new Float32Array(N);
     for (let i = 0; i < N; i++) solid[i] = al[i] > 0.5 ? 1 : 0;
@@ -191,7 +185,6 @@ export function ditherCloud(
   return { w, h, pts: fsDither(g, w, h, true), tint: new Map() };
 }
 
-/** Far strips arrive already dithered; thin their dots toward the bottom so they fade out, and toward each side (linearly, so overlapping tiles add up to full density). */
 export function farFromImage(im: HTMLImageElement): Sprite {
   const { ctx: x } = canvas(im.width, im.height);
   x.drawImage(im, 0, 0);
@@ -218,7 +211,6 @@ export function farFromImage(im: HTMLImageElement): Sprite {
   };
 }
 
-/** Resize or reshade a far strip by re-dithering from its own dot density. */
 export function resizeFar(base: Sprite, f: FarSettings): Sprite {
   const w = Math.round(base.w * f.size);
   const h = Math.round(base.h * f.size);
@@ -241,7 +233,6 @@ export function resizeFar(base: Sprite, f: FarSettings): Sprite {
   return { w, h, pts: fsDither(g, w, h, false), tint: new Map() };
 }
 
-/** The dots painted in one ink, optionally mirrored. Cached per sprite. */
 export function tinted(s: Sprite, ink: readonly number[], flip: boolean) {
   const k = ink.join() + (flip ? "f" : "");
   const cached = s.tint.get(k);
@@ -261,7 +252,6 @@ export function tinted(s: Sprite, ink: readonly number[], flip: boolean) {
   return c;
 }
 
-/** Lowest dot in each column (-1 where a column has too few dots): where rain falls from. */
 export function bottoms(s: Sprite) {
   if (s.bot) return s.bot;
   const b = new Int16Array(s.w).fill(-1);

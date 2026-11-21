@@ -42,8 +42,6 @@ export function DoorLink({
         const el = door.current;
         if (!el) return;
 
-        // The swing plays inside the page transition (see globals.css), with the
-        // door as its own layer, turning from --door-from.
         const root = document.documentElement;
         const box = el.parentElement?.getBoundingClientRect();
         const slab = getComputedStyle(el);

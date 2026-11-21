@@ -7,34 +7,23 @@ import { useLookOutside } from "@/features/sky/sky-view";
 import { type HouseShadow, useLiveLight } from "./house";
 
 type Point = [number, number];
-/** Across the wall, down from the window's top, and out from the wall into the room. */
 type Point3 = [number, number, number];
 
-// A 100 × 150 window in a wall turned on its vertical axis (by default its
-// right side toward the viewer), seen from near its foot. The floor is level,
-// FLOOR below the window's top.
 const W = 100;
 const H = 150;
-/** The wall's turn, in degrees, unless a page asks for another. */
 const TURN = 32;
 const DISTANCE = 300;
-/** The viewer's eye height, as a share of the window's height down from its top, unless a page asks for another. */
 const EYE = 0.8;
 const FRAME = 2.5;
 const MULLION = 3;
-/** A plain ledge right under the glass, exactly as wide as it (all of it in the window's light), sticking out into the room, with a soft shadow below. */
 const SILL = { depth: 6, shadow: 3 };
 const FLOOR = 1.7 * H;
-/** How far the floor reaches each way past the window, in its own units: past the edge of any page. */
 const FLOOR_SPAN = 1000;
 /** Light steeper or shallower than this would throw the patch off the floor or hide it under the window. */
 const LIGHT_ALTITUDE = { min: 50, max: 70 };
-/** Light always comes in through the window, at least this much head-on, and at most this much sideways. */
 const MIN_INWARD = 0.5;
 const MAX_SIDEWAYS = 0.6;
-/** Where the light starts on the floor, as a share of the true distance from the wall: as if the window sat lower, so the patch stays in the room in front of the camera. The patch itself keeps its true shape. */
 const LIGHT_START = 0;
-/** The light on the floor, as a multiple of the house shadow's strength (so it's bright in sun, faint under clouds and at night). */
 const LIGHT_STRENGTH = 1.2;
 
 const rad = (deg: number) => (deg * Math.PI) / 180;
@@ -59,12 +48,10 @@ const rect = (x0: number, y0: number, x1: number, y1: number): Point[] => [
   [x0, y1],
 ];
 
-/** The window's flat parts, before projection. */
 function flatParts(W: number) {
   const midX = W / 2;
   const midY = H / 2;
   const S = SILL;
-  // The ledge sits right under the glass (no strip of wall between them).
   const ledge = H - FRAME;
   return {
     panes: [
@@ -79,7 +66,6 @@ function flatParts(W: number) {
       [W - FRAME, ledge, S.depth],
       [FRAME, ledge, S.depth],
     ] as Point3[],
-    // The faint contact shadow on the wall just under the ledge, from the room's light.
     sillShadow: [
       [FRAME, ledge, 0],
       [W - FRAME, ledge, 0],
@@ -89,10 +75,7 @@ function flatParts(W: number) {
   };
 }
 
-/**
- * The turn, in degrees, at which the window's foot runs across the screen at
- * this slope (down per across; positive when its left end is higher, i.e. farther).
- */
+// slope: down per across, positive when the foot's left end is higher.
 export function turnForSlope(slope: number, eye = EYE) {
   const footSlope = (turn: number) => {
     const project = projector(turn, eye);
@@ -124,9 +107,7 @@ function build(turn: number, eye: number, W: number) {
   const viewH = Math.max(...all.map(([, y]) => y)) - minY;
   const mirror = mirrorIn(viewW);
 
-  // Where the wall meets the floor, drawn as a straight line out past both sides
-  // of any page (the wall's own far end would stop short where it recedes), then
-  // down past the foot of any page.
+  // Out past both sides of any page: the wall's own far end would stop short where it recedes.
   const [wallA, wallB] = [project([0, FLOOR]), project([W, FLOOR])].map(shift);
   const floorAt = (x: number): Point => [
     x,
@@ -152,7 +133,6 @@ function build(turn: number, eye: number, W: number) {
     floor: mirror(floor),
   };
 
-  /** The panes of light on the floor, from light at the given altitude and azimuth. */
   function lightOnFloor(light: HouseShadow, flip: boolean) {
     const altitude = Math.min(
       LIGHT_ALTITUDE.max,
@@ -165,7 +145,6 @@ function build(turn: number, eye: number, W: number) {
     const inward = Math.max(MIN_INWARD, Math.abs(Math.cos(rad(light.azimuth))));
     const length = Math.hypot(side, inward);
     const fall = Math.tan(rad(altitude));
-    // The panes' foot lands LIGHT_START of its true distance out; everything above it lands the true distance further on.
     const foot = H - FRAME;
     const onFloor = ([x, y]: Point): Point3 => {
       const t = (LIGHT_START * (FLOOR - foot) + (foot - y)) / fall;
@@ -194,10 +173,6 @@ function geometryFor(turn: number, eye: number, width = W) {
   return g;
 }
 
-/**
- * The window's shape, for placing it: width over height, and where the ledge's
- * right-hand front corner is, as shares of the window's width and height.
- */
 export function windowShape(turn: number, eye = EYE, flip = false) {
   const g = geometryFor(turn, eye);
   const [a, b] = (flip ? g.mirrored : g.plain).sillTop.slice(2);
@@ -211,7 +186,6 @@ export function windowShape(turn: number, eye = EYE, flip = false) {
 const points = (pts: Point[]) =>
   pts.map(([x, y]) => `${x.toFixed(2)},${y.toFixed(2)}`).join(" ");
 
-/** A four-pane window at an angle, onto the site's sky: the part of it that's behind each pane. */
 export function Window({
   className = "",
   floorLight = false,
@@ -222,17 +196,11 @@ export function Window({
   wide,
 }: {
   className?: string;
-  /** Mirrored: the left side toward the viewer. */
   flip?: boolean;
-  /** A darker floor below the window, with the window's light falling on it. */
   floorLight?: boolean;
-  /** How far the wall is turned, in degrees: 0 faces the viewer. */
   turn?: number;
-  /** The viewer's eye height, as a share of the window's height down from its top. */
   eye?: number;
-  /** Shows the sky as if the window sat this many of its own heights higher (negative: lower), never past the sky's top. */
   skyDrop?: number;
-  /** On the widest screens (from 1536px), the window's width in its own units, against 100 normally (its height is 150): wider panes, same height. */
   wide?: number;
 }) {
   const box = useRef<HTMLDivElement>(null);
@@ -360,7 +328,6 @@ export function Window({
             </clipPath>
           ))}
         </defs>
-        {/* The bezel: each pane sits back in the frame, shaded along its top and left. */}
         {shown.map((pane, i) => (
           <polyline
             key={points(pane)}

@@ -2,7 +2,6 @@ import { MANHATTAN } from "./nyc";
 
 const RAD = Math.PI / 180;
 
-/** Altitude above the horizon and azimuth clockwise from north, in degrees, seen from Manhattan. */
 type SkyPosition = { altitude: number; azimuth: number };
 
 const daysSince2000 = (date: Date) =>
@@ -51,7 +50,6 @@ export function isNight(date: Date) {
   return sunPosition(date).altitude < HORIZON;
 }
 
-/** The next sunrise or sunset after `from`. */
 export function nextSunChange(from: Date) {
   const night = isNight(from);
   const STEP = 10 * 60_000;
@@ -70,7 +68,7 @@ export function nextSunChange(from: Date) {
   return new Date(after);
 }
 
-/** Low-precision lunar position (Astronomical Almanac), good to about 1°; the share of the moon that's lit (0 new, 1 full); and whether it's waxing, lit on the right as seen from New York. */
+/** Low-precision lunar position (Astronomical Almanac), good to about 1°. */
 export function moonPosition(
   date: Date,
 ): SkyPosition & { lit: number; waxing: boolean } {
@@ -111,7 +109,6 @@ export function moonPosition(
   };
 }
 
-/** Today in New York at the given minutes past midnight. */
 export function nycTimeToday(minutes: number) {
   const parts = new Intl.DateTimeFormat("en-US", {
     timeZone: "America/New_York",
@@ -128,7 +125,6 @@ export function nycTimeToday(minutes: number) {
   return new Date(midnight + (minutes - offset) * 60_000);
 }
 
-/** Minutes past midnight in New York right now. */
 export function nycMinutesNow() {
   const parts = new Intl.DateTimeFormat("en-US", {
     timeZone: "America/New_York",

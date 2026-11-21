@@ -17,9 +17,7 @@ import { randomSeed, SkyEngine } from "./engine";
 type Draw = (sky: HTMLCanvasElement) => void;
 
 type SkyContextValue = {
-  /** Calls draw with the sky's canvas after every frame. Returns an unsubscribe. */
   watch: (draw: Draw) => () => void;
-  /** A window on the page reports its width, so its clouds are sized to it. */
   setWindowWidth: (width: number) => void;
   weather: Sky;
 };

@@ -5,7 +5,6 @@ import { isNight, moonPosition, nextSunChange } from "./sun-and-moon";
 
 export type Moon = { lit: number; waxing: boolean };
 
-/** Tonight's moon while it's night in New York, null by day (and on the server, which can't know). Rechecked at the next sunrise or sunset. */
 export function useMoon() {
   const [moon, setMoon] = useState<Moon | null>(null);
 

@@ -78,7 +78,6 @@ type FarLayer = Physics & {
   ink: Rgb;
   y: number;
   off: number;
-  /** Tiles whose dots are stirred, by their place in the row of tiles. */
   stirred: Map<number, Cloud>;
 };
 
@@ -112,7 +111,6 @@ function loadImage(src: string) {
   });
 }
 
-// Shared by every sky on the page, so a second sky never fetches what another already has.
 const cloudImages = new Map<string, Promise<HTMLImageElement | null>>();
 const farStrips = new Map<string, Promise<Sprite | null>>();
 
@@ -141,7 +139,6 @@ const farStrip = (k: string) =>
     return im && farFromImage(im);
   });
 
-/** Starts loading these weathers' images, so showing them later only has to draw. */
 export function preloadSkies(skies: readonly Sky[]) {
   for (const sky of skies) {
     const config = configFor(sky);
@@ -155,12 +152,10 @@ export function preloadSkies(skies: readonly Sky[]) {
   }
 }
 
-/** Lets the page paint and respond between clouds, so a slow build doesn't freeze it. */
 function nextTask() {
   return new Promise<void>((resolve) => setTimeout(resolve, 0));
 }
 
-/** Far tiles overlap by their faded sides, so they advance by less than their width. */
 function farStep(s: Sprite) {
   return Math.max(1, Math.round(s.w * (1 - FAR_SIDE_FADE)));
 }
@@ -183,7 +178,6 @@ export class SkyEngine {
   private seed = 1;
   private layoutSeed = 1;
   private scaleOverride: number | null = null;
-  /** Set while the sky is seen only through a window: its width, in px. */
   private windowWidth: number | null = null;
 
   private readonly src = new Map<string, HTMLImageElement>();
@@ -250,7 +244,6 @@ export class SkyEngine {
     });
   }
 
-  /** Show a weather's sky. A new seed gives a new layout; leave it out for a random one. */
   async show(sky: Sky, seed = randomSeed()) {
     const id = ++this.loadId;
     this.sky = sky;
@@ -287,13 +280,11 @@ export class SkyEngine {
     if (first) this.onReady?.();
   }
 
-  /** Overrides the weather's cloud scale (null goes back to it). Keeps the layout. */
   setCloudScale(scale: number | null) {
     if (scale === this.scaleOverride) return;
     this.scaleOverride = scale;
     if (this.ready) void this.build();
   }
-  /** Shows the sky only through a window this wide (null: the full sky). Rounded, so small resizes don't rebuild it. */
   setWindowWidth(width: number | null) {
     const rounded = width === null ? null : Math.round(width / 16) * 16;
     if (rounded === this.windowWidth) return;
@@ -301,13 +292,11 @@ export class SkyEngine {
     if (this.ready) void this.build();
   }
 
-  /** The far strip grows with the sky's height alone: anchored by its bottom, growing any faster would lift its top above where it sits at the reference size. In a window it keeps its size. */
   private get farGrowth() {
     if (this.windowWidth !== null) return 1;
     return Math.max(1, this.H / REFERENCE.height);
   }
 
-  /** Clouds grow with a blend of the sky's height and the screen's width (WIDE_WEIGHT). */
   private get cloudGrowth() {
     if (this.windowWidth !== null) return 1;
     const byWidth = this.W / REFERENCE.width;
@@ -317,7 +306,6 @@ export class SkyEngine {
     );
   }
 
-  /** Extra clouds for the width the grown clouds don't cover, so the spacing stays as tuned. */
   private get fill() {
     if (this.windowWidth !== null) return 1;
     return Math.max(1, this.W / (REFERENCE.width * this.cloudGrowth));
@@ -336,18 +324,14 @@ export class SkyEngine {
     return base * this.cloudGrowth;
   }
 
-  /** Called after every frame is painted. */
   onFrame: (() => void) | null = null;
-  /** Called once, when the first sky is built. */
   onReady: (() => void) | null = null;
 
-  /** Stops drawing while nothing shows the sky; on return the clouds have drifted on. */
   setActive(active: boolean) {
     this.active = active;
     this.syncLoop();
   }
 
-  /** When off, the dots and drops ignore the pointer. */
   setInteractive(on: boolean) {
     this.interactive = on;
     if (!on) {
@@ -365,8 +349,6 @@ export class SkyEngine {
     this.resizeObserver.disconnect();
     this.abort.abort();
   }
-
-  // ---- loop ----
 
   private syncLoop() {
     const run = this.ready && this.active && !document.hidden;
@@ -477,8 +459,6 @@ export class SkyEngine {
     this.raf = requestAnimationFrame(this.frame);
   };
 
-  // ---- composition ----
-
   private rnd() {
     this.seed = (this.seed * 16807) % 2147483647;
     return (this.seed - 1) / 2147483646;
@@ -540,7 +520,6 @@ export class SkyEngine {
     return s;
   }
 
-  /** Where a cloud's base lands: u from 0 to 1 runs through its allowed bands, top to bottom. */
   private placeY(hb: Band[], u: number, h: number) {
     const { ranges, bw } = bandRanges(this.sky);
     let rs = [...ranges].filter(([b]) => hb.includes(b)).map(([, r]) => r);
@@ -557,7 +536,6 @@ export class SkyEngine {
     return Math.round(Math.max(base * this.S, h * 0.6) - h);
   }
 
-  /** Resolves false if a newer build took over while this one waited. */
   private async build() {
     const bid = ++this.buildId;
     const stale = async () => {
@@ -599,7 +577,6 @@ export class SkyEngine {
         flip: boolean;
       }[] = [];
       const retuned = RETUNED_SKIES.has(this.sky);
-      // One height per equal slice of the range, so a small layer can't land all high.
       const spread = retuned
         ? this.shuffled(
             Array.from(
@@ -638,9 +615,6 @@ export class SkyEngine {
         });
       }
 
-      // Biggest clouds first, each into the most open stretch (best of a few tries).
-      // Two copies of the same cloud want much more room between them: side by
-      // side (one often mirrored) they read as a symmetric pair.
       items.sort((a, b) => b.w - a.w);
       const margin = Math.max(...items.map((it) => it.w));
       const track = span + margin;
@@ -728,7 +702,6 @@ export class SkyEngine {
       for (const o of inst) tinted(o.sprite, ink, o.flip);
     }
 
-    // Far: one of this weather's strips, chosen at random each visit.
     const farPool = FAR.filter(
       (k) => this.config.far[k] && this.farBase.has(k),
     );
@@ -762,7 +735,6 @@ export class SkyEngine {
     this.canvas.width = Math.round(W * this.dpr);
     this.canvas.height = Math.round(H * this.dpr);
 
-    // Start rain and snow already falling, as if it had been going for a while.
     this.drops.length = 0;
     this.farDrops.length = 0;
     if (this.rainOn && this.farL) {
@@ -801,8 +773,6 @@ export class SkyEngine {
       }
     }
   }
-
-  // ---- dots scatter from the cursor and spring back ----
 
   private alloc(L: Physics, s: Sprite): DotBuffer {
     const n = s.pts.length / 2;
@@ -893,8 +863,6 @@ export class SkyEngine {
     p.cx.putImageData(p.img, 0, 0);
   }
 
-  // ---- rain and snow ----
-
   private farRainInk() {
     const farL = this.farL;
     if (!farL) return INK[this.sky].far;
@@ -902,7 +870,6 @@ export class SkyEngine {
     return farL.ink.map((c, i) => Math.round(c + (mid[i] - c) * FAR_INK_MIX));
   }
 
-  /** Distant rain from the underside of the far strip: thinner, slower, paler. */
   private emitFar(dt: number) {
     const farL = this.farL;
     if (!this.rainOn || !farL || this.farDrops.length > 1600) return;
@@ -974,7 +941,6 @@ export class SkyEngine {
     }
   }
 
-  /** Rain and snow from the underside of a cloud, drifting along with it. */
   private emit(L: CloudLayer, o: Cloud, x: number, y: number, dt: number) {
     if (!this.rainOn || this.drops.length > 1400) return;
     const s = o.sprite;
@@ -1026,7 +992,6 @@ export class SkyEngine {
     }
   }
 
-  /** A drop starts as a dot and stretches into a streak over its first ~90px. */
   private dropLen(d: Drop) {
     const max = d.max ?? 1;
     return Math.max(
@@ -1035,7 +1000,6 @@ export class SkyEngine {
     );
   }
 
-  /** The cursor pushes nearby drops sideways; the push fades and the drop falls on. */
   private pushDrop(d: Drop, R: number, A: number, dt: number) {
     if (dt <= 0) return;
     const dx = d.x - this.px;

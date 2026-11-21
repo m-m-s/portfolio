@@ -1,10 +1,5 @@
 let lastRun = 0;
 
-/**
- * Runs a DOM change as a view transition scoped by a data attribute on <html>
- * (e.g. data-photo-motion="grow"), which the CSS uses to pick what moves. With
- * reduced motion or no View Transitions support, the change just happens.
- */
 export function scopedTransition(
   attribute: string,
   kind: string,

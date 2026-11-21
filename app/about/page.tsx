@@ -7,7 +7,6 @@ import { LookOutsideButton } from "@/features/sky/sky-view";
 
 export const metadata: Metadata = { title: "About" };
 
-/** Punctuation right after a phrase rides inside it, in regular weight, so it never wraps onto a line by itself. */
 function Part({ part, tail }: { part: AboutPart; tail: string }) {
   if (typeof part === "string") return part;
   if ("action" in part && part.action === "weather") {
@@ -44,7 +43,6 @@ function Part({ part, tail }: { part: AboutPart; tail: string }) {
   );
 }
 
-/** Pairs each link with the punctuation right after it. */
 function glued(paragraph: AboutPart[]) {
   const out: [AboutPart, string][] = [];
   for (const part of paragraph) {
