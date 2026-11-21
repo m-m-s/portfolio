@@ -13,16 +13,21 @@ const OPEN_FOR = 4000;
 export function FoodMapButton({ children }: { children: React.ReactNode }) {
   // 0 while closed; a new number on every click, so a repeat click restarts the timer.
   const [opened, setOpened] = useState(0);
+  const [leaving, setLeaving] = useState(false);
   const open = opened !== 0;
   const card = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!opened) return;
-    const timer = setTimeout(() => setOpened(0), OPEN_FOR);
+    const leave = () => {
+      setOpened(0);
+      setLeaving(true);
+    };
+    const timer = setTimeout(leave, OPEN_FOR);
     const close = (e: Event) => {
       if (e instanceof KeyboardEvent && e.key !== "Escape") return;
       if (e.target instanceof Node && card.current?.contains(e.target)) return;
-      setOpened(0);
+      leave();
     };
     document.addEventListener("keydown", close);
     document.addEventListener("pointerdown", close);
@@ -38,16 +43,22 @@ export function FoodMapButton({ children }: { children: React.ReactNode }) {
       <InlineButton
         aria-expanded={open}
         onPointerDown={(e) => e.stopPropagation()}
-        onClick={() => setOpened((n) => n + 1)}
+        onClick={() => {
+          setLeaving(false);
+          setOpened((n) => n + 1);
+        }}
         className="font-bold hover:underline"
       >
         {children}
       </InlineButton>
-      {open &&
+      {(open || leaving) &&
         createPortal(
           <div
             ref={card}
-            className="fixed inset-x-4 top-1/2 z-20 overflow-hidden mx-auto -translate-y-1/2 animate-[fade-in_300ms_ease-out] bg-glass shadow-lg sm:inset-x-auto sm:top-[22%] sm:right-[10%] sm:w-96 sm:translate-y-0 lg:w-[28rem]"
+            onAnimationEnd={(e) => {
+              if (e.animationName === "leave-fade") setLeaving(false);
+            }}
+            className={`fixed inset-x-4 top-1/2 z-20 overflow-hidden mx-auto -translate-y-1/2 ${leaving ? "animate-[leave-fade_var(--fade)_ease-in_both]" : "animate-[fade-in_300ms_ease-out]"} bg-glass shadow-lg sm:inset-x-auto sm:top-[22%] sm:right-[10%] sm:w-96 sm:translate-y-0 lg:w-[28rem]`}
           >
             <Image
               src={foodMap}
