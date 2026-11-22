@@ -9,27 +9,19 @@ export const metadata: Metadata = { title: "About" };
 
 function Part({ part, tail }: { part: AboutPart; tail: string }) {
   if (typeof part === "string") return part;
-  if ("action" in part && part.action === "weather") {
+  if ("action" in part) {
+    const Button =
+      part.action === "weather" ? LookOutsideButton : FoodMapButton;
     return (
-      <LookOutsideButton>
+      <Button>
         {part.text}
         {tail && <span className="font-normal">{tail}</span>}
-      </LookOutsideButton>
-    );
-  }
-  if ("action" in part && part.action === "food-map") {
-    return (
-      <FoodMapButton>
-        {part.text}
-        {tail && <span className="font-normal">{tail}</span>}
-      </FoodMapButton>
+      </Button>
     );
   }
   return (
     <>
-      {"action" in part ? (
-        <span className="font-bold">{part.text}</span>
-      ) : part.href.startsWith("/") ? (
+      {part.href.startsWith("/") ? (
         <Link href={part.href} className="font-bold hover:underline">
           {part.text}
         </Link>
