@@ -1,3 +1,5 @@
+import { email } from "./site";
+
 export type AboutPart =
   | string
   | { text: string; href: string }
@@ -38,7 +40,7 @@ export const aboutParagraphs: AboutPart[][] = [
   ],
   [
     "Next, I want to take on bigger, more complex systems with ",
-    { text: "[a team I care about]", href: "mailto:maggiemshen@gmail.com" },
+    { text: "[a team I care about]", href: `mailto:${email}` },
     ".",
   ],
 ];
