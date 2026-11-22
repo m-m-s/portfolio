@@ -12,12 +12,12 @@ import {
 import { usePath } from "@/features/transitions/use-path";
 import type { Sky } from "@/features/weather/sky";
 import { WINDOW_FOR_FULL_CLOUDS } from "./constants";
-import { randomSeed, SkyEngine } from "./engine";
+import { type Area, randomSeed, SkyEngine } from "./engine";
 
-type Draw = (sky: HTMLCanvasElement) => void;
+type Target = { canvas: HTMLCanvasElement; area: () => Area | null };
 
 type SkyContextValue = {
-  watch: (draw: Draw) => () => void;
+  attach: (canvas: HTMLCanvasElement, area: () => Area | null) => () => void;
   setWindowWidth: (width: number) => void;
   weather: Sky;
 };
@@ -39,8 +39,8 @@ export function SkyProvider({
 }) {
   const canvas = useRef<HTMLCanvasElement>(null);
   const engine = useRef<SkyEngine | null>(null);
-  const watchers = useRef(new Set<Draw>());
-  const [watching, setWatching] = useState(0);
+  const target = useRef<Target | null>(null);
+  const [windows, setWindows] = useState(0);
   const [seed, setSeed] = useState<number | null>(null);
   // Until a window reports in: the desktop About window's width.
   const [windowWidth, setWindowWidth] = useState(WINDOW_FOR_FULL_CLOUDS / 2);
@@ -53,9 +53,8 @@ export function SkyProvider({
     e.onReady = () => {
       document.documentElement.dataset.skyReady = "";
     };
-    e.onFrame = () => {
-      for (const draw of watchers.current) draw(c);
-    };
+    // A window's effect runs before this one, so it may have attached already.
+    if (target.current) e.attach(target.current.canvas, target.current.area);
     engine.current = e;
     setSeed(randomSeed());
     return () => {
@@ -75,21 +74,27 @@ export function SkyProvider({
 
   useEffect(() => {
     engine.current?.setInteractive(full);
-    engine.current?.setActive(full || watching > 0);
-  }, [full, watching]);
+    engine.current?.setActive(full || windows > 0);
+  }, [full, windows]);
 
-  const watch = useCallback((draw: Draw) => {
-    watchers.current.add(draw);
-    setWatching((n) => n + 1);
-    return () => {
-      watchers.current.delete(draw);
-      setWatching((n) => n - 1);
-    };
-  }, []);
+  const attach = useCallback(
+    (canvas: HTMLCanvasElement, area: () => Area | null) => {
+      const t = { canvas, area };
+      target.current = t;
+      engine.current?.attach(canvas, area);
+      setWindows((n) => n + 1);
+      return () => {
+        if (target.current === t) target.current = null;
+        engine.current?.detach(canvas);
+        setWindows((n) => n - 1);
+      };
+    },
+    [],
+  );
 
   const value = useMemo(
-    () => ({ watch, setWindowWidth, weather }),
-    [watch, weather],
+    () => ({ attach, setWindowWidth, weather }),
+    [attach, weather],
   );
 
   return (

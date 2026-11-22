@@ -96,6 +96,10 @@ type Drop = {
   amp?: number;
 };
 
+export type Area = { x: number; y: number; w: number; h: number };
+
+const NOWHERE: Area = { x: -1e6, y: -1e6, w: 0, h: 0 };
+
 const FAR_INK_MIX = 0.35;
 const CLOUD_ROOM = 0.75;
 const SAME_CLOUD_ROOM = 2.5;
@@ -165,7 +169,11 @@ export function randomSeed() {
 }
 
 export class SkyEngine {
-  private readonly ctx: CanvasRenderingContext2D;
+  private ctx: CanvasRenderingContext2D;
+  private readonly ownCtx: CanvasRenderingContext2D;
+  private target: HTMLCanvasElement;
+  private area: (() => Area | null) | null = null;
+  private view: Area = NOWHERE;
   private W = 0;
   private H = 0;
   private dpr = 1;
@@ -206,6 +214,8 @@ export class SkyEngine {
     const ctx = canvas.getContext("2d");
     if (!ctx) throw new Error("2D canvas unavailable");
     this.ctx = ctx;
+    this.ownCtx = ctx;
+    this.target = canvas;
 
     this.resizeObserver = new ResizeObserver(() => {
       clearTimeout(this.resizeTimer);
@@ -324,7 +334,27 @@ export class SkyEngine {
     return base * this.cloudGrowth;
   }
 
-  onFrame: (() => void) | null = null;
+  attach(canvas: HTMLCanvasElement, area: () => Area | null) {
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("2D canvas unavailable");
+    this.paintInto(canvas, ctx, area);
+  }
+
+  detach(canvas: HTMLCanvasElement) {
+    if (this.target === canvas) this.paintInto(this.canvas, this.ownCtx, null);
+  }
+
+  private paintInto(
+    canvas: HTMLCanvasElement,
+    ctx: CanvasRenderingContext2D,
+    area: (() => Area | null) | null,
+  ) {
+    this.target = canvas;
+    this.ctx = ctx;
+    this.area = area;
+    if (this.ready) this.draw(0);
+  }
+
   onReady: (() => void) | null = null;
 
   setActive(active: boolean) {
@@ -370,13 +400,38 @@ export class SkyEngine {
   }
 
   private readonly frame = (now: number) => {
-    const { ctx, W, H } = this;
     // A frame can be stamped slightly before the wake that requested it.
     const dt = Math.min(0.05, Math.max(0, now - this.last) / 1000);
     this.last = now;
-    ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
-    ctx.imageSmoothingEnabled = true;
-    ctx.clearRect(0, 0, W, H);
+    this.draw(dt);
+    this.raf = requestAnimationFrame(this.frame);
+  };
+
+  private inView(x: number, y: number, w: number, h: number) {
+    const v = this.view;
+    return x < v.x + v.w && x + w > v.x && y < v.y + v.h && y + h > v.y;
+  }
+
+  private draw(dt: number) {
+    const { ctx, W, dpr } = this;
+    const area = this.area ? this.area() : { x: 0, y: 0, w: W, h: this.H };
+    this.view = area ?? NOWHERE;
+    if (area) {
+      const w = Math.round(area.w * dpr);
+      const h = Math.round(area.h * dpr);
+      if (this.target.width !== w) this.target.width = w;
+      if (this.target.height !== h) this.target.height = h;
+      ctx.setTransform(
+        dpr,
+        0,
+        0,
+        dpr,
+        -Math.round(area.x * dpr),
+        -Math.round(area.y * dpr),
+      );
+      ctx.imageSmoothingEnabled = true;
+      ctx.clearRect(area.x, area.y, area.w, area.h);
+    }
 
     const farL = this.farL;
     if (farL) {
@@ -392,6 +447,7 @@ export class SkyEngine {
         if (x + s.w < 0) continue;
         const lx = this.px - x;
         const near = lx > -R && lx < s.w + R && ly > -R && ly < s.h + R;
+        const seen = this.inView(x, farL.y, s.w, s.h);
         let o = farL.stirred.get(n);
         if (near && !o) {
           o = {
@@ -409,12 +465,14 @@ export class SkyEngine {
           if (this.step(farL, o, lx, ly, near) === 0 && !near) {
             farL.stirred.delete(n);
           } else {
-            this.paint(farL, o);
-            ctx.drawImage(o.p.c, x - o.p.m, farL.y - o.p.m);
+            if (seen) {
+              this.paint(farL, o);
+              ctx.drawImage(o.p.c, x - o.p.m, farL.y - o.p.m);
+            }
             continue;
           }
         }
-        ctx.drawImage(tile, x, farL.y);
+        if (seen) ctx.drawImage(tile, x, farL.y);
       }
       this.emitFar(dt);
       this.drawFarDrops(dt);
@@ -441,23 +499,23 @@ export class SkyEngine {
         const R = L.radius;
         const near = lx > -R && lx < s.w + R && ly > -R && ly < s.h + R;
         if (near && !o.p) this.wake(o);
+        const seen = this.inView(x, y, s.w, s.h);
         if (o.p) {
           const moving = this.step(L, o, lx, ly, near);
           if (!near && moving === 0) o.p = null;
           else {
-            this.paint(L, o);
-            ctx.drawImage(o.p.c, x - o.p.m, y - o.p.m);
+            if (seen) {
+              this.paint(L, o);
+              ctx.drawImage(o.p.c, x - o.p.m, y - o.p.m);
+            }
             continue;
           }
         }
-        ctx.drawImage(tinted(s, L.ink, o.flip), x, y);
+        if (seen) ctx.drawImage(tinted(s, L.ink, o.flip), x, y);
       }
     }
     if (!this.layers.front) this.drawDrops(dt);
-    this.onFrame?.();
-
-    this.raf = requestAnimationFrame(this.frame);
-  };
+  }
 
   private rnd() {
     this.seed = (this.seed * 16807) % 2147483647;
@@ -732,8 +790,6 @@ export class SkyEngine {
     this.layers = layers;
     this.farL = farL;
     this.dpr = Math.min(2, window.devicePixelRatio || 1);
-    this.canvas.width = Math.round(W * this.dpr);
-    this.canvas.height = Math.round(H * this.dpr);
 
     this.drops.length = 0;
     this.farDrops.length = 0;
@@ -927,10 +983,11 @@ export class SkyEngine {
         continue;
       }
       this.pushDrop(d, 45, this.snow ? 900 : 1800, dt);
+      if (d.sz) d.ph = (d.ph ?? 0) + dt * 1.3;
+      if (!this.inView(d.x - 8, d.y - 8, 16, 16)) continue;
       if (d.sz) {
-        d.ph = (d.ph ?? 0) + dt * 1.3;
         ctx.fillRect(
-          Math.round(d.x + Math.sin(d.ph) * (d.amp ?? 0)),
+          Math.round(d.x + Math.sin(d.ph ?? 0) * (d.amp ?? 0)),
           Math.round(d.y),
           d.sz,
           d.sz,
@@ -1031,11 +1088,12 @@ export class SkyEngine {
         (d.mid ? 2600 : 4200) * (this.snow ? 0.5 : 1),
         dt,
       );
+      if (d.sz) d.ph = (d.ph ?? 0) + dt * 1.4;
+      if (!this.inView(d.x - 8, d.y - 8, 16, 16)) continue;
       if (d.sz) {
-        d.ph = (d.ph ?? 0) + dt * 1.4;
         ctx.fillStyle = d.mid ? "rgb(172,170,165)" : "rgb(96,94,90)";
         ctx.fillRect(
-          Math.round(d.x + Math.sin(d.ph) * (d.amp ?? 0)),
+          Math.round(d.x + Math.sin(d.ph ?? 0) * (d.amp ?? 0)),
           Math.round(d.y),
           d.sz,
           d.sz,

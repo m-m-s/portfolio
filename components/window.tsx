@@ -183,8 +183,8 @@ export function windowShape(turn: number, eye = EYE, flip = false) {
   };
 }
 
-const points = (pts: Point[]) =>
-  pts.map(([x, y]) => `${x.toFixed(2)},${y.toFixed(2)}`).join(" ");
+const points = (pts: Point[], digits = 2) =>
+  pts.map(([x, y]) => `${x.toFixed(digits)},${y.toFixed(digits)}`).join(" ");
 
 export function Window({
   className = "",
@@ -205,7 +205,7 @@ export function Window({
 }) {
   const box = useRef<HTMLDivElement>(null);
   const glass = useRef<HTMLCanvasElement>(null);
-  const { watch, setWindowWidth } = useSky();
+  const { attach, setWindowWidth } = useSky();
   const lookOutside = useLookOutside();
   const [wideScreen, setWideScreen] = useState(false);
   useEffect(() => {
@@ -233,37 +233,19 @@ export function Window({
 
   useEffect(() => {
     const el = box.current;
-    const ctx = glass.current?.getContext("2d");
-    if (!el || !ctx) return;
-    const glassColor = getComputedStyle(el).getPropertyValue("--color-glass");
-    return watch((sky) => {
+    const c = glass.current;
+    if (!el || !c) return;
+    return attach(c, () => {
       const r = el.getBoundingClientRect();
-      const dpr = sky.width / (sky.clientWidth || 1);
-      const w = Math.round(r.width * dpr);
-      const h = Math.round(r.height * dpr);
-      if (ctx.canvas.width !== w || ctx.canvas.height !== h) {
-        ctx.canvas.width = w;
-        ctx.canvas.height = h;
-      }
-      const k = w / viewW;
-      ctx.clearRect(0, 0, w, h);
-      ctx.save();
-      ctx.beginPath();
-      for (const pane of shown) {
-        pane.forEach(([x, y], i) => {
-          if (i === 0) ctx.moveTo(x * k, y * k);
-          else ctx.lineTo(x * k, y * k);
-        });
-        ctx.closePath();
-      }
-      ctx.clip();
-      ctx.fillStyle = glassColor;
-      ctx.fillRect(0, 0, w, h);
-      const skyTop = Math.max(0, r.top - skyDrop * r.height);
-      ctx.drawImage(sky, r.left * dpr, skyTop * dpr, w, h, 0, 0, w, h);
-      ctx.restore();
+      if (r.bottom <= 0 || r.top >= innerHeight || !r.width) return null;
+      return {
+        x: r.left,
+        y: Math.max(0, r.top - skyDrop * r.height),
+        w: r.width,
+        h: r.height,
+      };
     });
-  }, [watch, shown, viewW, skyDrop]);
+  }, [attach, skyDrop]);
 
   return (
     // A mouse shortcut to Look outside; touch would trip it while reading or scrolling past.
@@ -305,7 +287,8 @@ export function Window({
       <canvas
         ref={glass}
         data-window-glass
-        className="absolute inset-0 h-full w-full"
+        style={{ clipPath: `url("#${id}-glass")` }}
+        className="absolute inset-0 h-full w-full bg-glass"
       />
       <svg
         aria-hidden="true"
@@ -322,6 +305,17 @@ export function Window({
           >
             <feGaussianBlur stdDeviation="1.2" />
           </filter>
+          <clipPath id={`${id}-glass`} clipPathUnits="objectBoundingBox">
+            {shown.map((pane) => (
+              <polygon
+                key={points(pane)}
+                points={points(
+                  pane.map(([x, y]): Point => [x / viewW, y / g.viewH]),
+                  5,
+                )}
+              />
+            ))}
+          </clipPath>
           {shown.map((pane, i) => (
             <clipPath key={points(pane)} id={`${id}-pane-${i}`}>
               <polygon points={points(pane)} />
