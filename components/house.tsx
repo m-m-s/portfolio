@@ -7,6 +7,7 @@ import type { Sky } from "@/features/weather/sky";
 import {
   isNight,
   moonPosition,
+  nextSunChange,
   sunPosition,
 } from "@/features/weather/sun-and-moon";
 import { DoorLink } from "./door-link";
@@ -99,10 +100,19 @@ export function useLiveLight() {
   const { weather } = useSky();
   const [light, setLight] = useState<HouseShadow | null>(null);
   useEffect(() => {
-    const update = () => setLight(castShadow(new Date(), weather));
+    let timer: ReturnType<typeof setTimeout>;
+    let sunChange = 0;
+    const update = () => {
+      const now = Date.now();
+      // Sunrise and sunset switch between sun and moon on the dot, like the weather icon.
+      if (now >= sunChange) {
+        sunChange = nextSunChange(new Date(now)).getTime() + 1000;
+      }
+      setLight(castShadow(new Date(now), weather));
+      timer = setTimeout(update, Math.min(60_000, sunChange - now));
+    };
     update();
-    const timer = setInterval(update, 60_000);
-    return () => clearInterval(timer);
+    return () => clearTimeout(timer);
   }, [weather]);
   return light;
 }
