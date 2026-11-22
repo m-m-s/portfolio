@@ -122,9 +122,11 @@ export function LookOutsideProvider({
     const next = (at + by + order.length) % order.length;
     setAt(next);
     setReady(false);
-    const swap = Number.parseFloat(
-      getComputedStyle(document.documentElement).getPropertyValue("--sky-swap"),
-    );
+    const value = getComputedStyle(document.documentElement)
+      .getPropertyValue("--sky-swap")
+      .trim();
+    // The browser may report it in seconds (".25s") rather than as written.
+    const swap = Number.parseFloat(value) * (value.endsWith("ms") ? 1 : 1000);
     setTimeout(() => {
       void engine.current
         ?.show(order[next], randomSeed())
@@ -183,6 +185,11 @@ export function LookOutsideProvider({
             ref={canvas}
             className={`transition-opacity duration-(--sky-swap) ${ready ? "opacity-100" : "opacity-0"}`}
           />
+          {!ready && (
+            <span className="absolute inset-0 m-auto size-6 [animation:fade-in_var(--sky-swap)_ease_500ms_both]">
+              <span className="block size-full animate-spin rounded-full border-2 border-ink/10 border-t-ink/50" />
+            </span>
+          )}
         </div>
         <div className="outside-controls fixed inset-x-0 flex flex-col items-center gap-3 font-grotesk text-sm">
           <div className="flex items-center gap-2">
