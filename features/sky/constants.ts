@@ -139,16 +139,19 @@ export function bandRanges(sky: Sky) {
   return { ranges, bw };
 }
 
-export const RETUNED_SKIES: ReadonlySet<Sky> = new Set(["partly-cloudy"]);
 export const LARGE_CLOUD = 1.75;
-export const MAX_LARGE = 2;
+
+export const PLACEMENT: Record<
+  Sky,
+  { spreadHeights: boolean; maxLarge: number }
+> = {
+  sunny: { spreadHeights: false, maxLarge: Number.POSITIVE_INFINITY },
+  "partly-cloudy": { spreadHeights: true, maxLarge: 2 },
+  cloudy: { spreadHeights: false, maxLarge: Number.POSITIVE_INFINITY },
+  rainy: { spreadHeights: false, maxLarge: Number.POSITIVE_INFINITY },
+  snowy: { spreadHeights: false, maxLarge: Number.POSITIVE_INFINITY },
+};
 
 export const FAR_SIDE_FADE = 0.25;
 
-export const SKY_FRACTION: Record<Sky, number> = {
-  sunny: 0.4,
-  "partly-cloudy": 0.4,
-  cloudy: 0.4,
-  rainy: 0.4,
-  snowy: 0.4,
-};
+export const SKY_FRACTION = 0.4;

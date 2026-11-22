@@ -12,11 +12,10 @@ import {
   LARGE_CLOUD,
   LAYER,
   type Layer,
-  MAX_LARGE,
   MIN_WINDOW_CLOUDS,
   PHONE_CLOUD_SCALE,
+  PLACEMENT,
   REFERENCE,
-  RETUNED_SKIES,
   type Rgb,
   SKY_FRACTION,
   SMALL_SCREEN,
@@ -115,33 +114,36 @@ function loadImage(src: string) {
   });
 }
 
-const cloudImages = new Map<string, Promise<HTMLImageElement | null>>();
-const farStrips = new Map<string, Promise<Sprite | null>>();
+type Entry<T> = { promise: Promise<T | null>; value?: T };
 
-function cached<T>(
-  cache: Map<string, Promise<T | null>>,
-  key: string,
-  load: () => Promise<T | null>,
-) {
-  let p = cache.get(key);
-  if (!p) {
-    p = load().then((v) => {
-      // A failed load can be tried again later.
-      if (v === null) cache.delete(key);
-      return v;
-    });
-    cache.set(key, p);
-  }
-  return p;
+function loader<T>(load: (key: string) => Promise<T | null>) {
+  const entries = new Map<string, Entry<T>>();
+  return {
+    load(key: string) {
+      let entry = entries.get(key);
+      if (!entry) {
+        const e: Entry<T> = {
+          promise: load(key).then((v) => {
+            // A failed load can be tried again later.
+            if (v === null) entries.delete(key);
+            else e.value = v;
+            return v;
+          }),
+        };
+        entry = e;
+        entries.set(key, e);
+      }
+      return entry.promise;
+    },
+    get: (key: string) => entries.get(key)?.value,
+  };
 }
 
-const cloudImage = (id: string) =>
-  cached(cloudImages, id, () => loadImage(`/sky/clouds/${id}.png`));
-const farStrip = (k: string) =>
-  cached(farStrips, k, async () => {
-    const im = await loadImage(`/sky/strips/${k}.png`);
-    return im && farFromImage(im);
-  });
+const cloudImages = loader((id) => loadImage(`/sky/clouds/${id}.png`));
+const farStrips = loader(async (k) => {
+  const im = await loadImage(`/sky/strips/${k}.png`);
+  return im && farFromImage(im);
+});
 
 export function preloadSkies(skies: readonly Sky[]) {
   for (const sky of skies) {
@@ -150,9 +152,9 @@ export function preloadSkies(skies: readonly Sky[]) {
       ...Object.keys(config.front),
       ...Object.keys(config.mid),
     ])) {
-      void cloudImage(id);
+      void cloudImages.load(id);
     }
-    for (const k of Object.keys(config.far)) void farStrip(k);
+    for (const k of Object.keys(config.far)) void farStrips.load(k);
   }
 }
 
@@ -188,8 +190,6 @@ export class SkyEngine {
   private scaleOverride: number | null = null;
   private windowWidth: number | null = null;
 
-  private readonly src = new Map<string, HTMLImageElement>();
-  private readonly farBase = new Map<string, Sprite>();
   private readonly sprites = new Map<string, Sprite>();
   private layers: Partial<Record<Layer, CloudLayer>> = {};
   private farL: FarLayer | null = null;
@@ -262,24 +262,13 @@ export class SkyEngine {
     this.rainOn = sky === "rainy" || sky === "snowy";
     this.layoutSeed = seed;
 
-    const clouds = [
-      ...new Set([
-        ...Object.keys(this.config.front),
-        ...Object.keys(this.config.mid),
-      ]),
-    ].filter((id) => !this.src.has(id));
-    const strips = Object.keys(this.config.far).filter(
-      (k) => !this.farBase.has(k),
-    );
+    const clouds = new Set([
+      ...Object.keys(this.config.front),
+      ...Object.keys(this.config.mid),
+    ]);
     await Promise.all([
-      ...clouds.map(async (c) => {
-        const im = await cloudImage(c);
-        if (im) this.src.set(c, im);
-      }),
-      ...strips.map(async (k) => {
-        const base = await farStrip(k);
-        if (base) this.farBase.set(k, base);
-      }),
+      ...[...clouds].map((c) => cloudImages.load(c)),
+      ...Object.keys(this.config.far).map((k) => farStrips.load(k)),
     ]);
     if (id !== this.loadId) return;
 
@@ -545,7 +534,7 @@ export class SkyEngine {
     const { t, w, key } = this.spriteKey(id, layer, f);
     let s = this.sprites.get(key);
     if (!s) {
-      const im = this.src.get(id);
+      const im = cloudImages.get(id);
       if (!im) return null;
       s = ditherCloud(im, w, t);
       this.sprites.set(key, s);
@@ -559,7 +548,7 @@ export class SkyEngine {
 
   private farKey(k: string) {
     const f = this.config.far[k];
-    const base = this.farBase.get(k);
+    const base = farStrips.get(k);
     if (!base || !f) return null;
     const size = this.farSize(k);
     if (size === 1 && f.shade === 1) return null;
@@ -567,7 +556,7 @@ export class SkyEngine {
   }
 
   private farSprite(k: string) {
-    const base = this.farBase.get(k);
+    const base = farStrips.get(k);
     const key = this.farKey(k);
     if (!base || !key) return base ?? null;
     let s = this.sprites.get(key);
@@ -604,7 +593,7 @@ export class SkyEngine {
     const r = this.canvas.getBoundingClientRect();
     this.W = r.width;
     this.H = r.height;
-    this.S = this.H * SKY_FRACTION[this.sky];
+    this.S = this.H * SKY_FRACTION;
     const { W, H } = this;
 
     const count = COUNT[this.sky];
@@ -619,7 +608,7 @@ export class SkyEngine {
     const onScreen: { x: number; y: number; w: number; h: number }[] = [];
     for (const name of ["mid", "front"] as const) {
       const pool = CLOUDS.filter(
-        (id) => this.config[name][id] && this.src.has(id),
+        (id) => this.config[name][id] && cloudImages.get(id),
       );
       if (!pool.length) continue;
       const hand = this.shuffled(pool).slice(
@@ -634,8 +623,8 @@ export class SkyEngine {
         y: number;
         flip: boolean;
       }[] = [];
-      const retuned = RETUNED_SKIES.has(this.sky);
-      const spread = retuned
+      const { spreadHeights, maxLarge } = PLACEMENT[this.sky];
+      const spread = spreadHeights
         ? this.shuffled(
             Array.from(
               { length: n[name] },
@@ -645,10 +634,9 @@ export class SkyEngine {
         : null;
       const used = new Map<string, number>();
       const capped = (id: string) => {
-        if (!retuned) return false;
         const c = cloudSettings(this.config, name, id);
         const large = (c.sizeMin + c.sizeMax) / 2 >= LARGE_CLOUD;
-        return large && (used.get(id) ?? 0) >= MAX_LARGE;
+        return large && (used.get(id) ?? 0) >= maxLarge;
       };
       for (let i = 0; i < n[name]; i++) {
         let options = hand.filter((x) => !capped(x));
@@ -760,9 +748,7 @@ export class SkyEngine {
       for (const o of inst) tinted(o.sprite, ink, o.flip);
     }
 
-    const farPool = FAR.filter(
-      (k) => this.config.far[k] && this.farBase.has(k),
-    );
+    const farPool = FAR.filter((k) => this.config.far[k] && farStrips.get(k));
     const pick = farPool.length
       ? farPool[Math.floor(this.rnd() * farPool.length)]
       : null;
@@ -789,6 +775,13 @@ export class SkyEngine {
 
     this.layers = layers;
     this.farL = farL;
+    const inUse = new Set<Sprite>(farL ? [farL.sprite] : []);
+    for (const L of Object.values(layers)) {
+      for (const o of L.inst) inUse.add(o.sprite);
+    }
+    for (const [key, sprite] of this.sprites) {
+      if (!inUse.has(sprite)) this.sprites.delete(key);
+    }
     this.dpr = Math.min(2, window.devicePixelRatio || 1);
 
     this.drops.length = 0;
