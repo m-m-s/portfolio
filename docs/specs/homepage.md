@@ -35,7 +35,7 @@ in New York City !
 
 ## The shadow
 
-The shadow is on the homepage around the clock: the sun casts it by day and the moon by night. It's tuned in `/lab` (Shadow panel: time of day, length, steepness, strength, moonlight, blur); the defaults live in `SHADOW_TUNING` in `components/house.tsx`.
+The shadow is on the homepage around the clock: the sun casts it by day and the moon by night. Its settings live in `SHADOW` in `components/house.tsx`.
 
 - The house casts a soft gray shadow onto the page, from the same outline. The house has no drawn outline: the shadow is what gives it its shape.
 - It follows the sun in New York through the day:

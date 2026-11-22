@@ -20,14 +20,6 @@ export type HouseShadow = {
   azimuth: number;
 };
 
-export type ShadowTuning = {
-  length: number;
-  depth: number;
-  strength: number;
-  moonlight: number;
-  blur: number;
-};
-
 const MIN_REACH = 0.6;
 /** Degrees: a light low in the east or west would otherwise lay the shadow nearly flat. */
 const MAX_LEAN = 40;
@@ -40,7 +32,7 @@ const WEATHER_LIGHT: Record<Sky, { strength: number; blur: number }> = {
   snowy: { strength: 0.55, blur: 2 },
 };
 
-export const SHADOW_TUNING: ShadowTuning = {
+const SHADOW = {
   length: 0.23,
   depth: 1,
   strength: 0.5,
@@ -48,11 +40,8 @@ export const SHADOW_TUNING: ShadowTuning = {
   blur: 0.15,
 };
 
-export function castShadow(
-  date: Date,
-  sky: Sky,
-  t: ShadowTuning = SHADOW_TUNING,
-): HouseShadow {
+function castShadow(date: Date, sky: Sky): HouseShadow {
+  const t = SHADOW;
   const weather = WEATHER_LIGHT[sky];
   const sun = sunPosition(date);
   const moon = isNight(date) ? moonPosition(date) : null;
@@ -122,7 +111,7 @@ export function LiveHouse() {
   return <House shadow={useLiveLight()} />;
 }
 
-export function House({ shadow }: { shadow: HouseShadow | null }) {
+function House({ shadow }: { shadow: HouseShadow | null }) {
   const heading = useRef<HTMLHeadingElement>(null);
   const [points, setPoints] = useState("");
 

@@ -108,31 +108,3 @@ export function moonPosition(
     waxing: Math.sin(fromSun) > 0,
   };
 }
-
-export function nycTimeToday(minutes: number) {
-  const parts = new Intl.DateTimeFormat("en-US", {
-    timeZone: "America/New_York",
-    year: "numeric",
-    month: "numeric",
-    day: "numeric",
-    timeZoneName: "longOffset",
-  }).formatToParts(new Date());
-  const get = (type: string) => parts.find((p) => p.type === type)?.value ?? "";
-  const [, sign, hh, mm] =
-    get("timeZoneName").match(/([+-])(\d\d):(\d\d)/) ?? [];
-  const offset = sign ? (sign === "-" ? -1 : 1) * (+hh * 60 + +mm) : 0;
-  const midnight = Date.UTC(+get("year"), +get("month") - 1, +get("day"));
-  return new Date(midnight + (minutes - offset) * 60_000);
-}
-
-export function nycMinutesNow() {
-  const parts = new Intl.DateTimeFormat("en-US", {
-    timeZone: "America/New_York",
-    hour: "numeric",
-    minute: "numeric",
-    hourCycle: "h23",
-  }).formatToParts(new Date());
-  const get = (type: string) =>
-    +(parts.find((p) => p.type === type)?.value ?? 0);
-  return get("hour") * 60 + get("minute");
-}

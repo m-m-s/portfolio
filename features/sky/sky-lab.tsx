@@ -1,28 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import {
-  castShadow,
-  House,
-  SHADOW_TUNING,
-  type ShadowTuning,
-} from "@/components/house";
+import { LiveHouse } from "@/components/house";
 import { SKIES, SKY_LABELS, type Sky as SkyId } from "@/features/weather/sky";
-import {
-  moonPosition,
-  nycMinutesNow,
-  nycTimeToday,
-  sunPosition,
-} from "@/features/weather/sun-and-moon";
 import { randomSeed, SkyEngine } from "./engine";
 
 const SCALES = [1, 0.8, 0.65, 0.5];
-
-function clock(minutes: number) {
-  const h = Math.floor(minutes / 60);
-  const m = String(minutes % 60).padStart(2, "0");
-  return `${((h + 11) % 12) + 1}:${m} ${h < 12 ? "AM" : "PM"}`;
-}
 
 export function SkyLab() {
   const [weather, setWeather] = useState<SkyId>("cloudy");
@@ -30,16 +13,6 @@ export function SkyLab() {
   const [scale, setScale] = useState<number | null>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const engine = useRef<SkyEngine | null>(null);
-  // Set once mounted: reading the clock during the server render isn't allowed.
-  const [minutes, setMinutes] = useState<number | null>(null);
-  const [on, setOn] = useState(true);
-  const [tuning, setTuning] = useState(SHADOW_TUNING);
-  const tune = (key: keyof ShadowTuning, value: number) =>
-    setTuning((t) => ({ ...t, [key]: value }));
-  const date = minutes === null ? null : nycTimeToday(minutes);
-  const sun = date && sunPosition(date);
-  const moon = date && moonPosition(date);
-
   useEffect(() => {
     const q = new URLSearchParams(window.location.search);
     const w = q.get("weather");
@@ -47,7 +20,6 @@ export function SkyLab() {
     const s = Number(q.get("scale"));
     if (SCALES.includes(s)) setScale(s);
     setSeed(Number(q.get("seed")) || randomSeed());
-    setMinutes(nycMinutesNow());
   }, []);
 
   useEffect(() => {
@@ -82,80 +54,10 @@ export function SkyLab() {
       </div>
       <main className="pointer-events-none absolute inset-x-0 top-0 grid h-dvh grid-cols-[382fr_auto_618fr] grid-rows-[var(--house-above)_auto_var(--house-below)] px-4 sm:px-8">
         <div className="pointer-events-auto col-start-2 row-start-2">
-          <House
-            shadow={date && on ? castShadow(date, weather, tuning) : null}
-          />
+          <LiveHouse />
         </div>
       </main>
 
-      <details className="fixed top-24 left-4 z-10 w-64 rounded-lg border border-ink/20 bg-page p-3 font-grotesk text-sm">
-        <summary className="cursor-pointer">Shadow</summary>
-        <div className="mt-3 flex flex-col gap-2">
-          <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={on}
-              onChange={(e) => setOn(e.target.checked)}
-            />
-            Show shadow
-          </label>
-          <Slider
-            label={`Time ${minutes === null ? "" : clock(minutes)}`}
-            note={
-              !sun || !moon
-                ? ""
-                : sun.altitude > 0
-                  ? `sun ${Math.round(sun.altitude)}° up, ${Math.round(sun.azimuth)}° from north`
-                  : `moon ${Math.round(moon.altitude)}° up, ${Math.round(moon.azimuth)}° from north, ${Math.round(moon.lit * 100)}% lit`
-            }
-            min={0}
-            max={1439}
-            step={5}
-            value={minutes ?? 0}
-            onChange={setMinutes}
-          />
-          <Slider
-            label="Length"
-            min={0.1}
-            max={2}
-            step={0.05}
-            value={tuning.length}
-            onChange={(v) => tune("length", v)}
-          />
-          <Slider
-            label="Steepness"
-            min={0}
-            max={1}
-            step={0.05}
-            value={tuning.depth}
-            onChange={(v) => tune("depth", v)}
-          />
-          <Slider
-            label="Strength"
-            min={0}
-            max={1}
-            step={0.01}
-            value={tuning.strength}
-            onChange={(v) => tune("strength", v)}
-          />
-          <Slider
-            label="Moonlight"
-            min={0}
-            max={1}
-            step={0.05}
-            value={tuning.moonlight}
-            onChange={(v) => tune("moonlight", v)}
-          />
-          <Slider
-            label="Blur (em)"
-            min={0}
-            max={0.6}
-            step={0.01}
-            value={tuning.blur}
-            onChange={(v) => tune("blur", v)}
-          />
-        </div>
-      </details>
       <div className="fixed top-24 right-4 z-10 flex max-w-sm flex-wrap items-center justify-end gap-2 font-grotesk text-sm">
         {SKIES.map((w) => (
           <button
@@ -199,39 +101,5 @@ export function SkyLab() {
         ))}
       </div>
     </>
-  );
-}
-
-function Slider({
-  label,
-  note,
-  min,
-  max,
-  step,
-  value,
-  onChange,
-}: {
-  label: string;
-  note?: string;
-  min: number;
-  max: number;
-  step: number;
-  value: number;
-  onChange: (value: number) => void;
-}) {
-  return (
-    <label className="flex flex-col gap-1">
-      <span>
-        {label} <span className="text-ink/60">{note ?? value}</span>
-      </span>
-      <input
-        type="range"
-        min={min}
-        max={max}
-        step={step}
-        value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
-      />
-    </label>
   );
 }
