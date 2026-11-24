@@ -1,39 +1,138 @@
 import type { ProjectPage } from "@/features/project-page/types";
 
-/** Placeholder blocks, one of each type, until the copy and images are in. */
 export const thisSite: ProjectPage = {
-  platform: "[COPY: This site platform]",
-  status: "[COPY: This site status]",
-  builtWith: "[COPY: This site built with], Claude Code",
+  platform: "Web",
+  hosting: "Vercel",
+  status: "Live at [maggiemshen.com](https://maggiemshen.com)",
+  builtWith:
+    "Next.js, React, TypeScript, Tailwind, Canvas (Floyd–Steinberg dithering), Open-Meteo API, Figma, Claude Code",
   blocks: [
-    { type: "text", paragraphs: ["[COPY: This site intro]"] },
     {
-      type: "image-text",
-      image: { alt: "[IMAGE: This site 1]", ratio: 3 / 2 },
-      imageSide: "left",
-      paragraphs: ["[COPY: This site paragraph beside image 1]"],
+      type: "image",
+      image: {
+        src: "/projects/this-site/homepage.webp",
+        alt: "The homepage: the intro text stacked into the outline of a house, its shadow beside it, under a dithered sky with the weather and clock line at the top",
+        ratio: 1800 / 1013,
+      },
     },
-    {
-      type: "slideshow",
-      image: { alt: "[IMAGE: This site slideshow]", ratio: 3 / 2 },
-      imageSide: "right",
-      slides: [
-        { title: "[COPY: slide 1 title]", paragraphs: ["[COPY: slide 1]"] },
-        { title: "[COPY: slide 2 title]", paragraphs: ["[COPY: slide 2]"] },
-        { title: "[COPY: slide 3 title]", paragraphs: ["[COPY: slide 3]"] },
-      ],
-    },
-    {
-      type: "two-columns",
-      columns: [
-        "[COPY: This site left column]",
-        "[COPY: This site right column]",
-      ],
-    },
-    { type: "text", paragraphs: ["[COPY: This site closing]"] },
     {
       type: "text",
-      paragraphs: ["[COPY: Open-Meteo credit, linking to open-meteo.com]"],
+      paragraphs: [
+        "If the internet is our digital world, a portfolio is the closest thing to building a home. I've always loved the idea that the places we make for ourselves reflect who we are. So what happens when the entire place is meant to showcase who I am?",
+        "I wanted my home built on what I appreciate most in design: excellence in its subtlety. Before designing anything I researched how good portfolios achieve this. The portfolios I liked best had a strong editorial style and one small but strong bit of interactivity.",
+      ],
+    },
+    {
+      type: "image-text",
+      image: {
+        src: "/projects/this-site/type-studies.webp",
+        alt: "Figma studies of the homepage intro in Inter, Switzer, Instrument Sans, and Switzer with Space Grotesk under dithered clouds",
+        ratio: 1100 / 828,
+      },
+      imageSide: "left",
+      paragraphs: [
+        "I loved the idea of a house without wanting a literal one on the page. I was building a door animation for the links in my intro when I stacked the text line by line and noticed it happened to form the outline of a house. The outline stays untraced because drawing it took away the text's editorial feel. That house became the theme of the whole site and the structural center of the homepage.",
+        "When the house took shape it felt only natural that the space above it was the sky. I love clouds and wanted the site's interactivity to live inside them. A clock and weather line at the top of every page ties that sky to live conditions in New York. Now drifting clouds reveal the house's untraced outline as they pass behind the text while the sun casts its shadow.",
+      ],
+    },
+    { type: "break" },
+    {
+      type: "slideshow",
+      image: {
+        src: "/projects/this-site/clouds-close.webp",
+        alt: "A close-up of the homepage sky: dithered clouds made of single dots, loosened where the cursor passed through",
+        ratio: 1.5,
+      },
+      imageSide: "left",
+      slides: [
+        {
+          title: "Making clouds interactive",
+          paragraphs: [
+            "I started by thinking about what makes digital interaction feel tactile on a screen made of pixels. Dithering can turn a cloud into individual pixels while keeping its shape and shading. Those dots scatter under the cursor to capture the most pleasant imagination of touching a cloud. Soft and fluffy.",
+          ],
+        },
+        {
+          title: "Depth",
+          image: {
+            src: "/projects/this-site/cloud-heights.webp",
+            alt: "The sky tuner previewing one front cloud at the upper, middle and lower heights, with each height's base marked",
+            ratio: 1.5,
+          },
+          paragraphs: [
+            "Giving the sky a sense of depth meant separating the clouds in space. I laid them on a grid of depth and height with three layers from near to far. For the interactive aspect, near clouds scatter quickly under the cursor while middle clouds drift apart more slowly. Each layer also has its own ink tone so farther clouds fade into lighter dots while nearer ones print darker and feel heavier.",
+          ],
+        },
+        {
+          title: "A sky for every forecast",
+          image: {
+            src: "/projects/this-site/cloud-library.webp",
+            alt: "The sky tuner's library of dithered clouds cut from stock photos, each with Add and Preview buttons",
+            ratio: 1.5,
+          },
+          paragraphs: [
+            "Matching New York's live weather meant building a separate sky for every condition from clear sun to snow. I cut clouds from 42 stock photos and converted them to grayscale. Then I built a prototype sky tuner in Claude to compose each sky. Each cloud could be assigned to a layer and adjusted for size, height, contrast, brightness and lightness before it was dithered. Once a sky looked right I saved it as a preset grouping for the sky engine.",
+          ],
+        },
+        {
+          title: "Lightness",
+          image: {
+            src: "/projects/this-site/sky-tuner.webp",
+            alt: "The sky tuner's partly cloudy front clouds, each with sliders for smallest and largest size, contrast, brightness and lightness",
+            ratio: 1.5,
+          },
+          paragraphs: [
+            "Lightness was the hardest adjustment to get right. The tuner lightened a cloud by removing dots from the dithered result and left patchy holes. Lifting the gray tones in the stock image before dithering fixed it by spreading fewer dots evenly across the whole cloud.",
+          ],
+        },
+        {
+          title: "Rendering the sky",
+          image: {
+            src: "/projects/this-site/about-window.webp",
+            alt: "The About page, with the live sky showing through a window beside the copy",
+            ratio: 1.5,
+          },
+          paragraphs: [
+            "The sky engine builds a fresh sky on every visit from a preset matching New York's current weather. It picks a random size and height for each cloud within its tuned range. The sky appears at many sizes across the site. It fills screens of every width on the homepage and smaller views on other pages. Scaling a finished dither to fit them would only enlarge its dots and ruin the granularity of its shape and shade. Every cloud is instead dithered in the browser at the exact size it appears on screen.",
+          ],
+        },
+      ],
+    },
+    { type: "break" },
+    {
+      type: "text",
+      paragraphs: [
+        "The rest of the site carries the house and the sky through in smaller details. That same house shape turned into the favicon and the home button that brings you back to the front door. I chose Space Grotesk for the type partly because its square-tailed y looks like the corner of a house. A window on the About and Project pages displays the same live sky beside the copy.",
+      ],
+    },
+    {
+      type: "image",
+      image: {
+        src: "/projects/this-site/about-studies.webp",
+        alt: "Three Figma studies of the About page, with the window and its sky beside the copy",
+        ratio: 1679 / 440,
+      },
+    },
+    {
+      type: "text",
+      paragraphs: [
+        "Building the site took the same discipline as designing it. I designed every page in Figma and wrote a spec for each component before writing any code. Those specs made the work divisible across several Claude Code agents running in parallel on separate branches. I reviewed each branch before merging it and fixed any code that fell short of my standards.",
+      ],
+    },
+    {
+      type: "image",
+      image: {
+        src: "/projects/this-site/projects-studies.webp",
+        alt: "Figma studies of the Projects page: the three projects as steps of a staircase, with a window in the wall, on desktop and phone",
+        ratio: 1826 / 1234,
+      },
+    },
+    { type: "break" },
+    {
+      type: "text",
+      paragraphs: [
+        "That's the house. I'm glad you stopped by. There will be more to see as new work moves in. Make yourself at home while you're here and come back on a rainy day.",
+        "[COPY: Open-Meteo credit, linking to open-meteo.com]",
+      ],
     },
   ],
 };
