@@ -18,7 +18,7 @@ export const thisSite: ProjectPage = {
     {
       type: "text",
       paragraphs: [
-        "If the internet is our digital world, a portfolio is the closest thing to building a home. I've always loved the idea that the places we make for ourselves reflect who we are. So what happens when the entire place is meant to showcase who I am?",
+        "If the internet is our digital world, a portfolio is the closest thing to building a home. I've always loved the idea that the places we make for ourselves reflect who we are. **So what happens when the entire place is meant to showcase who I am?**",
         "I wanted my home built on what I appreciate most in design: excellence in its subtlety. Before designing anything I researched how good portfolios achieve this. The portfolios I liked best had a strong editorial style and one small but strong bit of interactivity.",
       ],
     },
@@ -31,8 +31,8 @@ export const thisSite: ProjectPage = {
       },
       imageSide: "right",
       paragraphs: [
-        "I loved the idea of a house without wanting a literal one on the page. I was building a door animation for the links in my intro when I stacked the text line by line and noticed it happened to form the outline of a house. The outline stays untraced because drawing it took away the text's editorial feel. That house became the theme of the whole site and the structural center of the homepage.",
-        "When the house took shape it felt only natural that the space above it was the sky. I love clouds and wanted the site's interactivity to live inside them. A clock and weather line at the top of every page ties that sky to live conditions in New York. Now drifting clouds reveal the house's untraced outline as they pass behind the text while the sun casts its shadow.",
+        "I loved the idea of a house without wanting a literal one on the page. I was building a door animation for the links in my intro when I stacked the text line by line and noticed it happened to form the outline of a house. The outline stays untraced because drawing it took away the text's editorial feel. **That house became the theme of the whole site and the structural center of the homepage.**",
+        "When the house took shape it felt only natural that the space above it was the sky. **I love clouds and wanted the site's interactivity to live inside them.** A clock and weather line at the top of every page ties that sky to live conditions in New York. Now drifting clouds reveal the house's untraced outline as they pass behind the text while the sun casts its shadow.",
       ],
     },
     { type: "break" },
@@ -94,7 +94,7 @@ export const thisSite: ProjectPage = {
             ratio: 1625 / 1083,
           },
           paragraphs: [
-            "The sky engine builds a fresh sky on every visit from a preset matching New York's current weather. It picks a random size and height for each cloud within its tuned range. The sky appears at many sizes across the site. It fills screens of every width on the homepage and smaller views on other pages. Scaling a finished dither to fit them would only enlarge its dots and ruin the granularity of its shape and shade. Every cloud is instead dithered in the browser at the exact size it appears on screen.",
+            "The sky engine builds a fresh sky on every visit from a preset matching New York's current weather. It picks a random size and height for each cloud within its tuned range. The sky appears at many sizes across the site. It fills screens of every width on the homepage and smaller views on other pages. Scaling a finished dither to fit them would only enlarge its dots and ruin the granularity of its shape and shade. **Every cloud is instead dithered in the browser at the exact size it appears on screen.**",
           ],
         },
       ],
@@ -104,6 +104,7 @@ export const thisSite: ProjectPage = {
       type: "text",
       paragraphs: [
         "The rest of the site carries the house and the sky through in smaller details. That same house shape turned into the favicon and the home button that brings you back to the front door. I chose Space Grotesk for the type partly because its square-tailed y looks like the corner of a house. A window on the About and Project pages displays the same live sky beside the copy.",
+        "Building the site took the same discipline as designing it. I designed every page in Figma and wrote a spec for each component before writing any code. **Those specs made the work divisible across several Claude Code agents running in parallel on separate branches.** I reviewed each branch before merging it and fixed any code that fell short of my standards.",
       ],
     },
     {
@@ -113,12 +114,6 @@ export const thisSite: ProjectPage = {
         alt: "Three Figma studies of the About page, with the window and its sky beside the copy",
         ratio: 1679 / 440,
       },
-    },
-    {
-      type: "text",
-      paragraphs: [
-        "Building the site took the same discipline as designing it. I designed every page in Figma and wrote a spec for each component before writing any code. Those specs made the work divisible across several Claude Code agents running in parallel on separate branches. I reviewed each branch before merging it and fixed any code that fell short of my standards.",
-      ],
     },
     {
       type: "image",
