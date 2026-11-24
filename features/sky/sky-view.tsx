@@ -205,15 +205,7 @@ export function LookOutsideProvider({
               aria-live="polite"
               className="w-[min(30ch,100vw-9rem)] text-center"
             >
-              {label}{" "}
-              <button
-                type="button"
-                aria-label="New clouds"
-                onClick={() => step(0)}
-                className="-my-2 cursor-pointer px-1.5 py-2 text-ink/40 hover:text-ink"
-              >
-                ↻
-              </button>
+              {label}
             </p>
             <button
               type="button"
@@ -224,13 +216,22 @@ export function LookOutsideProvider({
               →
             </button>
           </div>
-          <button
-            type="button"
-            onClick={() => close()}
-            className="cursor-pointer text-xs hover:underline"
-          >
-            Close
-          </button>
+          <div className="flex gap-6 text-xs">
+            <button
+              type="button"
+              onClick={() => step(0)}
+              className="cursor-pointer hover:underline"
+            >
+              Refresh
+            </button>
+            <button
+              type="button"
+              onClick={() => close()}
+              className="cursor-pointer hover:underline"
+            >
+              Close
+            </button>
+          </div>
         </div>
       </dialog>
     </LookOutsideContext>
