@@ -28,8 +28,8 @@ export const overlook: ProjectPage = {
           ratio: screen,
         },
         {
-          src: "/projects/overlook/photo-detail.webp",
-          alt: "A saved recipe screenshot opened in Overlook, with its Food category, the title Claude wrote for it and its tags",
+          src: "/projects/overlook/nail-detail.webp",
+          alt: "A saved photo of colorblock nails opened in Overlook, with its Fashion category, the title Claude wrote for it and its tags",
           ratio: screen,
         },
       ],
