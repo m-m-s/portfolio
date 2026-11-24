@@ -17,6 +17,7 @@ type Target = { canvas: HTMLCanvasElement; area: () => Area | null };
 
 type SkyContextValue = {
   attach: (canvas: HTMLCanvasElement, area: () => Area | null) => () => void;
+  home: () => SkyEngine | null;
   weather: Sky;
 };
 
@@ -83,7 +84,12 @@ export function SkyProvider({
     [],
   );
 
-  const value = useMemo(() => ({ attach, weather }), [attach, weather]);
+  const home = useCallback(() => engine.current, []);
+
+  const value = useMemo(
+    () => ({ attach, home, weather }),
+    [attach, home, weather],
+  );
 
   return (
     <SkyContext value={value}>

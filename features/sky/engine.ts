@@ -328,6 +328,28 @@ export class SkyEngine {
 
   onReady: (() => void) | null = null;
 
+  get currentSeed() {
+    return this.layoutSeed;
+  }
+
+  get size() {
+    return { width: this.W, height: this.H };
+  }
+
+  // Only lines up when both skies were built from the same seed at the same size.
+  matchDrift(other: SkyEngine) {
+    const paused = !other.raf && other.stoppedAt;
+    const away = paused ? (performance.now() - other.stoppedAt) / 1000 : 0;
+    for (const name of ["mid", "front"] as const) {
+      const mine = this.layers[name];
+      const theirs = other.layers[name];
+      if (mine && theirs) mine.off = theirs.off + theirs.speed * away;
+    }
+    if (this.farL && other.farL) {
+      this.farL.off = other.farL.off + other.farL.speed * away;
+    }
+  }
+
   setActive(active: boolean) {
     this.active = active;
     this.syncLoop();

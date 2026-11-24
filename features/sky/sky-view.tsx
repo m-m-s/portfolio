@@ -12,10 +12,9 @@ import {
   type Sky,
 } from "@/features/weather/sky";
 import { useMoon } from "@/features/weather/use-moon";
-import { SMALL_SCREEN } from "./constants";
-import { preloadSkies, randomSeed, SkyEngine } from "./engine";
+import { preloadSkies, SkyEngine } from "./engine";
+import { useSky } from "./sky-provider";
 
-const PHONE_VIEW_SCALE = 0.45;
 const SWIPE = 40;
 
 function glass() {
@@ -59,25 +58,33 @@ export function LookOutsideProvider({
   const [at, setAt] = useState(0);
   const [ready, setReady] = useState(false);
   const moon = useMoon();
+  const { home } = useSky();
   const order: Sky[] = [live.sky, ...SKIES.filter((s) => s !== live.sky)];
   const shown = order[at];
 
   useEffect(() => {
     const c = canvas.current;
     if (!open || !c) return;
+    const shared = home();
+    if (shared) {
+      c.style.width = `${shared.size.width}px`;
+      c.style.height = `${shared.size.height}px`;
+    }
     const e = new SkyEngine(c);
     e.setInteractive(true);
     e.setActive(true);
-    if (window.innerWidth < SMALL_SCREEN) e.setCloudScale(PHONE_VIEW_SCALE);
     engine.current = e;
-    void e.show(live.sky, randomSeed()).then(() => setReady(true));
+    void e.show(live.sky, shared?.currentSeed).then(() => {
+      if (shared) e.matchDrift(shared);
+      setReady(true);
+    });
     return () => {
       e.destroy();
       engine.current = null;
       setReady(false);
       setAt(0);
     };
-  }, [open, live.sky]);
+  }, [open, live.sky, home]);
 
   useEffect(() => {
     if (!open) return;
@@ -127,10 +134,13 @@ export function LookOutsideProvider({
       .trim();
     // The browser may report it in seconds (".25s") rather than as written.
     const swap = Number.parseFloat(value) * (value.endsWith("ms") ? 1 : 1000);
+    const shared = next === 0 && by !== 0 ? home() : null;
     setTimeout(() => {
-      void engine.current
-        ?.show(order[next], randomSeed())
-        .then(() => setReady(true));
+      const e = engine.current;
+      void e?.show(order[next], shared?.currentSeed).then(() => {
+        if (shared) e.matchDrift(shared);
+        setReady(true);
+      });
     }, swap);
   };
 
@@ -187,7 +197,23 @@ export function LookOutsideProvider({
           />
           {!ready && (
             <span className="absolute inset-0 m-auto size-6 [animation:fade-in_var(--sky-swap)_ease_500ms_both]">
-              <span className="block size-full animate-spin rounded-full border-2 border-ink/10 border-t-ink/50" />
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                fill="none"
+                strokeWidth="2"
+                className="block size-full animate-spin"
+              >
+                <circle cx="12" cy="12" r="10" className="stroke-ink/10" />
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  strokeLinecap="round"
+                  strokeDasharray="16 48"
+                  className="stroke-ink/50"
+                />
+              </svg>
             </span>
           )}
         </div>
@@ -216,7 +242,7 @@ export function LookOutsideProvider({
               →
             </button>
           </div>
-          <div className="flex gap-6 text-xs">
+          <div className="flex items-center gap-3 text-xs">
             <button
               type="button"
               onClick={() => step(0)}
@@ -224,6 +250,9 @@ export function LookOutsideProvider({
             >
               Refresh
             </button>
+            <span aria-hidden="true" className="text-ink/40">
+              ·
+            </span>
             <button
               type="button"
               onClick={() => close()}
