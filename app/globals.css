@@ -23,6 +23,10 @@
   --color-placeholder: #e2e2e0;
   /* Thin lines that divide a page: around the project info table, between a project's sections. */
   --color-rule: #dbdad7;
+  --spacing-phone: 14rem;
+  --radius-phone: 1.25rem;
+  --color-link: #2a55b8;
+  --color-link-hover: #1b3a85;
   /* Projects' wall: a touch darker than the page, so the white step tops show against it. */
   --color-wall: #f8f7f5;
   /* The Projects platforms: lit top, front in light shade, side in deeper shade. */
@@ -48,6 +52,9 @@
   --settle-delay: 350ms;
   --settle: 450ms;
   --settle-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --settle-up: 1200ms;
+  --settle-stagger: 150ms;
+  --slide-move: 450ms;
   --door-hover: 450ms;
   --door-nudge: 5000ms;
   --walk-up: 1600ms;
@@ -468,12 +475,22 @@ html[data-photo-motion="step"]::view-transition-new(photo-in) {
   }
 }
 
-/* A project page's blocks below the fold wait out of sight, then rise into place the first time they scroll into view. */
+[data-settle="opening"],
+[data-settle="in"] {
+  animation: settle-up var(--settle-up) var(--row-ease) both;
+}
+[data-settle="opening"] {
+  animation-delay: calc(var(--settle-order) * var(--settle-stagger));
+}
+html[data-nav] [data-settle="opening"] {
+  animation-delay: calc(
+    var(--settle-delay) +
+    var(--settle-order) *
+    var(--settle-stagger)
+  );
+}
 [data-settle="waiting"] {
   opacity: 0;
-}
-[data-settle="in"] {
-  animation: settle-up 800ms var(--settle-ease) both;
 }
 @keyframes settle-up {
   from {
@@ -554,15 +571,24 @@ dialog:focus-visible {
   }
 }
 
-/* A project slideshow's new text and image. */
-.slide-in {
-  animation: slide-in 400ms var(--settle-ease) both;
+[data-slide],
+[data-slide-image] {
+  transition:
+    opacity var(--slide-move) var(--settle-ease),
+    transform var(--slide-move) var(--settle-ease),
+    visibility var(--slide-move);
 }
-@keyframes slide-in {
-  from {
-    opacity: 0;
-    transform: translateX(var(--slide-from, 0.75rem));
-  }
+[data-slide="past"],
+[data-slide="next"],
+[data-slide-image="hidden"] {
+  opacity: 0;
+  visibility: hidden;
+}
+[data-slide="past"] {
+  transform: translateX(-1rem);
+}
+[data-slide="next"] {
+  transform: translateX(1rem);
 }
 
 @keyframes fade-in {
@@ -605,9 +631,11 @@ dialog:focus-visible {
   .row-in {
     animation: none;
   }
-  .slide-in {
-    animation-name: fade-in;
+  [data-slide="past"],
+  [data-slide="next"] {
+    transform: none;
   }
+  [data-settle="opening"],
   [data-settle="in"] {
     animation-name: fade-in;
   }

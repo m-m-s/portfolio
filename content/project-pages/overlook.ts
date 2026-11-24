@@ -3,22 +3,29 @@ import type { ProjectPage } from "@/features/project-page/types";
 /** Transcribed from docs/design/project-page.png; draft. The two repeat "Extensive Tagging" slides are as in the mock. */
 export const overlook: ProjectPage = {
   platform: "Android",
+  status: "[COPY: Overlook status]",
   builtWith:
     "React Native, TypeScript, Supabase, Claude API, React Query, Claude Code",
   blocks: [
     {
-      type: "paragraph",
-      text: "Overlook was born out of a conversation I had at a community tech demo event about AI assistants and their potential. I went home thinking about where an AI assistant could be most useful to me right now. The one area I find most tedious and demanding of my time is often large data management. I'm constantly screenshotting recipes, outfits and places, and thousands of them pile up on my phone. I wanted an app that can tag and sort them. This way I can **turn my absentminded bookmarks into a functioning library.**",
+      type: "text",
+      paragraphs: [
+        "Overlook was born out of a conversation I had at a community tech demo event about AI assistants and their potential. I went home thinking about where an AI assistant could be most useful to me right now. The one area I find most tedious and demanding of my time is often large data management. I'm constantly screenshotting recipes, outfits and places, and thousands of them pile up on my phone. I wanted an app that can tag and sort them. This way I can **turn my absentminded bookmarks into a functioning library.**",
+      ],
     },
     {
       type: "image-text",
       image: { alt: "[IMAGE: Overlook 1]", ratio: 3 / 1 },
       imageSide: "left",
-      text: "Pinterest is the closest thing I'd found to what I needed, but it relies on static albums and doesn't organize with the depth and responsivity I wanted. Using it for my screenshots would mean uploading every one by hand. The pins I already save there get lost easily unless I painstakingly sort them into very organized boards.",
+      paragraphs: [
+        "Pinterest is the closest thing I'd found to what I needed, but it relies on static albums and doesn't organize with the depth and responsivity I wanted. Using it for my screenshots would mean uploading every one by hand. The pins I already save there get lost easily unless I painstakingly sort them into very organized boards.",
+      ],
     },
     {
-      type: "paragraph",
-      text: "Overlook solves this with **an extensive tagging system that's fully searchable** and connects every image into one complete database. Broad categories form a organizational base and each image is allotted its own niche details on top. For example: A recipe from a Reddit post is categorized as “social” and “food”, then it's also tagged with its cuisine, dish, and any other identifiable details.",
+      type: "text",
+      paragraphs: [
+        "Overlook solves this with **an extensive tagging system that's fully searchable** and connects every image into one complete database. Broad categories form a organizational base and each image is allotted its own niche details on top. For example: A recipe from a Reddit post is categorized as “social” and “food”, then it's also tagged with its cuisine, dish, and any other identifiable details.",
+      ],
     },
     {
       type: "slideshow",
@@ -80,8 +87,10 @@ export const overlook: ProjectPage = {
     },
     { type: "break" },
     {
-      type: "paragraph",
-      text: "Overlook v1 did work with uploaded images and tagging, but **V1 was built for things going right.** Claude Code didn't plan for missing albums, failed saves or lost connection. I'm currently working on broad fixes with proper error handling and testing. Overlook is still a work in progress. When the fixes are implimented I plan to improve the Claude API prompt and then finalize the UI. When this is all done I hope to make it open source for all the other screenshot happy people in this world.",
+      type: "text",
+      paragraphs: [
+        "Overlook v1 did work with uploaded images and tagging, but **V1 was built for things going right.** Claude Code didn't plan for missing albums, failed saves or lost connection. I'm currently working on broad fixes with proper error handling and testing. Overlook is still a work in progress. When the fixes are implimented I plan to improve the Claude API prompt and then finalize the UI. When this is all done I hope to make it open source for all the other screenshot happy people in this world.",
+      ],
     },
   ],
 };

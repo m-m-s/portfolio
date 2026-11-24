@@ -1,90 +1,133 @@
 "use client";
 
-import { type CSSProperties, useId, useState } from "react";
+import { useId, useState } from "react";
 import type { Photo } from "@/content/photography";
-import { MediaBox } from "./media";
+import { JoustingEngine } from "./diagrams/jousting-engine";
+import { besideText, MediaBox } from "./media";
 import { RichText } from "./rich-text";
-import type { Side, Slide } from "./types";
-
-function SlideText({ slide, titleId }: { slide: Slide; titleId: string }) {
-  return (
-    <>
-      {slide.title && (
-        <h2 id={titleId} className="mb-4 text-lg font-semibold">
-          {slide.title}
-        </h2>
-      )}
-      <div className="space-y-4">
-        {slide.paragraphs.map((p) => (
-          <p key={p}>
-            <RichText text={p} />
-          </p>
-        ))}
-      </div>
-    </>
-  );
-}
+import type { Diagram, Side, Slide } from "./types";
 
 const arrow =
-  "cursor-pointer px-1 text-lg disabled:cursor-default disabled:opacity-25";
+  "cursor-pointer px-2 text-lg disabled:cursor-default disabled:opacity-25";
+
+const diagrams = { "jousting-engine": JoustingEngine };
 
 export function Slideshow({
   image,
+  diagram,
   imageSide,
   slides,
 }: {
-  image: Photo;
-  imageSide: Side;
+  image?: Photo;
+  diagram?: Diagram;
+  imageSide?: Side;
   slides: Slide[];
 }) {
   const [index, setIndex] = useState(0);
-  // Which way the last move went: nothing slides in until the reader moves.
-  const [dir, setDir] = useState(0);
-  const go = (to: number) => {
-    setDir(Math.sign(to - index));
-    setIndex(to);
-  };
-  const slideIn = dir ? "slide-in" : "";
   const id = useId();
-  const slide = slides[index];
-  const shown = slide.image ?? image;
+  const images = [...new Set(slides.map((s) => s.image ?? image))].filter(
+    (m) => m !== undefined,
+  );
+  const shown = slides[index].image ?? image;
+  const Figure = diagram && diagrams[diagram];
+  const right = imageSide === "right";
+  const visual = Boolean(Figure) || images.length > 0;
+  const columns = visual ? besideText(images, right) : "";
+  const textColumn = visual
+    ? right
+      ? "sm:col-start-1"
+      : "sm:col-start-2"
+    : "";
+  const phone = Figure
+    ? { visual: "order-3", text: "order-1", controls: "order-2" }
+    : { visual: "", text: "", controls: "" };
 
   return (
     <section
       aria-roledescription="slideshow"
-      aria-labelledby={slide.title ? `${id}-title` : undefined}
-      style={
-        { "--slide-from": dir < 0 ? "-0.75rem" : "0.75rem" } as CSSProperties
-      }
-      className="grid items-start gap-6 sm:grid-cols-2 sm:gap-8"
+      aria-labelledby={slides[index].title ? `${id}-${index}` : undefined}
     >
-      <MediaBox
-        key={shown.src ?? shown.alt}
-        media={shown}
-        className={`${slideIn} ${imageSide === "right" ? "sm:order-last" : ""}`}
-      />
-      <div>
-        <div key={index} aria-live="polite" className={slideIn}>
-          <SlideText slide={slide} titleId={`${id}-title`} />
+      <div className={`grid items-start gap-6 sm:gap-x-8 ${columns}`}>
+        {visual && (
+          <div
+            className={`grid ${phone.visual} sm:order-none sm:row-start-1 ${right ? "sm:col-start-2" : "sm:col-start-1"}`}
+          >
+            {Figure && (
+              <>
+                {/* Unseen copies, one per step, hold the diagram at its tallest so moving never shifts the page. */}
+                {[...new Set(slides.map((slide) => slide.step))].map((step) => (
+                  <div
+                    key={step ?? ""}
+                    aria-hidden="true"
+                    className="invisible [grid-area:1/1]"
+                  >
+                    <Figure active={step} />
+                  </div>
+                ))}
+                <div className="[grid-area:1/1]">
+                  <Figure active={slides[index].step} />
+                </div>
+              </>
+            )}
+            {images.map((media) => (
+              <div
+                key={media.src ?? media.alt}
+                data-slide-image={media === shown ? "current" : "hidden"}
+                aria-hidden={media !== shown}
+                className="[grid-area:1/1]"
+              >
+                <MediaBox media={media} />
+              </div>
+            ))}
+          </div>
+        )}
+        <div
+          className={`grid ${phone.text} sm:order-none sm:row-start-1 ${textColumn}`}
+        >
+          {slides.map((slide, i) => (
+            <div
+              // biome-ignore lint/suspicious/noArrayIndexKey: slides are fixed content, never reordered.
+              key={i}
+              data-slide={i === index ? "current" : i < index ? "past" : "next"}
+              aria-hidden={i !== index}
+              inert={i !== index}
+              className="[grid-area:1/1]"
+            >
+              {slide.title && (
+                <h2 id={`${id}-${i}`} className="mb-4 text-lg font-semibold">
+                  {slide.title}
+                </h2>
+              )}
+              <div className="space-y-4">
+                {slide.paragraphs.map((p) => (
+                  <p key={p}>
+                    <RichText text={p} />
+                  </p>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
-        <div className="mt-6 flex items-center gap-3 font-grotesk text-sm">
+        <div
+          className={`flex items-center justify-center gap-3 font-grotesk text-sm ${phone.controls} sm:order-none ${visual ? "sm:col-span-2" : ""}`}
+        >
           <button
             type="button"
             aria-label="Previous slide"
             disabled={index === 0}
-            onClick={() => go(index - 1)}
+            onClick={() => setIndex(index - 1)}
             className={arrow}
           >
             ←
           </button>
-          <span className="tabular-nums">
+          <span aria-live="polite" className="tabular-nums">
             {index + 1}/{slides.length}
           </span>
           <button
             type="button"
             aria-label="Next slide"
             disabled={index === slides.length - 1}
-            onClick={() => go(index + 1)}
+            onClick={() => setIndex(index + 1)}
             className={arrow}
           >
             →

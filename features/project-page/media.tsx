@@ -1,27 +1,42 @@
 import Image from "next/image";
 import type { Photo } from "@/content/photography";
 
-/** Half the content column on a laptop, full width on a phone. */
-const SIZES = "(min-width: 640px) 24rem, 100vw";
+const SIZES = {
+  half: "(min-width: 1536px) 29rem, (min-width: 1280px) 25rem, (min-width: 640px) 21rem, 100vw",
+  full: "(min-width: 1536px) 58rem, (min-width: 1280px) 50rem, (min-width: 640px) 42rem, 100vw",
+  phone: "14rem",
+};
+
+export const isPhone = (media: Photo) => media.ratio < 1;
+
+export function besideText(media: Photo[], imageRight: boolean) {
+  if (media.length === 0 || !media.every(isPhone)) return "sm:grid-cols-2";
+  return imageRight
+    ? "sm:grid-cols-[1fr_var(--spacing-phone)]"
+    : "sm:grid-cols-[var(--spacing-phone)_1fr]";
+}
 
 export function MediaBox({
   media,
+  full = false,
   className = "",
 }: {
   media: Photo;
+  full?: boolean;
   className?: string;
 }) {
+  const phone = isPhone(media);
   return (
     <div
       style={{ aspectRatio: media.ratio }}
-      className={`relative w-full overflow-hidden bg-placeholder ${className}`}
+      className={`relative overflow-hidden bg-placeholder ${phone ? "mx-auto w-full max-w-(--spacing-phone) rounded-phone ring-1 ring-rule" : "w-full ring-1 ring-rule"} ${className}`}
     >
       {media.src ? (
         <Image
           src={media.src}
           alt={media.alt}
           fill
-          sizes={SIZES}
+          sizes={SIZES[phone ? "phone" : full ? "full" : "half"]}
           className="object-cover"
         />
       ) : (

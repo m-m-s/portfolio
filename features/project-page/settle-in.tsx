@@ -1,11 +1,24 @@
 "use client";
 
-import { type ReactNode, useLayoutEffect, useRef, useState } from "react";
+import {
+  type CSSProperties,
+  type ReactNode,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 
-/** Holds a block back until it first scrolls into view, then settles it in once. Blocks already on screen arrive with the page. */
-export function SettleIn({ children }: { children: ReactNode }) {
+export function SettleIn({
+  order,
+  className,
+  children,
+}: {
+  order: number;
+  className?: string;
+  children: ReactNode;
+}) {
   const ref = useRef<HTMLDivElement>(null);
-  const [state, setState] = useState<"waiting" | "in">();
+  const [state, setState] = useState<"opening" | "waiting" | "in">("opening");
 
   useLayoutEffect(() => {
     const el = ref.current;
@@ -24,7 +37,12 @@ export function SettleIn({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <div ref={ref} data-settle={state}>
+    <div
+      ref={ref}
+      data-settle={state}
+      style={{ "--settle-order": order } as CSSProperties}
+      className={className}
+    >
       {children}
     </div>
   );

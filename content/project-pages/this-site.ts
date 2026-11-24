@@ -3,14 +3,15 @@ import type { ProjectPage } from "@/features/project-page/types";
 /** Placeholder blocks, one of each type, until the copy and images are in. */
 export const thisSite: ProjectPage = {
   platform: "[COPY: This site platform]",
+  status: "[COPY: This site status]",
   builtWith: "[COPY: This site built with], Claude Code",
   blocks: [
-    { type: "paragraph", text: "[COPY: This site intro]" },
+    { type: "text", paragraphs: ["[COPY: This site intro]"] },
     {
       type: "image-text",
       image: { alt: "[IMAGE: This site 1]", ratio: 3 / 2 },
       imageSide: "left",
-      text: "[COPY: This site paragraph beside image 1]",
+      paragraphs: ["[COPY: This site paragraph beside image 1]"],
     },
     {
       type: "slideshow",
@@ -29,10 +30,10 @@ export const thisSite: ProjectPage = {
         "[COPY: This site right column]",
       ],
     },
-    { type: "paragraph", text: "[COPY: This site closing]" },
+    { type: "text", paragraphs: ["[COPY: This site closing]"] },
     {
-      type: "paragraph",
-      text: "[COPY: Open-Meteo credit, linking to open-meteo.com]",
+      type: "text",
+      paragraphs: ["[COPY: Open-Meteo credit, linking to open-meteo.com]"],
     },
   ],
 };

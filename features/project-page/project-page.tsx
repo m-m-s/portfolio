@@ -1,30 +1,59 @@
 import { notFound } from "next/navigation";
+import { RoomLink } from "@/components/room-link";
 import { projectPages } from "@/content/project-pages";
 import { projects } from "@/content/projects";
-import { MediaBox } from "./media";
+import { besideText, MediaBox } from "./media";
 import { RichText } from "./rich-text";
 import { SettleIn } from "./settle-in";
 import { Slideshow } from "./slideshow";
 import type { Block } from "./types";
 
+const betweenBlocks = "mt-12 sm:mt-16";
+const nearLine = "mt-8 sm:mt-10";
+
 function BlockView({ block }: { block: Block }) {
   switch (block.type) {
-    case "paragraph":
+    case "text":
       return (
-        <p>
-          <RichText text={block.text} />
-        </p>
+        <div className="space-y-4">
+          {block.paragraphs.map((text) => (
+            <p key={text}>
+              <RichText text={text} />
+            </p>
+          ))}
+        </div>
+      );
+    case "image":
+      return <MediaBox media={block.image} full />;
+    case "image-row":
+      return (
+        <div className="flex justify-center gap-4 sm:gap-8">
+          {block.images.map((media) => (
+            <div
+              key={media.src ?? media.alt}
+              className="min-w-0 max-w-(--spacing-phone) flex-1"
+            >
+              <MediaBox media={media} />
+            </div>
+          ))}
+        </div>
       );
     case "image-text":
       return (
-        <div className="grid items-start gap-6 sm:grid-cols-2 sm:gap-8">
+        <div
+          className={`grid items-start gap-6 sm:gap-8 ${besideText([block.image], block.imageSide === "right")}`}
+        >
           <MediaBox
             media={block.image}
             className={block.imageSide === "right" ? "sm:order-last" : ""}
           />
-          <p>
-            <RichText text={block.text} />
-          </p>
+          <div className="space-y-4">
+            {block.paragraphs.map((text) => (
+              <p key={text}>
+                <RichText text={text} />
+              </p>
+            ))}
+          </div>
         </div>
       );
     case "two-columns":
@@ -41,6 +70,7 @@ function BlockView({ block }: { block: Block }) {
       return (
         <Slideshow
           image={block.image}
+          diagram={block.diagram}
           imageSide={block.imageSide}
           slides={block.slides}
         />
@@ -51,31 +81,81 @@ function BlockView({ block }: { block: Block }) {
 }
 
 export function ProjectPage({ href }: { href: string }) {
-  const project = projects.find((p) => p.href === href);
+  const at = projects.findIndex((p) => p.href === href);
+  const project = projects[at];
   const page = projectPages[href];
   if (!project || !page) notFound();
+  const n = projects.length;
+  const rows: [string, string | undefined][] = [
+    ["Platform", page.platform],
+    ["Hosting", page.hosting],
+    ["Status", page.status],
+    ["Built with", page.builtWith],
+  ];
+  const info = rows.filter((row): row is [string, string] => Boolean(row[1]));
+  const [before, after] = [projects[(at - 1 + n) % n], projects[(at + 1) % n]];
 
   return (
     <main className="flex-1 overflow-x-clip px-4 py-12 sm:px-8 sm:pt-16">
-      <div className="mx-auto max-w-2xl leading-relaxed">
-        <h1 className="text-5xl font-bold sm:text-6xl">{project.name}</h1>
-        <dl className="mt-8 flex divide-x divide-rule border-y border-rule *:px-6 *:py-5 *:first:pl-0">
-          <div>
-            <dt className="font-semibold">Platform</dt>
-            <dd className="mt-1 text-sm">{page.platform}</dd>
-          </div>
-          <div>
-            <dt className="font-semibold">Built with</dt>
-            <dd className="mt-1 text-sm">{page.builtWith}</dd>
-          </div>
-        </dl>
-        <div className="mt-12 space-y-12 sm:mt-16 sm:space-y-16">
+      <div className="mx-auto max-w-2xl leading-relaxed xl:max-w-[50rem] 2xl:max-w-[58rem]">
+        <SettleIn order={0} className="flex items-start justify-between gap-6">
+          <h1 className="text-5xl font-bold sm:text-6xl">{project.name}</h1>
+          <RoomLink
+            href="/projects"
+            className="shrink-0 font-grotesk text-sm hover:underline"
+          >
+            ← Projects
+          </RoomLink>
+        </SettleIn>
+        <SettleIn order={1}>
+          <hr className={`${nearLine} border-rule`} />
+          <dl
+            className={`${nearLine} flex flex-wrap gap-x-12 gap-y-5 *:last:basis-full`}
+          >
+            {info.map(([label, value]) => (
+              <div key={label}>
+                <dt className="font-grotesk text-xs tracking-wider text-ink/50 uppercase">
+                  {label}
+                </dt>
+                <dd className="mt-1 text-sm">
+                  <RichText text={value} />
+                </dd>
+              </div>
+            ))}
+          </dl>
+          <hr className={`${nearLine} border-rule`} />
+        </SettleIn>
+        <div className={nearLine}>
           {page.blocks.map((block, i) => (
-            // biome-ignore lint/suspicious/noArrayIndexKey: blocks are fixed content, never reordered.
-            <SettleIn key={i}>
+            <SettleIn
+              // biome-ignore lint/suspicious/noArrayIndexKey: blocks are fixed content, never reordered.
+              key={i}
+              order={i + 2}
+              className={
+                i === 0
+                  ? ""
+                  : block.type === "break" ||
+                      page.blocks[i - 1].type === "break"
+                    ? nearLine
+                    : betweenBlocks
+              }
+            >
               <BlockView block={block} />
             </SettleIn>
           ))}
+          <SettleIn order={page.blocks.length + 2} className={nearLine}>
+            <nav
+              aria-label="Other projects"
+              className="flex justify-between gap-8 border-t border-rule pt-8 font-grotesk sm:pt-10"
+            >
+              <RoomLink href={before.href} className="hover:underline">
+                ← {before.name}
+              </RoomLink>
+              <RoomLink href={after.href} className="hover:underline">
+                {after.name} →
+              </RoomLink>
+            </nav>
+          </SettleIn>
         </div>
       </div>
     </main>
