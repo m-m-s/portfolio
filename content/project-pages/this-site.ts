@@ -110,17 +110,9 @@ export const thisSite: ProjectPage = {
     {
       type: "image",
       image: {
-        src: "/projects/this-site/about-studies.webp",
-        alt: "Three Figma studies of the About page, with the window and its sky beside the copy",
-        ratio: 1679 / 440,
-      },
-    },
-    {
-      type: "image",
-      image: {
-        src: "/projects/this-site/projects-studies.webp",
-        alt: "Figma studies of the Projects page: the three projects as steps of a staircase, with a window in the wall, on desktop and phone",
-        ratio: 1826 / 1234,
+        src: "/projects/this-site/page-studies.webp",
+        alt: "Figma studies of the About page, with the window and its sky beside the copy, above studies of the Projects page, with the projects as steps of a staircase, on desktop and phone",
+        ratio: 1679 / 881,
       },
     },
     { type: "break" },
