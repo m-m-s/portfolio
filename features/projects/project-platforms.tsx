@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useLayoutEffect, useRef, useState } from "react";
 import { turnForSlope, Window, windowShape } from "@/components/window";
 import type { Project } from "@/content/projects";
-import { prepareNavigation } from "@/features/transitions/direction";
+import { prepareNavigation, ROOM_WALK } from "@/features/transitions/direction";
 import { usePath } from "@/features/transitions/use-path";
 import {
   type Platform,
@@ -149,7 +149,7 @@ export function ProjectPlatforms({ projects }: { projects: Project[] }) {
       x: (box?.left ?? 0) + at[0],
       y: (box?.top ?? 0) + at[1],
     });
-    router.push(projects[i].href);
+    router.push(projects[i].href, { transitionTypes: [ROOM_WALK] });
   };
 
   return (
@@ -247,13 +247,10 @@ export function ProjectPlatforms({ projects }: { projects: Project[] }) {
                     event.preventDefault();
                     choose(i);
                   }}
-                  className="text-4xl font-bold sm:text-5xl lg:text-[max(3.75rem,2.6vw)]"
+                  className="block text-4xl font-bold sm:text-5xl lg:text-[max(3.75rem,2.6vw)]"
                 >
                   {project.name}
                 </Link>
-                <p className="mt-1 text-xs sm:text-sm lg:text-[max(0.875rem,0.65vw)]">
-                  {project.tagline}
-                </p>
               </div>
             </li>
           );
