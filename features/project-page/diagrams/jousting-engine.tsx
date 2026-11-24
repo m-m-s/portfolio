@@ -99,7 +99,7 @@ export function JoustingEngine({ active }: { active?: string }) {
       <Box
         title="Filter and score every film"
         detail="List films go through the same filters. Score: TMDB rating × each matching genre’s weight (Yes over Maybe) × +50% for every extra list it’s on"
-        step={["scoring", "letterboxd"]}
+        step={["scoring", "genres", "discovery", "letterboxd"]}
         {...at}
       />
       <Arrow />
