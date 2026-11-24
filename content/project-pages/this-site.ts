@@ -88,9 +88,9 @@ export const thisSite: ProjectPage = {
         {
           title: "Rendering the sky",
           image: {
-            src: "/projects/this-site/sky-window.webp",
-            alt: "The window on the About page, with the live sky's dithered clouds showing through its panes",
-            ratio: 1.5,
+            src: "/projects/this-site/look-outside-rainy.webp",
+            alt: "Look outside showing the Rainy sky full size: dark dithered clouds over falling rain, with the weather arrows and Refresh, Close and More info below",
+            ratio: 1625 / 1083,
           },
           paragraphs: [
             "The sky engine builds a fresh sky on every visit from a preset matching New York's current weather. It picks a random size and height for each cloud within its tuned range. The sky appears at many sizes across the site. It fills screens of every width on the homepage and smaller views on other pages. Scaling a finished dither to fit them would only enlarge its dots and ruin the granularity of its shape and shade. Every cloud is instead dithered in the browser at the exact size it appears on screen.",
