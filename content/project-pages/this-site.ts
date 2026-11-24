@@ -10,9 +10,9 @@ export const thisSite: ProjectPage = {
     {
       type: "image",
       image: {
-        src: "/projects/this-site/homepage-partly-cloudy.webp",
+        src: "/projects/this-site/homepage-live.webp",
         alt: "The homepage: the intro text stacked into the outline of a house, its shadow beside it, under a partly cloudy dithered sky with the weather and clock line at the top",
-        ratio: 1800 / 1013,
+        ratio: 1800 / 1029,
       },
     },
     {
