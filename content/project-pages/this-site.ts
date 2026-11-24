@@ -10,8 +10,8 @@ export const thisSite: ProjectPage = {
     {
       type: "image",
       image: {
-        src: "/projects/this-site/homepage.webp",
-        alt: "The homepage: the intro text stacked into the outline of a house, its shadow beside it, under a dithered sky with the weather and clock line at the top",
+        src: "/projects/this-site/homepage-partly-cloudy.webp",
+        alt: "The homepage: the intro text stacked into the outline of a house, its shadow beside it, under a partly cloudy dithered sky with the weather and clock line at the top",
         ratio: 1800 / 1013,
       },
     },
@@ -39,8 +39,8 @@ export const thisSite: ProjectPage = {
     {
       type: "slideshow",
       image: {
-        src: "/projects/this-site/clouds-close.webp",
-        alt: "A close-up of the homepage sky: dithered clouds made of single dots, loosened where the cursor passed through",
+        src: "/projects/this-site/cloud-scatter.webp",
+        alt: "A close-up of a dithered front cloud on the homepage, with a hole where the cursor passed through and its dots pushed outward",
         ratio: 1.5,
       },
       imageSide: "left",
@@ -54,8 +54,8 @@ export const thisSite: ProjectPage = {
         {
           title: "Depth",
           image: {
-            src: "/projects/this-site/cloud-heights.webp",
-            alt: "The sky tuner previewing one front cloud at the upper, middle and lower heights, with each height's base marked",
+            src: "/projects/this-site/cloud-depth.webp",
+            alt: "The sky tuner previewing one front cloud at different heights, with the upper, middle and lower bases marked",
             ratio: 1.5,
           },
           paragraphs: [
@@ -87,8 +87,8 @@ export const thisSite: ProjectPage = {
         {
           title: "Rendering the sky",
           image: {
-            src: "/projects/this-site/about-window.webp",
-            alt: "The About page, with the live sky showing through a window beside the copy",
+            src: "/projects/this-site/sky-window.webp",
+            alt: "The window on the About page, with the live sky's dithered clouds showing through its panes",
             ratio: 1.5,
           },
           paragraphs: [
@@ -131,7 +131,6 @@ export const thisSite: ProjectPage = {
       type: "text",
       paragraphs: [
         "That's the house. I'm glad you stopped by. There will be more to see as new work moves in. Make yourself at home while you're here and come back on a rainy day.",
-        "[COPY: Open-Meteo credit, linking to open-meteo.com]",
       ],
     },
   ],
