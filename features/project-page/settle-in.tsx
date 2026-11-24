@@ -9,10 +9,12 @@ import {
 } from "react";
 
 export function SettleIn({
+  id,
   order,
   className,
   children,
 }: {
+  id?: string;
   order: number;
   className?: string;
   children: ReactNode;
@@ -22,8 +24,13 @@ export function SettleIn({
 
   useLayoutEffect(() => {
     const el = ref.current;
-    if (!el || el.getBoundingClientRect().top < window.innerHeight) return;
-    setState("waiting");
+    if (!el) return;
+    // The effect can run again after a jump to an anchor has scrolled this into view.
+    if (el.getBoundingClientRect().top < window.innerHeight) {
+      setState((s) => (s === "waiting" ? "in" : s));
+      return;
+    }
+    setState((s) => (s === "in" ? s : "waiting"));
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (!entry.isIntersecting) return;
@@ -39,6 +46,7 @@ export function SettleIn({
   return (
     <div
       ref={ref}
+      id={id}
       data-settle={state}
       style={{ "--settle-order": order } as CSSProperties}
       className={className}
