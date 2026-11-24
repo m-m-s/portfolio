@@ -83,7 +83,8 @@ The camera walks up to, into and out of rooms. Built with the View Transitions A
 - **Going home from a room:** the same single move in reverse: the old page shrinks back slightly and crossfades into the homepage, which comes down to size the same way. This replaces the walk-up.
 - **Going deeper** (Projects page → a project page): the same push forward, like stepping closer to one piece on the shelf. Coming back out pulls back the same way.
 - **Duration:** about 0.8 seconds from the click, snappy rather than fadey: the door swings over 0.45s, and the pages crossfade quickly (0.2s, from 0.35s) while both keep zooming. Tuned in the browser.
-- **Direction comes from page depth** (`/` is 0, rooms 1, project pages 2): deeper pushes in, shallower pulls back, same depth pushes in. This covers the browser's back and forward buttons too.
+- **Between project pages** (the links to other projects at the end of each one): no camera move. The old page fades out over the crossfade while the new page's title, facts and blocks settle in, one after another.
+- **Direction comes from page depth** (`/` is 0, rooms 1, project pages 2): deeper pushes in, shallower pulls back, same depth pushes in, except pages side by side under the same parent (project pages), which go across. This covers the browser's back and forward buttons too.
 - **Back/forward** start at the top of the page instead of restoring the scroll position (the price of animating them). A phone's swipe-back gesture keeps the browser's own animation instead.
 - The weather/clock line and footer stay still while the rest of the page moves.
 - **The sky** stays still too, and only fades: from the whole sky on Home to just the window in a room, in step with the rooms' crossfade (see sky.md).

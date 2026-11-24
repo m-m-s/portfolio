@@ -489,6 +489,17 @@ html[data-nav] [data-settle="opening"] {
     var(--settle-stagger)
   );
 }
+
+html[data-nav="across"]::view-transition-old(room),
+html[data-nav="across"]::view-transition-image-pair(door) {
+  animation: leave-fade var(--crossfade) linear both;
+}
+html[data-nav="across"]::view-transition-new(room) {
+  animation: none;
+}
+html[data-nav="across"] [data-settle="opening"] {
+  animation-delay: calc(var(--settle-order) * var(--settle-stagger));
+}
 [data-settle="waiting"] {
   opacity: 0;
 }

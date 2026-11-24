@@ -6,6 +6,17 @@ function depth(pathname: string) {
   return pathname.split("/").filter(Boolean).length;
 }
 
+function parent(pathname: string) {
+  return pathname.split("/").filter(Boolean).slice(0, -1).join("/");
+}
+
+function direction(from: string, to: string) {
+  if (depth(to) < depth(from)) return "out";
+  const sideBySide =
+    depth(to) === depth(from) && depth(to) > 1 && parent(to) === parent(from);
+  return sideBySide ? "across" : "in";
+}
+
 // Must run before navigation starts: the browser snapshots the old page then.
 export function prepareNavigation(
   from: string,
@@ -13,7 +24,7 @@ export function prepareNavigation(
   focus?: { x: number; y: number },
 ) {
   const root = document.documentElement;
-  root.dataset.nav = depth(to) < depth(from) ? "out" : "in";
+  root.dataset.nav = direction(from, to);
 
   const room = document.querySelector(ROOM_SELECTOR)?.getBoundingClientRect();
   const point = focus ?? { x: innerWidth / 2, y: innerHeight / 2 };
