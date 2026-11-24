@@ -45,6 +45,9 @@ The mock page also contains editing controls (cloud picker, sliders, saving to a
 - Partly cloudy also spreads each layer's heights (one value per equal slice of the range, random within it, slices shuffled, so a small layer can't land all high) and caps large clouds: a cloud whose Smallest–Largest midpoint is 175% or more appears at most twice per layer. If the hand runs out of allowed clouds the layer draws from the whole list; if every cloud is capped it draws fewer. Both are per-weather settings (`PLACEMENT`).
 - Spacing: each layer places its biggest clouds first, each into the most open stretch of sky (best of a few random tries). Smaller ones fill the gaps, with up to about a quarter overlap (`CLOUD_ROOM`). Front and middle are spaced separately, so they overlap each other for depth, with one exception: no stacking while the rest of the sky is empty. A front cloud that would open the sky stacked on a middle one (more than `CLOUD_ROOM` allows, across and up and down) moves to the best-spaced open stretch of the screen among a few random spots (`MOVE_TRIES`). With none open (a full sky, or a phone's narrow one) it stays where it was. Clouds off screen keep their places, so as many clouds show as before.
 
+### One cloud
+The engine can also show a single still cloud (`showCloud`), centered by its dots and sized to a share of its canvas, with no far strip, rain or drift; used for the live cloud on This site (`features/sky/live-cloud.tsx`). The cursor and a finger scatter it as in the sky. With nothing moving, it stops drawing until the pointer moves again.
+
 ### Sunny
 From the Sunny mock (24 Nov 2026). The loose placement is `LOOSE` in `constants.ts`, switched on by `loose` in `PLACEMENT`.
 - **Count:** middle 3, front 2, grown for wide screens like every weather; middle is built first.

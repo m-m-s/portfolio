@@ -2,6 +2,7 @@
 
 import { useId, useState } from "react";
 import type { Photo } from "@/content/photography";
+import { LiveCloud } from "@/features/sky/live-cloud";
 import { JoustingEngine } from "./diagrams/jousting-engine";
 import { besideText, MediaBox } from "./media";
 import { RichText } from "./rich-text";
@@ -14,11 +15,13 @@ const diagrams = { "jousting-engine": JoustingEngine };
 
 export function Slideshow({
   image,
+  live,
   diagram,
   imageSide,
   slides,
 }: {
   image?: Photo;
+  live?: "cloud";
   diagram?: Diagram;
   imageSide?: Side;
   slides: Slide[];
@@ -76,7 +79,15 @@ export function Slideshow({
                 aria-hidden={media !== shown}
                 className="[grid-area:1/1]"
               >
-                <MediaBox media={media} />
+                {live && media === image ? (
+                  <LiveCloud
+                    label={media.alt}
+                    ratio={media.ratio}
+                    active={media === shown}
+                  />
+                ) : (
+                  <MediaBox media={media} />
+                )}
               </div>
             ))}
           </div>
@@ -105,6 +116,17 @@ export function Slideshow({
                   </p>
                 ))}
               </div>
+              {slide.hint && visual && (
+                <p className="mt-4 font-grotesk text-xs text-ink/50">
+                  <span aria-hidden="true">
+                    <span className="sm:hidden">{Figure ? "↓" : "↑"}</span>
+                    <span className="hidden sm:inline">
+                      {right ? "→" : "←"}
+                    </span>
+                  </span>{" "}
+                  {slide.hint}
+                </p>
+              )}
             </div>
           ))}
         </div>

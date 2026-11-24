@@ -40,14 +40,15 @@ export const thisSite: ProjectPage = {
       type: "slideshow",
       id: "sky",
       image: {
-        src: "/projects/this-site/cloud-scatter.webp",
-        alt: "A close-up of a dithered front cloud on the homepage, with a hole where the cursor passed through and its dots pushed outward",
+        alt: "A live dithered cloud whose dots scatter under the cursor or a finger",
         ratio: 1.5,
       },
+      live: "cloud",
       imageSide: "left",
       slides: [
         {
           title: "Making clouds interactive",
+          hint: "Try it on the cloud",
           paragraphs: [
             "I started by thinking about what makes digital interaction feel tactile on a screen made of pixels. Dithering can turn a cloud into individual pixels while keeping its shape and shading. Those dots scatter under the cursor to capture the most pleasant imagination of touching a cloud. Soft and fluffy.",
           ],

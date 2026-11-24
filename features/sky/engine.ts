@@ -192,6 +192,7 @@ export class SkyEngine {
   private seed = 1;
   private layoutSeed = 1;
   private scaleOverride: number | null = null;
+  private single: { id: string; fill: number } | null = null;
 
   private readonly sprites = new Map<string, Sprite>();
   private layers: Partial<Record<Layer, CloudLayer>> = {};
@@ -223,7 +224,7 @@ export class SkyEngine {
     this.resizeObserver = new ResizeObserver(() => {
       clearTimeout(this.resizeTimer);
       this.resizeTimer = setTimeout(() => {
-        if (this.ready) void this.build();
+        if (this.ready) void this.build().then(() => this.syncLoop());
       }, 150);
     });
     this.resizeObserver.observe(canvas);
@@ -234,6 +235,7 @@ export class SkyEngine {
       const r = this.canvas.getBoundingClientRect();
       this.px = e.clientX - r.left;
       this.py = e.clientY - r.top;
+      if (this.single) this.syncLoop();
     };
     const away = () => {
       this.px = -1e5;
@@ -280,6 +282,65 @@ export class SkyEngine {
     this.ready = true;
     this.syncLoop();
     if (first) this.onReady?.();
+  }
+
+  async showCloud(sky: Sky, id: string, settings: CloudSettings, fill: number) {
+    const load = ++this.loadId;
+    this.sky = sky;
+    this.config = { front: { [id]: settings }, mid: {}, far: {} };
+    this.snow = false;
+    this.rainOn = false;
+    this.single = { id, fill };
+    await cloudImages.load(id);
+    if (load !== this.loadId) return;
+
+    if (!(await this.build())) return;
+    const first = !this.ready;
+    this.ready = true;
+    this.syncLoop();
+    if (first) this.onReady?.();
+  }
+
+  private singleLayer(id: string, fill: number) {
+    const { W, H } = this;
+    const fit = (f: number) => this.getSprite(id, "front", f);
+    const bounds = (sp: Sprite) => {
+      let [x0, y0, x1, y1] = [sp.w, sp.h, 0, 0];
+      for (let i = 0; i < sp.pts.length; i += 2) {
+        x0 = Math.min(x0, sp.pts[i]);
+        x1 = Math.max(x1, sp.pts[i]);
+        y0 = Math.min(y0, sp.pts[i + 1]);
+        y1 = Math.max(y1, sp.pts[i + 1]);
+      }
+      return { x0, y0, w: x1 - x0 + 1, h: y1 - y0 + 1 };
+    };
+    const probe = fit(1);
+    if (!probe) return {};
+    const pb = bounds(probe);
+    const sprite = fit(Math.min((W * fill) / pb.w, (H * fill) / pb.h));
+    if (!sprite) return {};
+    const b = bounds(sprite);
+    const layer: CloudLayer = {
+      ...LAYER.front,
+      speed: 0,
+      name: "front",
+      ink: INK[this.sky].front,
+      inst: [
+        {
+          sprite,
+          flip: false,
+          x0: Math.round((W - b.w) / 2 - b.x0) + sprite.w,
+          y: Math.round((H - b.h) / 2 - b.y0),
+          buf: this.alloc(LAYER.front, sprite),
+          p: null,
+        },
+      ],
+      span: W + 2 * sprite.w,
+      margin: sprite.w,
+      off: 0,
+    };
+    tinted(sprite, layer.ink, false);
+    return { front: layer };
   }
 
   setCloudScale(scale: number | null) {
@@ -403,8 +464,17 @@ export class SkyEngine {
     const dt = Math.min(0.05, Math.max(0, now - this.last) / 1000);
     this.last = now;
     this.draw(dt);
+    // A lone still cloud has nothing to draw until the pointer comes back.
+    if (this.single && this.settled()) {
+      this.raf = 0;
+      return;
+    }
     this.raf = requestAnimationFrame(this.frame);
   };
+
+  private settled() {
+    return Object.values(this.layers).every((L) => L.inst.every((o) => !o.p));
+  }
 
   private inView(x: number, y: number, w: number, h: number) {
     const v = this.view;
@@ -826,12 +896,19 @@ export class SkyEngine {
 
     let layers: Partial<Record<Layer, CloudLayer>> = {};
     const onScreen: { x: number; y: number; w: number; h: number }[] = [];
-    if (PLACEMENT[this.sky].loose) {
+    const placement = this.single
+      ? "single"
+      : PLACEMENT[this.sky].loose
+        ? "loose"
+        : "spaced";
+    if (this.single)
+      layers = this.singleLayer(this.single.id, this.single.fill);
+    if (placement === "loose") {
       const loose = await this.looseLayers(n, stale);
       if (!loose) return false;
       layers = loose;
     }
-    const spaced = PLACEMENT[this.sky].loose ? [] : (["mid", "front"] as const);
+    const spaced = placement === "spaced" ? (["mid", "front"] as const) : [];
     for (const name of spaced) {
       const pool = CLOUDS.filter(
         (id) => this.config[name][id] && cloudImages.get(id),

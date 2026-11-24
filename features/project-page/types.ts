@@ -8,6 +8,7 @@ export type Slide = {
   /** Replaces the slideshow's image while this slide shows. */
   image?: Photo;
   step?: string;
+  hint?: string;
 };
 
 export type Diagram = "jousting-engine";
@@ -30,6 +31,8 @@ export type Block =
       imageSide?: Side;
       slides: Slide[];
       image?: Photo;
+      /** Shows a live cloud in place of `image`, which still gives its shape and alt text. */
+      live?: "cloud";
       diagram?: Diagram;
     }
   | { type: "break" };

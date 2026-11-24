@@ -70,6 +70,7 @@ function BlockView({ block }: { block: Block }) {
       return (
         <Slideshow
           image={block.image}
+          live={block.live}
           diagram={block.diagram}
           imageSide={block.imageSide}
           slides={block.slides}

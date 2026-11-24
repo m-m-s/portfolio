@@ -1,0 +1,62 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { configFor } from "./config";
+import { SkyEngine } from "./engine";
+
+const SKY = "partly-cloudy";
+const CLOUD = "58-2";
+const SETTINGS = { ...configFor(SKY).front[CLOUD], light: 0.35 };
+const FILL = 0.85;
+
+export function LiveCloud({
+  label,
+  ratio,
+  active,
+}: {
+  label: string;
+  ratio: number;
+  active: boolean;
+}) {
+  const canvas = useRef<HTMLCanvasElement>(null);
+  const engine = useRef<SkyEngine | null>(null);
+  const [ready, setReady] = useState(false);
+  const [inView, setInView] = useState(false);
+
+  useEffect(() => {
+    const c = canvas.current;
+    if (!c) return;
+    const e = new SkyEngine(c);
+    e.setActive(false);
+    engine.current = e;
+    void e.showCloud(SKY, CLOUD, SETTINGS, FILL).then(() => setReady(true));
+    const observer = new IntersectionObserver(([entry]) =>
+      setInView(entry.isIntersecting),
+    );
+    observer.observe(c);
+    return () => {
+      observer.disconnect();
+      e.destroy();
+      engine.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    engine.current?.setInteractive(active);
+    engine.current?.setActive(active && inView);
+  }, [active, inView]);
+
+  return (
+    <div
+      role="img"
+      aria-label={label}
+      style={{ aspectRatio: ratio }}
+      className="relative w-full overflow-hidden bg-page ring-1 ring-rule"
+    >
+      <canvas
+        ref={canvas}
+        className={`absolute inset-0 block h-full w-full touch-pan-y transition-opacity duration-500 ${ready ? "opacity-100" : "opacity-0"}`}
+      />
+    </div>
+  );
+}
