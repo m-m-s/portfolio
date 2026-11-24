@@ -1,5 +1,10 @@
 import type { Sky } from "@/features/weather/sky";
-import { cloudSettings, configFor, type SkyConfig } from "./config";
+import {
+  type CloudSettings,
+  cloudSettings,
+  configFor,
+  type SkyConfig,
+} from "./config";
 import {
   type Band,
   bandRanges,
@@ -12,6 +17,7 @@ import {
   LARGE_CLOUD,
   LAYER,
   type Layer,
+  LOOSE,
   PHONE_CLOUD_SCALE,
   PLACEMENT,
   REFERENCE,
@@ -587,6 +593,216 @@ export class SkyEngine {
     return Math.round(Math.max(base * this.S, h * 0.6) - h);
   }
 
+  private async looseLayers(
+    n: Record<Layer, number>,
+    stale: () => Promise<boolean>,
+  ) {
+    const W = this.W;
+    const layers: Partial<Record<Layer, CloudLayer>> = {};
+    const inSky = new Map<string, number>();
+    const drawn: { id: string; layer: Layer; w: number }[] = [];
+    const apart = (a: number, b: number) => Math.max(a, b) / Math.min(a, b);
+
+    for (const name of ["mid", "front"] as const) {
+      const count = n[name];
+      const pool = CLOUDS.filter(
+        (id) => this.config[name][id] && cloudImages.get(id),
+      );
+      if (!pool.length) continue;
+      const settings = (id: string) => cloudSettings(this.config, name, id);
+      const width = (id: string, f: number) => this.spriteKey(id, name, f).w;
+      const slices = new Map<string, number[]>();
+      const sizeCopy = (id: string) => {
+        const c = settings(id);
+        if (!slices.has(id)) {
+          slices.set(
+            id,
+            this.shuffled(Array.from({ length: count }, (_, i) => i)),
+          );
+        }
+        const slice = slices.get(id)?.shift() ?? 0;
+        const sw = (c.sizeMax - c.sizeMin) / count;
+        const others = drawn.filter((d) => d.id === id);
+        const gap = (w: number) =>
+          Math.min(...others.map((d) => apart(w, d.w)));
+        const clashes = (f: number) =>
+          others.some(
+            (d) =>
+              apart(width(id, f), d.w) <
+              (d.layer === name ? LOOSE.sameLayerGap : LOOSE.crossLayerGap),
+          );
+        const inSlice = () =>
+          c.sizeMin + sw * (slice + 0.25 + 0.5 * this.rnd());
+        const anywhere = () => c.sizeMin + (c.sizeMax - c.sizeMin) * this.rnd();
+        let f = inSlice();
+        for (let t = 0; t < LOOSE.sizeTries && clashes(f); t++) f = inSlice();
+        for (let t = 0; t < LOOSE.sizeTries && clashes(f); t++) f = anywhere();
+        if (clashes(f)) {
+          f =
+            gap(width(id, c.sizeMin)) >= gap(width(id, c.sizeMax))
+              ? c.sizeMin
+              : c.sizeMax;
+        }
+        drawn.push({ id, layer: name, w: width(id, f) });
+        return { id, f, c };
+      };
+      const canRepeat = (id: string) => {
+        const first = drawn.find((d) => d.id === id && d.layer === name);
+        if (!first) return true;
+        const c = settings(id);
+        return (
+          width(id, c.sizeMax) >= first.w * LOOSE.sameLayerGap ||
+          width(id, c.sizeMin) * LOOSE.sameLayerGap <= first.w
+        );
+      };
+
+      const hand = this.shuffled(pool).slice(
+        0,
+        Math.max(2, Math.ceil(count / 2)),
+      );
+      const inLayer = new Map<string, number>();
+      const allowed = (id: string) => {
+        const here = inLayer.get(id) ?? 0;
+        return (
+          here < LOOSE.maxCopies &&
+          (inSky.get(id) ?? 0) < LOOSE.maxCopies &&
+          (here === 0 || canRepeat(id))
+        );
+      };
+      const picked: { id: string; f: number; c: CloudSettings }[] = [];
+      for (let i = 0; i < count; i++) {
+        let options = hand.filter(allowed);
+        if (!options.length) options = pool.filter(allowed);
+        if (!options.length) break;
+        const id = options[Math.floor(this.rnd() * options.length)];
+        inLayer.set(id, (inLayer.get(id) ?? 0) + 1);
+        inSky.set(id, (inSky.get(id) ?? 0) + 1);
+        picked.push(sizeCopy(id));
+      }
+      const firstAt = (id: string) => picked.findIndex((p) => p.id === id);
+      const sized = picked
+        .map((p, i) => ({ p, i }))
+        .sort(
+          (a, b) =>
+            (inLayer.get(b.p.id) ?? 0) - (inLayer.get(a.p.id) ?? 0) ||
+            firstAt(a.p.id) - firstAt(b.p.id) ||
+            a.i - b.i,
+        )
+        .map(({ p }) => p);
+
+      const half = Math.ceil(sized.length / 2);
+      const slots = sized.map((_, i) =>
+        i % 2 === 0 ? i / 2 : half + (i - 1) / 2,
+      );
+      if (this.rnd() < 0.5) slots.reverse();
+      const heights = slots.map((s) => (s + this.rnd()) / sized.length);
+
+      const inst: Cloud[] = [];
+      for (const [i, it] of sized.entries()) {
+        if (!this.sprites.has(this.spriteKey(it.id, name, it.f).key)) {
+          if (await stale()) return null;
+        }
+        const sprite = this.getSprite(it.id, name, it.f);
+        if (!sprite) continue;
+        inst.push({
+          sprite,
+          flip: it.c.mirror,
+          x0: this.rnd() * W,
+          y: this.placeY(it.c.height, heights[i], sprite.h),
+          buf: this.alloc(LAYER[name], sprite),
+          p: null,
+        });
+      }
+      if (!inst.length) continue;
+      inst.sort((a, b) => a.y + a.sprite.h - (b.y + b.sprite.h));
+      const margin = Math.max(...inst.map((o) => o.sprite.w));
+      layers[name] = {
+        ...LAYER[name],
+        name,
+        ink: INK[this.sky][name],
+        inst,
+        span: W + margin,
+        margin,
+        off: 0,
+      };
+    }
+
+    if (layers.mid && layers.front) this.unstack(layers.mid, layers.front);
+    for (const L of Object.values(layers)) {
+      for (const o of L.inst) tinted(o.sprite, L.ink, o.flip);
+    }
+    return layers;
+  }
+
+  private unstack(mid: CloudLayer, front: CloudLayer) {
+    const box = (L: CloudLayer, o: Cloud, t: number) => {
+      const v = (((o.x0 + L.off + L.speed * t) % L.span) + L.span) % L.span;
+      return { x: v - L.margin, y: o.y, w: o.sprite.w, h: o.sprite.h };
+    };
+    const across = (a: Area, b: Area) =>
+      Math.max(0, Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x));
+    const down = (a: Area, b: Area) =>
+      Math.max(0, Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y));
+    const stacked = (o: Cloud) => {
+      let sum = 0;
+      for (const t of LOOSE.stackCheckAt) {
+        const a = box(front, o, t);
+        for (const m of mid.inst) {
+          const b = box(mid, m, t);
+          const share =
+            (across(a, b) * down(a, b)) / Math.min(a.w * a.h, b.w * b.h);
+          sum += Math.max(0, share - LOOSE.stackAllowed);
+        }
+      }
+      return sum;
+    };
+    const total = () => front.inst.reduce((s, o) => s + stacked(o), 0);
+
+    let bestOff = 0;
+    let best = Number.POSITIVE_INFINITY;
+    for (let k = 0; k < LOOSE.offsetTries; k++) {
+      front.off = (k / LOOSE.offsetTries) * front.span;
+      const score = total();
+      if (score < best) {
+        best = score;
+        bestOff = front.off;
+      }
+    }
+    front.off = bestOff;
+
+    const W = this.W;
+    for (const o of front.inst) {
+      if (stacked(o) <= 0) continue;
+      const score = () => {
+        const a = box(front, o, 0);
+        let crowding = 0;
+        for (const q of front.inst) {
+          if (q === o) continue;
+          const b = box(front, q, 0);
+          crowding +=
+            Math.max(0, across(a, b) - LOOSE.frontRoom * Math.min(a.w, b.w)) /
+            a.w;
+        }
+        return stacked(o) + LOOSE.frontCrowding * crowding;
+      };
+      let bestX0 = o.x0;
+      let bestScore = score();
+      for (let k = 0; k < LOOSE.moveTries; k++) {
+        const x =
+          -o.sprite.w / 2 + (k / (LOOSE.moveTries - 1)) * (W + o.sprite.w / 2);
+        o.x0 =
+          (((x + front.margin - front.off) % front.span) + front.span) %
+          front.span;
+        const s = score();
+        if (s < bestScore) {
+          bestScore = s;
+          bestX0 = o.x0;
+        }
+      }
+      o.x0 = bestX0;
+    }
+  }
+
   private async build() {
     const bid = ++this.buildId;
     const stale = async () => {
@@ -608,9 +824,15 @@ export class SkyEngine {
     const pickSize = (c: { sizeMin: number; sizeMax: number }) =>
       c.sizeMin + (c.sizeMax - c.sizeMin) * this.rnd();
 
-    const layers: Partial<Record<Layer, CloudLayer>> = {};
+    let layers: Partial<Record<Layer, CloudLayer>> = {};
     const onScreen: { x: number; y: number; w: number; h: number }[] = [];
-    for (const name of ["mid", "front"] as const) {
+    if (PLACEMENT[this.sky].loose) {
+      const loose = await this.looseLayers(n, stale);
+      if (!loose) return false;
+      layers = loose;
+    }
+    const spaced = PLACEMENT[this.sky].loose ? [] : (["mid", "front"] as const);
+    for (const name of spaced) {
       const pool = CLOUDS.filter(
         (id) => this.config[name][id] && cloudImages.get(id),
       );

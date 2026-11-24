@@ -5,7 +5,7 @@ The live NYC weather sky behind the homepage: dithered clouds made of dots that 
 ## Source material (in this repo)
 - `docs/reference/mock-snowy.html`: the finished mock. It holds the whole engine and every weather's tables (cloud counts, ink colors, layer physics, rain and snow). **This is the source of truth for behavior.** Port its behavior as is.
 - `docs/reference/mock-rainy.html`: the Rainy mock, for comparing the rain.
-- `features/sky/config/*.json`: the tuned cloud picks and settings, one file per weather.
+- `features/sky/config/*.json`: the tuned cloud picks and settings, one file per weather. A cloud's `mirror` (optional, off when missing) draws every copy of it in that layer flipped; only Sunny reads it so far.
 - `public/sky/clouds/`: 31 grayscale cloud cutouts, used in the middle and front layers.
 - `public/sky/strips/`: 11 distant cloud strips, used in the far layer. These are already dot images.
 - The mock loads images from `s/src/` and `s/far/`. Those are the same files under their new folder names.
@@ -40,9 +40,21 @@ The mock page also contains editing controls (cloud picker, sliders, saving to a
 - Seed the random layout with a new random value on each visit. When porting, replace the mock's fixed seed (`seed=11`, `layoutSeed=11`).
 - Each weather has a pool of clouds per layer (the config). Every visit composes a fresh sky from it.
 - Cloud count per weather (middle / front): Sunny 3 / 2, Partly cloudy 5 / 3, Cloudy, Rainy and Snowy 12 / 7.
+- The rules below hold for every weather except Sunny, which has its own (see Sunny, below).
 - Each copy gets a random size between its Smallest and Largest, a random base height inside its ticked height bands, and is mirrored half the time. Two copies of the same cloud are kept well apart (`SAME_CLOUD_ROOM`, 2.5 mean cloud widths between centres, against 0.75 for other pairs): side by side, one usually mirrored, they read as a symmetric pair.
 - Partly cloudy also spreads each layer's heights (one value per equal slice of the range, random within it, slices shuffled, so a small layer can't land all high) and caps large clouds: a cloud whose Smallest–Largest midpoint is 175% or more appears at most twice per layer. If the hand runs out of allowed clouds the layer draws from the whole list; if every cloud is capped it draws fewer. Both are per-weather settings (`PLACEMENT`).
 - Spacing: each layer places its biggest clouds first, each into the most open stretch of sky (best of a few random tries). Smaller ones fill the gaps, with up to about a quarter overlap (`CLOUD_ROOM`). Front and middle are spaced separately, so they overlap each other for depth, with one exception: no stacking while the rest of the sky is empty. A front cloud that would open the sky stacked on a middle one (more than `CLOUD_ROOM` allows, across and up and down) moves to the best-spaced open stretch of the screen among a few random spots (`MOVE_TRIES`). With none open (a full sky, or a phone's narrow one) it stays where it was. Clouds off screen keep their places, so as many clouds show as before.
+
+### Sunny
+From the Sunny mock (24 Nov 2026). The loose placement is `LOOSE` in `constants.ts`, switched on by `loose` in `PLACEMENT`.
+- **Count:** middle 3, front 2, grown for wide screens like every weather; middle is built first.
+- **Loop:** each layer wraps over the screen width plus its widest cloud.
+- **Across:** each cloud starts anywhere on the screen. No spacing inside a layer: clouds may bunch, touch and overlap.
+- **Shapes:** each layer shuffles its picks and takes a hand of max(2, half its count rounded up), drawing at random from the hand. A shape shows at most twice in a layer and at most twice in the whole sky; front and middle may share one. A second copy in a layer is only drawn if the shape's size range can make it at least 25% wider or narrower than the first. With nothing in the hand allowed, the layer draws from any allowed pick, else draws fewer.
+- **Sizes:** a shape's size range is split into as many equal slices as the layer has clouds; each copy takes a different slice and lands in its middle half. Copies of a shape differ in drawn width by at least 25% in a layer and 12% across layers: up to 12 re-rolls in the slice, then 12 anywhere in the range, then whichever end of the range is farthest from the other copies.
+- **Heights:** one height per equal slice of the layer's range, random within it. Shapes with two copies go first, and slices are dealt 0, h, 1, h+1, … (h is half the count, rounded up), reversed on a coin flip, so two copies sit half the range apart.
+- **Mirroring:** none at random. A cloud set to `mirror` in a layer's config is drawn flipped in that layer.
+- **No stacking at load:** a front cloud may overlap a middle one by up to 30% of the smaller box, checked now and 5s on. The front layer first tries 96 offsets along its loop and keeps the least stacked; any front cloud still stacked then tries 64 spots across the screen, scored by its stacking plus 10× any overlap with another front cloud beyond a quarter of the smaller width, over its own width. After load, layers drift across each other freely.
 - Height bands are fractions of the sky's height (`TOP`, `BOT`, `BASE` in the mock). Cloudy, Rainy and Snowy have a fourth band, Lowest. Unlike the mock, which adds Lowest below the other three, all weathers fit their bands between the same `TOP` and `BOT`, so with four bands each one is thinner and the lowest clouds stop at the same depth as in Sunny. The taller sky had dropped them too low. The far strips were raised to match, in their config Heights: Cloudy, Rainy and Snowy from −0.5 to −0.2 (the same squeeze applied to the strip's bottom edge), and the low Sunny strip by 0.2. Partly cloudy's strips keep the mock's heights.
 
 ## Size

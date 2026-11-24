@@ -13,6 +13,7 @@ export type CloudSettings = {
   bright: number;
   light: number;
   height: Band[];
+  mirror: boolean;
 };
 
 export type FarSettings = {
@@ -35,6 +36,7 @@ const DEF_CLOUD: CloudSettings = {
   bright: 0,
   light: 0,
   height: ["high", "mid", "low"],
+  mirror: false,
 };
 const DEF_FAR: FarSettings = { size: 1, shade: 1, height: 0, ink: 0 };
 

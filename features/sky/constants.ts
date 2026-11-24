@@ -139,14 +139,43 @@ export const LARGE_CLOUD = 1.75;
 
 export const PLACEMENT: Record<
   Sky,
-  { spreadHeights: boolean; maxLarge: number }
+  { loose: boolean; spreadHeights: boolean; maxLarge: number }
 > = {
-  sunny: { spreadHeights: false, maxLarge: Number.POSITIVE_INFINITY },
-  "partly-cloudy": { spreadHeights: true, maxLarge: 2 },
-  cloudy: { spreadHeights: false, maxLarge: Number.POSITIVE_INFINITY },
-  rainy: { spreadHeights: false, maxLarge: Number.POSITIVE_INFINITY },
-  snowy: { spreadHeights: false, maxLarge: Number.POSITIVE_INFINITY },
+  sunny: {
+    loose: true,
+    spreadHeights: false,
+    maxLarge: Number.POSITIVE_INFINITY,
+  },
+  "partly-cloudy": { loose: false, spreadHeights: true, maxLarge: 2 },
+  cloudy: {
+    loose: false,
+    spreadHeights: false,
+    maxLarge: Number.POSITIVE_INFINITY,
+  },
+  rainy: {
+    loose: false,
+    spreadHeights: false,
+    maxLarge: Number.POSITIVE_INFINITY,
+  },
+  snowy: {
+    loose: false,
+    spreadHeights: false,
+    maxLarge: Number.POSITIVE_INFINITY,
+  },
 };
+
+export const LOOSE = {
+  maxCopies: 2,
+  sameLayerGap: 1.25,
+  crossLayerGap: 1.12,
+  sizeTries: 12,
+  stackAllowed: 0.3,
+  stackCheckAt: [0, 5],
+  offsetTries: 96,
+  moveTries: 64,
+  frontRoom: 0.25,
+  frontCrowding: 10,
+} as const;
 
 export const FAR_SIDE_FADE = 0.25;
 
