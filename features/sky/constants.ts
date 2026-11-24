@@ -54,10 +54,6 @@ export const FAR_LAYER = {
 
 export const WIDTH: Record<Layer, number> = { front: 300, mid: 220 };
 
-export const WINDOW_FOR_FULL_CLOUDS = 448;
-
-export const MIN_WINDOW_CLOUDS = 0.45;
-
 export const REFERENCE = { width: 1440, height: 900 };
 
 export const WIDE_WEIGHT = 0.5;

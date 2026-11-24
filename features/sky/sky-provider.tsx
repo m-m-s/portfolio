@@ -11,14 +11,12 @@ import {
 } from "react";
 import { usePath } from "@/features/transitions/use-path";
 import type { Sky } from "@/features/weather/sky";
-import { WINDOW_FOR_FULL_CLOUDS } from "./constants";
 import { type Area, randomSeed, SkyEngine } from "./engine";
 
 type Target = { canvas: HTMLCanvasElement; area: () => Area | null };
 
 type SkyContextValue = {
   attach: (canvas: HTMLCanvasElement, area: () => Area | null) => () => void;
-  setWindowWidth: (width: number) => void;
   weather: Sky;
 };
 
@@ -42,8 +40,6 @@ export function SkyProvider({
   const target = useRef<Target | null>(null);
   const [windows, setWindows] = useState(0);
   const [seed, setSeed] = useState<number | null>(null);
-  // Until a window reports in: the desktop About window's width.
-  const [windowWidth, setWindowWidth] = useState(WINDOW_FOR_FULL_CLOUDS / 2);
   const full = usePath() === "/";
 
   useEffect(() => {
@@ -62,11 +58,6 @@ export function SkyProvider({
       engine.current = null;
     };
   }, []);
-
-  // Before show, so the first build already uses it.
-  useEffect(() => {
-    engine.current?.setWindowWidth(full ? null : windowWidth);
-  }, [full, windowWidth]);
 
   useEffect(() => {
     if (seed !== null) engine.current?.show(weather, seed);
@@ -92,10 +83,7 @@ export function SkyProvider({
     [],
   );
 
-  const value = useMemo(
-    () => ({ attach, setWindowWidth, weather }),
-    [attach, weather],
-  );
+  const value = useMemo(() => ({ attach, weather }), [attach, weather]);
 
   return (
     <SkyContext value={value}>

@@ -12,7 +12,6 @@ import {
   LARGE_CLOUD,
   LAYER,
   type Layer,
-  MIN_WINDOW_CLOUDS,
   PHONE_CLOUD_SCALE,
   PLACEMENT,
   REFERENCE,
@@ -21,7 +20,6 @@ import {
   SMALL_SCREEN,
   WIDE_WEIGHT,
   WIDTH,
-  WINDOW_FOR_FULL_CLOUDS,
 } from "./constants";
 import {
   bottoms,
@@ -188,7 +186,6 @@ export class SkyEngine {
   private seed = 1;
   private layoutSeed = 1;
   private scaleOverride: number | null = null;
-  private windowWidth: number | null = null;
 
   private readonly sprites = new Map<string, Sprite>();
   private layers: Partial<Record<Layer, CloudLayer>> = {};
@@ -284,20 +281,12 @@ export class SkyEngine {
     this.scaleOverride = scale;
     if (this.ready) void this.build();
   }
-  setWindowWidth(width: number | null) {
-    const rounded = width === null ? null : Math.round(width / 16) * 16;
-    if (rounded === this.windowWidth) return;
-    this.windowWidth = rounded;
-    if (this.ready) void this.build();
-  }
 
   private get farGrowth() {
-    if (this.windowWidth !== null) return 1;
     return Math.max(1, this.H / REFERENCE.height);
   }
 
   private get cloudGrowth() {
-    if (this.windowWidth !== null) return 1;
     const byWidth = this.W / REFERENCE.width;
     return Math.max(
       1,
@@ -306,17 +295,10 @@ export class SkyEngine {
   }
 
   private get fill() {
-    if (this.windowWidth !== null) return 1;
     return Math.max(1, this.W / (REFERENCE.width * this.cloudGrowth));
   }
 
   private get cloudScale() {
-    if (this.windowWidth !== null) {
-      return Math.max(
-        MIN_WINDOW_CLOUDS,
-        this.windowWidth / WINDOW_FOR_FULL_CLOUDS,
-      );
-    }
     const phone = this.W < SMALL_SCREEN;
     const base =
       this.scaleOverride ?? (phone ? PHONE_CLOUD_SCALE[this.sky] : 1);
