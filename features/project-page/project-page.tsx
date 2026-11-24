@@ -28,10 +28,10 @@ function BlockView({ block }: { block: Block }) {
     case "image-row":
       return (
         <div className="flex justify-center gap-4 sm:gap-8">
-          {block.images.map((media) => (
+          {block.images.map((media, i) => (
             <div
               key={media.src ?? media.alt}
-              className="min-w-0 max-w-(--spacing-phone) flex-1"
+              className={`min-w-0 max-w-(--spacing-phone) flex-1 ${i >= (block.onPhone ?? Number.POSITIVE_INFINITY) ? "max-sm:hidden" : ""}`}
             >
               <MediaBox media={media} />
             </div>
@@ -54,16 +54,6 @@ function BlockView({ block }: { block: Block }) {
               </p>
             ))}
           </div>
-        </div>
-      );
-    case "two-columns":
-      return (
-        <div className="grid gap-6 sm:grid-cols-2 sm:gap-8">
-          {block.columns.map((text) => (
-            <p key={text}>
-              <RichText text={text} />
-            </p>
-          ))}
         </div>
       );
     case "slideshow":

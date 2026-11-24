@@ -24,6 +24,7 @@
   /* Thin lines that divide a page: around the project info table, between a project's sections. */
   --color-rule: #dbdad7;
   --spacing-phone: 14rem;
+  --spacing-beside-phone: 30rem;
   --radius-phone: 1.25rem;
   --color-link: #2a55b8;
   --color-link-hover: #1b3a85;

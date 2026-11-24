@@ -18,16 +18,22 @@ export const overlook: ProjectPage = {
       type: "image-row",
       images: [
         {
+          src: "/projects/overlook/sidebar.webp",
+          alt: "Overlook's sidebar: a search box and filters for category, urgency, resonance, status and difficulty",
+          ratio: screen,
+        },
+        {
           src: "/projects/overlook/home-full.webp",
           alt: "Overlook's home screen: rows of screenshots sorted under Urgent, Food, Fashion and Art",
           ratio: screen,
         },
         {
-          src: "/projects/overlook/sidebar.webp",
-          alt: "Overlook's sidebar: a search box and filters for category, urgency, resonance, status and difficulty",
+          src: "/projects/overlook/photo-detail.webp",
+          alt: "A saved recipe screenshot opened in Overlook, with its Food category, the title Claude wrote for it and its tags",
           ratio: screen,
         },
       ],
+      onPhone: 2,
     },
     {
       type: "text",
@@ -101,8 +107,8 @@ export const overlook: ProjectPage = {
     },
     { type: "break" },
     {
-      type: "two-columns",
-      columns: [
+      type: "text",
+      paragraphs: [
         "I built V1 of Overlook in a week when I was very new to coding. I first spent a few days on the spec, the user flow, essential features and the basic UX/UI. I experimented with building in Claude Code for the first time. It was a frenzy of hyperfixation where every growing piece brought me great satisfaction. It was exhilarating to see my ideas turn into working code.",
         `By the end of the week the app came close to fully matching my spec, and I'd even added some stretch features. It also had bugs I didn't know how to fix yet. The bugs kept spreading until they became impossible to manage. That's when I realised **I had hit the wall of “vibe coding.”**`,
       ],

@@ -16,14 +16,13 @@ export type Diagram = "jousting-engine";
 export type Block =
   | { type: "text"; paragraphs: string[] }
   | { type: "image"; image: Photo }
-  | { type: "image-row"; images: Photo[] }
+  | { type: "image-row"; images: Photo[]; onPhone?: number }
   | {
       type: "image-text";
       image: Photo;
       imageSide: Side;
       paragraphs: string[];
     }
-  | { type: "two-columns"; columns: [string, string] }
   | {
       type: "slideshow";
       /** Lets other pages link straight to it (`/projects/this-site#sky`). */

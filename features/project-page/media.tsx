@@ -12,8 +12,8 @@ export const isPhone = (media: Photo) => media.ratio < 1;
 export function besideText(media: Photo[], imageRight: boolean) {
   if (media.length === 0 || !media.every(isPhone)) return "sm:grid-cols-2";
   return imageRight
-    ? "sm:grid-cols-[1fr_var(--spacing-phone)]"
-    : "sm:grid-cols-[var(--spacing-phone)_1fr]";
+    ? "sm:justify-center sm:grid-cols-[minmax(0,var(--spacing-beside-phone))_var(--spacing-phone)]"
+    : "sm:justify-center sm:grid-cols-[var(--spacing-phone)_minmax(0,var(--spacing-beside-phone))]";
 }
 
 export function MediaBox({
