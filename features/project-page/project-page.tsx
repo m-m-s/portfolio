@@ -130,15 +130,16 @@ export function ProjectPage({ href }: { href: string }) {
             <SettleIn
               // biome-ignore lint/suspicious/noArrayIndexKey: blocks are fixed content, never reordered.
               key={i}
+              id={block.type === "slideshow" ? block.id : undefined}
               order={i + 2}
-              className={
+              className={`scroll-mt-20 ${
                 i === 0
                   ? ""
                   : block.type === "break" ||
                       page.blocks[i - 1].type === "break"
                     ? nearLine
                     : betweenBlocks
-              }
+              }`}
             >
               <BlockView block={block} />
             </SettleIn>

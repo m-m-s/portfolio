@@ -25,6 +25,8 @@ export type Block =
   | { type: "two-columns"; columns: [string, string] }
   | {
       type: "slideshow";
+      /** Lets other pages link straight to it (`/projects/this-site#sky`). */
+      id?: string;
       imageSide?: Side;
       slides: Slide[];
       image?: Photo;

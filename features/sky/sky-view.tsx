@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { InlineButton } from "@/components/inline-button";
@@ -16,6 +17,7 @@ import { preloadSkies, SkyEngine } from "./engine";
 import { useSky } from "./sky-provider";
 
 const SWIPE = 40;
+const MORE_INFO = "/projects/this-site#sky";
 
 function glass() {
   return document.querySelector<HTMLElement>("[data-window-glass]");
@@ -169,7 +171,7 @@ export function LookOutsideProvider({
           close();
         }}
         onClick={(e) => {
-          if (!(e.target as Element).closest("button")) close();
+          if (!(e.target as Element).closest("button, a")) close();
         }}
         onKeyDown={(e) => {
           if (e.key === "ArrowLeft") step(-1);
@@ -260,6 +262,21 @@ export function LookOutsideProvider({
             >
               Close
             </button>
+            <span aria-hidden="true" className="text-ink/40">
+              ·
+            </span>
+            {/* Replaces the entry the view added, so Back from there returns to the room. */}
+            <Link
+              href={MORE_INFO}
+              replace
+              onNavigate={() => {
+                inHistory.current = false;
+                close();
+              }}
+              className="hover:underline"
+            >
+              More info
+            </Link>
           </div>
         </div>
       </dialog>

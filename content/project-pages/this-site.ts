@@ -29,7 +29,7 @@ export const thisSite: ProjectPage = {
         alt: "Figma studies of the homepage intro in Inter, Switzer, Instrument Sans, and Switzer with Space Grotesk under dithered clouds",
         ratio: 1100 / 828,
       },
-      imageSide: "left",
+      imageSide: "right",
       paragraphs: [
         "I loved the idea of a house without wanting a literal one on the page. I was building a door animation for the links in my intro when I stacked the text line by line and noticed it happened to form the outline of a house. The outline stays untraced because drawing it took away the text's editorial feel. That house became the theme of the whole site and the structural center of the homepage.",
         "When the house took shape it felt only natural that the space above it was the sky. I love clouds and wanted the site's interactivity to live inside them. A clock and weather line at the top of every page ties that sky to live conditions in New York. Now drifting clouds reveal the house's untraced outline as they pass behind the text while the sun casts its shadow.",
@@ -38,6 +38,7 @@ export const thisSite: ProjectPage = {
     { type: "break" },
     {
       type: "slideshow",
+      id: "sky",
       image: {
         src: "/projects/this-site/cloud-scatter.webp",
         alt: "A close-up of a dithered front cloud on the homepage, with a hole where the cursor passed through and its dots pushed outward",
