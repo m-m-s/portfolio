@@ -5,6 +5,8 @@ export const thisSite: ProjectPage = {
   hosting: "Vercel",
   status: "Live at [maggiemshen.com](https://maggiemshen.com)",
   repo: "[github.com/m-m-s/portfolio](https://github.com/m-m-s/portfolio)",
+  accessibility:
+    "Keyboard navigation, reduced motion, screen-reader labels, WCAG AA contrast",
   builtWith:
     "Next.js, React, TypeScript, Tailwind, Canvas (Floyd–Steinberg dithering), Open-Meteo API, Figma, Claude Code",
   blocks: [

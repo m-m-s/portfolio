@@ -42,5 +42,6 @@ export type ProjectPage = {
   hosting?: string;
   status: string;
   repo: string;
+  accessibility: string;
   blocks: Block[];
 };
