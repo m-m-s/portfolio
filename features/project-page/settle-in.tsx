@@ -55,10 +55,10 @@ export function SettleIn({
   );
   if (!id) return settling;
 
-  // The anchor sits outside the settling block, so the browser measures it before the block rises into place.
+  // Outside the settling block, so a jump measures it before the block rises;
+  // half a screen above the block's middle, so the jump centers the block.
   return (
     <div className={`relative ${className ?? ""}`}>
-      {/* A jump to the anchor puts this at the top of the screen, which centers the block, or tops it when it's taller than the screen. */}
       <span
         id={id}
         className="pointer-events-none absolute top-[min(0px,calc(50%-50dvh))] left-0"

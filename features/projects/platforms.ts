@@ -96,12 +96,8 @@ export function staircase(
     s.bottom + (count - 1) * (s.backRise + s.step) + s.frontRise + s.backRise;
   // Across the room, to the empty step's near corner (plus a little), per unit of scale.
   const reach = s.cornerX + count * s.backWidth + EXTRA_STEP_INSET;
-  // The highest project's step stays in the lower 70% of the room; on desktop the
-  // steps take more of it (up to 80% at 1280px, back to 70% by 1920px).
   const maxRise =
     0.7 + 0.1 * progress(width, 1024, 1280) - 0.1 * progress(width, 1280, 1920);
-  // On the widest screens the staircase stops growing with the room (a quarter
-  // smaller by 2560px), so it doesn't look oversized there.
   const unit =
     Math.min(
       width,
@@ -114,9 +110,7 @@ export function staircase(
   const steps: Platform[] = [];
   const profile: Point[] = [];
   // Each step stands on the back edge of the one below, so the steps' sides
-  // always lie in one plane. Once shrunk, the staircase keeps to the right, and
-  // on the widest screens slides further right (up to 10% of the room by 2560px)
-  // so less of it shows and it doesn't look bulky.
+  // always lie in one plane.
   let corner: Point = [
     Math.max(0, width - unit * reach) +
       w(s.cornerX) +
