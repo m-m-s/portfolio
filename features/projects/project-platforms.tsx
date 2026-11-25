@@ -26,7 +26,7 @@ const LIFT_MS = 350;
 /** When the move to the chosen page starts, in ms after the click. The new page renders before the browser photographs the old one, so starting partway through lets that overlap the rise's slow last stretch. */
 const GO_MS = 150;
 /** How long the risen step holds before the crossfade, in ms. */
-const HOLD_MS = 150;
+const HOLD_MS = 50;
 /** The window's left edge, as a share of the room's width. */
 const WINDOW_LEFT = 0.1;
 const WINDOW_MIN_WIDTH = 100;
