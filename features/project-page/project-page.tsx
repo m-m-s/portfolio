@@ -123,14 +123,14 @@ export function ProjectPage({ href }: { href: string }) {
               key={i}
               id={block.type === "slideshow" ? block.id : undefined}
               order={i + 2}
-              className={`scroll-mt-20 ${
+              className={
                 i === 0
                   ? ""
                   : block.type === "break" ||
                       page.blocks[i - 1].type === "break"
                     ? nearLine
                     : betweenBlocks
-              }`}
+              }
             >
               <BlockView block={block} />
             </SettleIn>

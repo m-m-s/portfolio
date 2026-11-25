@@ -43,15 +43,27 @@ export function SettleIn({
     return () => observer.disconnect();
   }, []);
 
-  return (
+  const settling = (
     <div
       ref={ref}
-      id={id}
       data-settle={state}
       style={{ "--settle-order": order } as CSSProperties}
-      className={className}
+      className={id ? undefined : className}
     >
       {children}
+    </div>
+  );
+  if (!id) return settling;
+
+  // The anchor sits outside the settling block, so the browser measures it before the block rises into place.
+  return (
+    <div className={`relative ${className ?? ""}`}>
+      {/* A jump to the anchor puts this at the top of the screen, which centers the block, or tops it when it's taller than the screen. */}
+      <span
+        id={id}
+        className="pointer-events-none absolute top-[min(0px,calc(50%-50dvh))] left-0"
+      />
+      {settling}
     </div>
   );
 }
