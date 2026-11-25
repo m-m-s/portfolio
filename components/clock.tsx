@@ -29,8 +29,11 @@ export function Clock() {
   }, []);
 
   return (
-    <time className="whitespace-nowrap tabular-nums">
-      {time ?? <span className="invisible">00:00:00 PM ET</span>}
+    // Until the time is known its width is held by generated text, which isn't page text, so no false time is read.
+    <time
+      className={`whitespace-nowrap tabular-nums ${time ? "" : "before:invisible before:content-['00:00:00_PM_ET']"}`}
+    >
+      {time}
     </time>
   );
 }

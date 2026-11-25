@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { intro } from "@/content/home";
 import { useSky } from "@/features/sky/sky-provider";
@@ -186,26 +186,26 @@ function House({ shadow }: { shadow: HouseShadow | null }) {
         ref={heading}
         className="font-grotesk text-intro leading-tight whitespace-nowrap"
       >
-        {intro.map((line) => (
-          <span
-            key={line.map((part) => part.text).join("")}
-            data-line
-            className="block w-fit"
-          >
-            {line.map((part) =>
-              part.href ? (
-                <DoorLink
-                  key={part.text}
-                  href={part.href}
-                  className="font-sans font-bold"
-                >
-                  {part.text}
-                </DoorLink>
-              ) : (
-                part.text
-              ),
-            )}
-          </span>
+        {intro.map((line, i) => (
+          <Fragment key={line.map((part) => part.text).join("")}>
+            {/* Unrendered between blocks; it keeps the lines apart as text. */}
+            {i > 0 && " "}
+            <span data-line className="block w-fit">
+              {line.map((part) =>
+                part.href ? (
+                  <DoorLink
+                    key={part.text}
+                    href={part.href}
+                    className="font-sans font-bold"
+                  >
+                    {part.text}
+                  </DoorLink>
+                ) : (
+                  part.text
+                ),
+              )}
+            </span>
+          </Fragment>
         ))}
       </h1>
     </div>

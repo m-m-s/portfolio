@@ -82,9 +82,7 @@ export function DoorLink({
       }}
       {...rest}
     >
-      <span aria-hidden="true" className="door-frame">
-        {children}
-      </span>
+      <span aria-hidden="true" className="door-frame" />
       <span ref={door} data-door="" className="door-panel">
         {children}
       </span>
