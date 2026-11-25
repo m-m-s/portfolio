@@ -22,32 +22,20 @@ function Sun({ cx = 12, cy = 12, r = 4 }) {
   );
 }
 
+// The thinnest sliver drawn, so a new moon still shows.
 const NEW_MOON = 0.03;
 
 function MoonPhase({ moon, cx = 12, cy = 12, r = 6 }: { moon: Moon } & Disc) {
-  const rx = r * Math.abs(1 - 2 * moon.lit);
+  const shown = Math.max(moon.lit, NEW_MOON);
+  const rx = r * Math.abs(1 - 2 * shown);
   const top = `${cx} ${cy - r}`;
-  const lit = `M${top}A${r} ${r} 0 0 1 ${cx} ${cy + r}A${rx} ${r} 0 0 ${moon.lit > 0.5 ? 1 : 0} ${top}Z`;
+  const lit = `M${top}A${r} ${r} 0 0 1 ${cx} ${cy + r}A${rx} ${r} 0 0 ${shown > 0.5 ? 1 : 0} ${top}Z`;
   return (
-    <>
-      <circle
-        cx={cx}
-        cy={cy}
-        r={r}
-        fill="currentColor"
-        fillOpacity={0.15}
-        stroke="none"
-      />
-      {moon.lit > NEW_MOON && (
-        <path
-          d={lit}
-          fill="var(--color-page)"
-          transform={
-            moon.waxing ? undefined : `translate(${2 * cx} 0) scale(-1 1)`
-          }
-        />
-      )}
-    </>
+    <path
+      d={lit}
+      fill="var(--color-page)"
+      transform={moon.waxing ? undefined : `translate(${2 * cx} 0) scale(-1 1)`}
+    />
   );
 }
 
