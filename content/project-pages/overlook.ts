@@ -4,7 +4,7 @@ const screen = 1080 / 2210;
 
 export const overlook: ProjectPage = {
   platform: "Android",
-  status: "[COPY: Overlook status]",
+  status: "In progress",
   builtWith:
     "React Native, TypeScript, Supabase, Claude API, React Query, Claude Code",
   blocks: [
