@@ -139,16 +139,19 @@ export function ProjectPlatforms({ projects }: { projects: Project[] }) {
         ? LIFT.hover
         : 0);
 
-  /** Starts raising project i's step and, at the same time, the move to its page. */
+  /** Starts raising project i's step and, at the same time, the move to its page, which crossfades in as the step tops out. */
   const choose = (i: number) => {
     if (chosen !== null) return;
     setChosen(i);
     const box = room.current?.getBoundingClientRect();
     const at = shapes[i]?.label ?? [0, 0];
-    prepareNavigation(pathname, projects[i].href, {
-      x: (box?.left ?? 0) + at[0],
-      y: (box?.top ?? 0) + at[1],
-    });
+    const rises = !matchMedia("(prefers-reduced-motion: reduce)").matches;
+    prepareNavigation(
+      pathname,
+      projects[i].href,
+      { x: (box?.left ?? 0) + at[0], y: (box?.top ?? 0) + at[1] },
+      rises ? LIFT_MS : 0,
+    );
     router.push(projects[i].href, { transitionTypes: [ROOM_WALK] });
   };
 

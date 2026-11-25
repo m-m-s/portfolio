@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, ViewTransition } from "react";
 import { usePath } from "@/features/transitions/use-path";
-import { prepareNavigation, ROOM_WALK } from "./direction";
+import { prepareNavigation, ROOM_WALK, startReveal } from "./direction";
 
 export function RoomTransition({ children }: { children: React.ReactNode }) {
   const pathname = usePath();
@@ -38,6 +38,7 @@ export function RoomTransition({ children }: { children: React.ReactNode }) {
     <ViewTransition
       name="room"
       default={{ [ROOM_WALK]: "auto", default: "none" }}
+      onUpdate={startReveal}
     >
       <div data-room className="flex flex-1 flex-col">
         {children}
