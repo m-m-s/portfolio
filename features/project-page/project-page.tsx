@@ -8,7 +8,7 @@ import { SettleIn } from "./settle-in";
 import { Slideshow } from "./slideshow";
 import type { Block } from "./types";
 
-const betweenBlocks = "mt-12 sm:mt-16";
+const betweenBlocks = "mt-10 sm:mt-12";
 const nearLine = "mt-6 sm:mt-8";
 
 function BlockView({ block }: { block: Block }) {
