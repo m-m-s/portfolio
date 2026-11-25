@@ -56,8 +56,12 @@ function placeWindow(
   // from 1024px to 1440px so on desktop it doesn't outweigh the steps.
   const maxShare =
     roomWidth < 640 ? 0.45 : 0.4 - 0.12 * progress(roomWidth, 1024, 1440);
-  // Never taller than 55% of the room.
-  const max = Math.min(roomWidth * maxShare, 0.55 * roomHeight * shape.aspect);
+  // Never taller than 55% of the room, easing to 70% from 1280px to 1920px.
+  const tallest = 0.55 + 0.15 * progress(roomWidth, 1280, 1920);
+  const max = Math.min(
+    roomWidth * maxShare,
+    tallest * roomHeight * shape.aspect,
+  );
   // The top sits 15% of the way down to the step, rising to 7% from 1440px to
   // 2560px so it doesn't hang low on the widest screens.
   const drop = 0.15 - 0.08 * progress(roomWidth, 1440, 2560);
