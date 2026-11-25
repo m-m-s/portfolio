@@ -39,6 +39,8 @@ const Lane = ({ children }: { children: string }) => (
   </p>
 );
 
+const EVERY_STEP = ["scoring", "genres", "discovery", "letterboxd"];
+
 export function JoustingEngine({ active }: { active?: string }) {
   const at = { active };
   return (
@@ -48,7 +50,9 @@ export function JoustingEngine({ active }: { active?: string }) {
     >
       <Box
         title="Your filters"
-        detail="Genres, rating, runtime, years, language, keywords, cast and crew. Vetoed genres are left out."
+        detail="Genres, rating, runtime, years, language, keywords, cast and crew"
+        step={EVERY_STEP}
+        {...at}
       />
       <div className="grid grid-cols-2">
         <Arrow>↙</Arrow>
@@ -66,7 +70,7 @@ export function JoustingEngine({ active }: { active?: string }) {
           <Arrow />
           <Box
             title="TMDB’s first page of popular films + 3 random deeper pages"
-            detail="Films with under 200 votes are left out"
+            detail="Films with under 200 votes are excluded"
             step="discovery"
             {...at}
           />
@@ -89,7 +93,7 @@ export function JoustingEngine({ active }: { active?: string }) {
           <Arrow />
           <Box
             title="Match each title to TMDB"
-            detail="By title and year, then count the lists each film is on"
+            detail="By title and year"
             step="letterboxd"
             {...at}
           />
@@ -101,12 +105,12 @@ export function JoustingEngine({ active }: { active?: string }) {
       </div>
       <Box
         title="Filter and score every film"
-        detail="List films go through the same filters. Score: TMDB rating × each matching genre’s weight (Yes over Maybe) × +50% for every extra list it’s on"
-        step={["scoring", "genres", "discovery", "letterboxd"]}
+        detail="List films go through the same filters"
+        step={EVERY_STEP}
         {...at}
       />
       <Arrow />
-      <Box title="Ranked recommendations" />
+      <Box title="Ranked recommendations" step={EVERY_STEP} {...at} />
     </figure>
   );
 }
