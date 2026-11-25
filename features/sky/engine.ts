@@ -209,6 +209,7 @@ export class SkyEngine {
   private buildId = 0;
   private active = true;
   private interactive = true;
+  private still = matchMedia("(prefers-reduced-motion: reduce)").matches;
   private stoppedAt = 0;
   private resizeTimer: ReturnType<typeof setTimeout> | undefined;
   private readonly resizeObserver: ResizeObserver;
@@ -257,6 +258,13 @@ export class SkyEngine {
     document.addEventListener("visibilitychange", () => this.syncLoop(), {
       signal,
     });
+    matchMedia("(prefers-reduced-motion: reduce)").addEventListener(
+      "change",
+      (e) => {
+        this.still = e.matches;
+      },
+      { signal },
+    );
   }
 
   async show(sky: Sky, seed = randomSeed()) {
@@ -406,7 +414,8 @@ export class SkyEngine {
   // Only lines up when both skies were built from the same seed at the same size.
   matchDrift(other: SkyEngine) {
     const paused = !other.raf && other.stoppedAt;
-    const away = paused ? (performance.now() - other.stoppedAt) / 1000 : 0;
+    const away =
+      paused && !this.still ? (performance.now() - other.stoppedAt) / 1000 : 0;
     for (const name of ["mid", "front"] as const) {
       const mine = this.layers[name];
       const theirs = other.layers[name];
@@ -444,7 +453,7 @@ export class SkyEngine {
     const run = this.ready && this.active && !document.hidden;
     if (run && !this.raf) {
       const now = performance.now();
-      if (this.stoppedAt) {
+      if (this.stoppedAt && !this.still) {
         const away = (now - this.stoppedAt) / 1000;
         for (const L of Object.values(this.layers)) L.off += L.speed * away;
         if (this.farL) this.farL.off += this.farL.speed * away;
@@ -502,9 +511,10 @@ export class SkyEngine {
       ctx.clearRect(area.x, area.y, area.w, area.h);
     }
 
+    const move = this.still ? 0 : dt;
     const farL = this.farL;
     if (farL) {
-      farL.off += farL.speed * dt;
+      farL.off += farL.speed * move;
       const s = farL.sprite;
       const tile = tinted(s, farL.ink, false);
       const step = farStep(s);
@@ -543,15 +553,15 @@ export class SkyEngine {
         }
         if (seen) ctx.drawImage(tile, x, farL.y);
       }
-      this.emitFar(dt);
-      this.drawFarDrops(dt);
+      this.emitFar(move);
+      this.drawFarDrops(move);
     }
 
     for (const name of ["mid", "front"] as const) {
-      if (name === "front") this.drawDrops(dt);
+      if (name === "front") this.drawDrops(move);
       const L = this.layers[name];
       if (!L) continue;
-      L.off += L.speed * dt;
+      L.off += L.speed * move;
       for (const o of L.inst) {
         const s = o.sprite;
         let v = (o.x0 + L.off) % L.span;
@@ -562,7 +572,7 @@ export class SkyEngine {
           o.p = null;
           continue;
         }
-        this.emit(L, o, x, y, dt);
+        this.emit(L, o, x, y, move);
         const lx = this.px - x;
         const ly = this.py - y;
         const R = L.radius;
@@ -583,7 +593,7 @@ export class SkyEngine {
         if (seen) ctx.drawImage(tinted(s, L.ink, o.flip), x, y);
       }
     }
-    if (!this.layers.front) this.drawDrops(dt);
+    if (!this.layers.front) this.drawDrops(move);
   }
 
   private rnd() {

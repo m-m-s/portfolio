@@ -69,7 +69,7 @@ docs/design/         Figma exports and references
 ## Motion rules
 - Big room-to-room links swing open like doors, outward toward the viewer. Only the text swings. The swing is smooth, not floppy, and hover swings the word slightly ajar. The exception is the project names on Projects: their platforms rise instead (see docs/specs/projects.md).
 - Page transitions feel like a camera walking up to, into and out of rooms. Use the View Transitions API.
-- `prefers-reduced-motion`: page transitions and door swings become a simple fade. The sky keeps moving as normal.
+- `prefers-reduced-motion`: page transitions and door swings become a simple fade. The sky stands still, though its dots still scatter from the cursor.
 - Animations pause when the tab is hidden.
 
 ## Live NYC weather and time

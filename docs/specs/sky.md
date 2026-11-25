@@ -82,7 +82,7 @@ From the Sunny mock (24 Nov 2026). The loose placement is `LOOSE` in `constants.
 - Check it stays smooth on a mid-range phone in `/lab`.
 
 ## Reduced motion
-- The sky keeps moving as normal: drift, dot scatter, rain and snow. The mock freezes all of these for reduced motion; leave that out when porting.
+- The clouds stop drifting and the rain and snow hang still where they are. Dots still scatter from the cursor or a finger.
 
 ## Accessibility
 - The canvas is decorative (`aria-hidden`).
