@@ -10,7 +10,7 @@ export function HouseLogo() {
 
   return (
     // A wrapper, since a door's own position is relative.
-    <div className="fixed top-6 left-4 z-30 sm:top-8 sm:left-8 lg:top-10 lg:left-12 2xl:top-12 2xl:left-16">
+    <nav className="fixed top-6 left-4 z-30 sm:top-8 sm:left-8 lg:top-10 lg:left-12 2xl:top-12 2xl:left-16">
       <DoorLink href="/" aria-label="Home" className="door-house block w-fit">
         <svg
           viewBox="0 0 46 34"
@@ -20,6 +20,6 @@ export function HouseLogo() {
           <path className="fill-ink" d="M0 0H18V7H39L46 20V34H0Z" />
         </svg>
       </DoorLink>
-    </div>
+    </nav>
   );
 }

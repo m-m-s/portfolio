@@ -3,7 +3,7 @@
 One continuous gallery, images only.
 
 ## Layout
-- Shell: house logo, weather/clock line, footer.
+- Shell: house logo, weather/clock line, footer. A visually hidden "Photography" heading names the page for screen readers.
 - 3 rows of large photos with generous space between rows, every photo the same height within the page. Widths follow each photo's own shape (landscape, portrait, wide), so nothing gets cropped.
 - Rows come from a list in `content/`: each row is an ordered list of image files, shown in that order.
 - Photos show without labels or captions.

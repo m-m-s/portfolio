@@ -12,7 +12,7 @@ function Box({
   return (
     <div
       data-active={active && step ? [step].flat().includes(active) : undefined}
-      className="group border border-ink/30 bg-page px-2.5 py-2 font-grotesk text-[0.6875rem] leading-snug transition-[opacity,border-color] duration-(--slide-move) data-[active=false]:opacity-35 data-[active=true]:border-ink sm:text-xs"
+      className="group border border-ink/30 bg-page px-2.5 py-2 font-grotesk text-[0.6875rem] leading-snug transition-[opacity,border-color] duration-(--slide-move) data-[active=false]:opacity-60 data-[active=true]:border-ink sm:text-xs"
     >
       <p>{title}</p>
       {detail && (
@@ -42,7 +42,10 @@ const Lane = ({ children }: { children: string }) => (
 export function JoustingEngine({ active }: { active?: string }) {
   const at = { active };
   return (
-    <figure aria-label="How Film Jousting builds its recommendations: it searches TMDB, or your Letterboxd lists when you add one, then filters and scores every film">
+    <figure
+      role="img"
+      aria-label="How Film Jousting builds its recommendations: it searches TMDB, or your Letterboxd lists when you add one, then filters and scores every film"
+    >
       <Box
         title="Your filters"
         detail="Genres, rating, runtime, years, language, keywords, cast and crew. Vetoed genres are left out."

@@ -105,7 +105,7 @@ export function ProjectPage({ href }: { href: string }) {
           >
             {info.map(([label, value]) => (
               <div key={label}>
-                <dt className="font-grotesk text-xs tracking-wider text-ink/50 uppercase">
+                <dt className="font-grotesk text-xs tracking-wider text-ink/65 uppercase">
                   {label}
                 </dt>
                 <dd className="mt-1 text-sm">
