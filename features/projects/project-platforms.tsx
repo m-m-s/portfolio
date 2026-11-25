@@ -217,20 +217,13 @@ export function ProjectPlatforms({ projects }: { projects: Project[] }) {
         {/* Highest first, so each lower platform stands in front of the one above it. */}
         {shapes
           .map((shape, i) => (
-            // A project's whole step is part of its link for the pointer (the
-            // name stays the link for keyboards and screen readers).
             <g
               key={projects[i]?.href ?? `empty-${i}`}
               style={{
                 transform: `translateY(${-lift(i, shape.riser)}px)`,
                 transitionDuration: `${LIFT_MS}ms`,
               }}
-              {...(projects[i] && {
-                onMouseEnter: () => setHovered(i),
-                onMouseLeave: () => setHovered(null),
-                onClick: () => choose(i),
-              })}
-              className={`transition-transform ease-(--settle-ease) motion-reduce:transition-none ${projects[i] ? "pointer-events-auto cursor-pointer" : ""}`}
+              className="transition-transform ease-(--settle-ease) motion-reduce:transition-none"
             >
               <polygon
                 points={points(shape.side)}
@@ -247,19 +240,45 @@ export function ProjectPlatforms({ projects }: { projects: Project[] }) {
             </g>
           ))
           .reverse()}
+        {/* Each project's whole step is part of its link for the pointer (the
+            name stays the link for keyboards and screen readers). These stay
+            where the steps rest, so a lifting step never pulls its area out
+            from under the pointer. */}
+        {shapes
+          .slice(0, projects.length)
+          .map((shape, i) => (
+            // biome-ignore lint/a11y/noStaticElementInteractions: the name's link is the way in for keyboards and screen readers.
+            <g
+              key={projects[i].href}
+              onMouseEnter={() => setHovered(i)}
+              onMouseLeave={() => setHovered(null)}
+              onClick={() => choose(i)}
+              className="pointer-events-auto cursor-pointer fill-transparent"
+            >
+              <polygon points={points(shape.side)} />
+              <polygon points={points(shape.front)} />
+              <polygon points={points(shape.top)} />
+            </g>
+          ))
+          .reverse()}
       </svg>
       <ul>
         {projects.map((project, i) => {
           const at = shapes[i]?.label ?? [0, 0];
           return (
             // The item stays put and only its contents rise, so the area that
-            // counts as hovering doesn't slide out from under the pointer.
+            // counts as hovering doesn't slide out from under the pointer; a
+            // click on the part the label has risen out of still opens it.
+            // biome-ignore lint/a11y/useKeyWithClickEvents: the link inside is the keyboard's way in.
             <li
               key={project.href}
               style={{ left: at[0], top: at[1] }}
               onMouseEnter={() => setHovered(i)}
               onMouseLeave={() => setHovered(null)}
-              className="halo absolute -translate-x-1/2 -translate-y-full text-center whitespace-nowrap [--color-page:var(--color-platform-top)]"
+              onClick={(e) => {
+                if (!(e.target as Element).closest("a")) choose(i);
+              }}
+              className="halo absolute -translate-x-1/2 -translate-y-full cursor-pointer text-center whitespace-nowrap [--color-page:var(--color-platform-top)]"
             >
               <div
                 style={{
