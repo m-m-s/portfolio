@@ -47,7 +47,7 @@ The house logo and the weather/clock line sit in the top corners, and the footer
 
 ## Footer
 
-Text links, written out: `Email   LinkedIn   GitHub`, 3.6em apart. Typeface: Space Grotesk regular.
+Text links, written out: `Email   LinkedIn   GitHub`, 1.8em apart on a phone and 3.6em from 640px. Typeface: Space Grotesk regular.
 
 - Email → `mailto:maggiemshen@gmail.com`
 - LinkedIn → https://www.linkedin.com/in/shenmaggie/
