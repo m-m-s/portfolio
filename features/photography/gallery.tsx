@@ -123,10 +123,7 @@ export function Gallery({ rows }: { rows: Photo[][] }) {
             className="row-in"
             style={{ "--row-from": r % 2 ? 1 : -1 } as React.CSSProperties}
           >
-            <div
-              data-row={r % 2 ? -1 : 1}
-              className="touch-pan-y overflow-x-clip select-none"
-            >
+            <div data-row className="touch-pan-y overflow-x-clip select-none">
               <div data-track className="flex gap-3 px-4 sm:gap-4 sm:px-8">
                 {row.map((photo, p) => (
                   <button
