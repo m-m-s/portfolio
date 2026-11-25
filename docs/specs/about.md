@@ -50,6 +50,7 @@ Clicking [weather] shows off the sky system: the window becomes a full-size view
 - The angle, eye height and frame sizes are constants at the top of `components/window.tsx`; the bezel color is the `bevel` token, and the sill's is `sill`, a lit version of the page color, so it matches any wall the window is on.
 - Through the panes you see the live NYC sky: the site's one shared sky, showing the part that's behind the window on screen (see sky.md). For it to show clouds, the window sits in the top part of the page.
 - The sky through the panes isn't skewed by the angle: it's far away, so it looks the same as it would straight on, like a real window.
+- A small `↑ Look out the window` sits under the window from 640px (Space Grotesk, extra small, 65% ink; `LookOutsideHint` in `components/look-outside-hint.tsx`). It's a button that opens Look outside, so it works on touch too, and it lies along the wall: sheared to the slope of the wall's level lines at its height (`wallSlant` in `components/window.tsx`). Hovering it lights the window as hovering the window does; the words don't change. On a phone, where the window sits behind the heading, it's left out.
 - The clouds drift as usual. The window is view-only: the dots stay put under the cursor.
 
 ## Light on the floor

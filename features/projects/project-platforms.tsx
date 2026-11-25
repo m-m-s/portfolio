@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLayoutEffect, useRef, useState } from "react";
+import { LookOutsideHint } from "@/components/look-outside-hint";
 import { turnForSlope, Window, windowShape } from "@/components/window";
 import type { Project } from "@/content/projects";
 import { prepareNavigation, ROOM_WALK } from "@/features/transitions/direction";
@@ -19,6 +20,8 @@ import {
 const WINDOW_EYE = 0;
 /** Past this the window would turn to a sliver (on a phone the steps' sides recede very steeply). */
 const MAX_WINDOW_TURN = 45;
+/** Where the Look outside hint sits beside the window, as a share of the window's height. */
+const HINT_AT = 0.25;
 /** How far a step rises, as shares of its riser: a little on hover or focus, most of the way when chosen. */
 const LIFT = { hover: 0.15, chosen: 0.7 };
 /** How long a step takes to rise, in ms. */
@@ -182,6 +185,7 @@ export function ProjectPlatforms({ projects }: { projects: Project[] }) {
       {placed && (
         // In the plane of the steps' sides: its foot rises to the right like their edges.
         <div
+          data-window-group
           style={{ left: placed.left, top: placed.top, width: placed.width }}
           className="absolute"
         >
@@ -191,6 +195,15 @@ export function ProjectPlatforms({ projects }: { projects: Project[] }) {
             turn={turn}
             // The sky as if the window hung a tenth of its height higher, so more of the clouds are in it.
             skyDrop={0.1}
+          />
+          <LookOutsideHint
+            arrow="←"
+            turn={turn}
+            at={HINT_AT}
+            eye={WINDOW_EYE}
+            flip
+            style={{ top: `${HINT_AT * 100}%` }}
+            className="absolute left-full ml-4"
           />
         </div>
       )}

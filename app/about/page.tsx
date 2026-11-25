@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { FoodMapButton } from "@/components/food-map";
+import { LookOutsideHint } from "@/components/look-outside-hint";
 import { Window } from "@/components/window";
 import { type AboutPart, aboutHeading, aboutParagraphs } from "@/content/about";
 import { LookOutsideButton } from "@/features/sky/sky-view";
 
 export const metadata: Metadata = { title: "About" };
+
+const WINDOW_TURN = 24;
 
 function Part({ part, tail }: { part: AboutPart; tail: string }) {
   if (typeof part === "string") return part;
@@ -57,12 +60,23 @@ export default function About() {
       <h1 className="max-sm:halo self-end pt-40 text-4xl font-bold sm:pt-0 sm:text-5xl lg:pt-16 2xl:pt-24">
         {aboutHeading}
       </h1>
-      <Window
-        floorLight
-        turn={24}
-        wide={130}
-        className="w-60 max-sm:absolute max-sm:top-4 max-sm:right-4 max-sm:-z-10 sm:row-span-2 sm:row-start-1 sm:col-start-2 sm:-mt-12 sm:w-56 sm:justify-self-center 2xl:h-[26.25rem] 2xl:w-auto"
-      />
+      <div
+        data-window-group
+        className="relative w-60 max-sm:absolute max-sm:top-4 max-sm:right-4 max-sm:-z-10 sm:row-span-2 sm:row-start-1 sm:col-start-2 sm:-mt-12 sm:w-56 sm:self-start sm:justify-self-center 2xl:w-auto"
+      >
+        <Window
+          floorLight
+          turn={WINDOW_TURN}
+          wide={130}
+          className="w-full 2xl:h-[26.25rem] 2xl:w-auto"
+        />
+        <LookOutsideHint
+          arrow="↑"
+          turn={WINDOW_TURN}
+          at={1.1}
+          className="absolute top-full left-1/2 mt-6 -translate-x-1/2 max-sm:hidden"
+        />
+      </div>
       <div className="max-sm:halo mt-6 space-y-[1.5em]">
         {aboutParagraphs.map((paragraph) => (
           <p

@@ -591,7 +591,8 @@ dialog:focus-visible {
   [data-window-glass] {
     transition: filter var(--door-hover) ease;
   }
-  [data-window]:hover [data-window-glass] {
+  [data-window]:hover [data-window-glass],
+  [data-window-group]:has([data-look-hint]:hover) [data-window-glass] {
     filter: brightness(1.04);
   }
 }

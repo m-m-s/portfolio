@@ -173,6 +173,14 @@ function geometryFor(turn: number, eye: number, width = W) {
   return g;
 }
 
+/** The angle, in degrees, of the wall's level lines at `at` of the window's height (0 its top, 1 its foot, beyond 1 below it). */
+export function wallSlant(turn: number, at: number, eye = EYE, flip = false) {
+  const project = projector(turn, eye);
+  const [a, b] = [project([0, at * H]), project([W, at * H])];
+  const slope = (b[1] - a[1]) / (b[0] - a[0]);
+  return (Math.atan(flip ? -slope : slope) * 180) / Math.PI;
+}
+
 export function windowShape(turn: number, eye = EYE, flip = false) {
   const g = geometryFor(turn, eye);
   const [a, b] = (flip ? g.mirrored : g.plain).sillTop.slice(2);
