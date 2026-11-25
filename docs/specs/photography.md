@@ -4,7 +4,7 @@ One continuous gallery, images only.
 
 ## Layout
 - Shell: house logo, weather/clock line, footer. A visually hidden "Photography" heading names the page for screen readers.
-- Rows of large photos (as many as the file names give) with generous space between rows, every photo the same height within the page. Widths follow each photo's own shape (landscape, portrait, wide), so nothing gets cropped.
+- Rows of large photos (as many as the file names give) with space between rows (2rem, 3rem from 640px), every photo the same height within the page. Widths follow each photo's own shape (landscape, portrait, wide), so nothing gets cropped.
 - Rows come from a list in `content/`: each row is an ordered list of image files, shown in that order.
 - Photos show without labels or captions.
 - The page is light, like every other room.
@@ -38,7 +38,8 @@ One continuous gallery, images only.
 - Reduced motion: no grow or slide; photos fade in as they change.
 
 ## Performance
-- Photos use `next/image`'s default lazy loading: on-screen photos load right away, the rest as they come within a screen or two of view (down the page or along a row). No photo is marked `preload`; once the real photos are in, decide whether the first one should be.
+- Gallery photos load lazily (`next/image`), except the first three of the top row (`FIRST_SEEN`), which are on screen as the page opens and load straight away.
+- The slideshow asks for a photo no wider than it can show it (fitting the screen, so a portrait photo is narrow), not the whole screen's width. It opens on the row's copy of the photo, already loaded, and the sharper one replaces it as it arrives. The photos either side load while one is shown, and resting the pointer on a gallery photo starts loading its slideshow size, so opening and stepping find them ready.
 - Rows move with CSS transforms only, so the page stays smooth with many photos.
 
 ## Done when

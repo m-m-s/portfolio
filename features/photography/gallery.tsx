@@ -1,7 +1,7 @@
 "use client";
 
-import Image from "next/image";
-import { useMemo, useRef, useState } from "react";
+import Image, { getImageProps } from "next/image";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import type { Photo } from "@/content/photography";
 import { scopedTransition } from "@/features/transitions/scoped-transition";
@@ -12,15 +12,38 @@ const SWIPE = 40;
 const WHEEL_REST = 150;
 /** How long the pointer rests on one photo before the others dim, in ms. */
 const HOVER_REST = 300;
+/** The top row's photos on screen as the page opens, loaded straight away rather than lazily. */
+const FIRST_SEEN = 3;
+const ROW_SIZES = "(min-width: 1024px) 50rem, (min-width: 640px) 36rem, 25rem";
+
+/** No wider than the slideshow can show it: fitting the screen, a portrait photo is narrow. */
+const slideSizes = (ratio: number) =>
+  `${Math.round(Math.min(innerWidth, innerHeight * ratio))}px`;
+
+function preload(photo: Photo, sizes: string) {
+  if (!photo.src) return;
+  const { props } = getImageProps({
+    src: photo.src,
+    alt: "",
+    fill: true,
+    sizes,
+  });
+  const img = new window.Image();
+  img.sizes = props.sizes ?? sizes;
+  img.srcset = props.srcSet ?? "";
+  img.src = props.src;
+}
 
 function PhotoFill({
   photo,
   shade,
   sizes,
+  eager = false,
 }: {
   photo: Photo;
   shade: string;
   sizes: string;
+  eager?: boolean;
 }) {
   return photo.src ? (
     <Image
@@ -28,6 +51,7 @@ function PhotoFill({
       alt={photo.alt}
       fill
       sizes={sizes}
+      loading={eager ? "eager" : "lazy"}
       className="object-cover"
     />
   ) : (
@@ -72,6 +96,8 @@ export function Gallery({ rows }: { rows: Photo[][] }) {
     if (photo) {
       rest.current.timer = window.setTimeout(() => {
         box.dataset.resting = "";
+        const place = places[Number((photo as HTMLElement).dataset.photo)];
+        if (place) preload(place.photo, slideSizes(place.photo.ratio));
       }, HOVER_REST);
     }
   };
@@ -134,6 +160,16 @@ export function Gallery({ rows }: { rows: Photo[][] }) {
 
   const current = open ? places[open.at] : null;
 
+  // The photos either side load while one is shown, so stepping finds them ready.
+  useEffect(() => {
+    if (!open) return;
+    for (const by of [-1, 1]) {
+      const next = places[(open.at + by + places.length) % places.length];
+      preload(next.photo, ROW_SIZES);
+      preload(next.photo, slideSizes(next.photo.ratio));
+    }
+  }, [open, places]);
+
   return (
     <>
       <div
@@ -145,7 +181,7 @@ export function Gallery({ rows }: { rows: Photo[][] }) {
           }
         }}
         onPointerLeave={() => pointAt(null)}
-        className="space-y-10 sm:space-y-20"
+        className="space-y-8 sm:space-y-12"
       >
         {rows.map((row, r) => (
           <div
@@ -169,7 +205,8 @@ export function Gallery({ rows }: { rows: Photo[][] }) {
                     <PhotoFill
                       photo={photo}
                       shade={shade(r, p)}
-                      sizes="(min-width: 1024px) 50rem, (min-width: 640px) 36rem, 25rem"
+                      sizes={ROW_SIZES}
+                      eager={r === 0 && p < FIRST_SEEN}
                     />
                   </button>
                 ))}
@@ -232,10 +269,22 @@ export function Gallery({ rows }: { rows: Photo[][] }) {
                 }}
                 className={`pointer-events-auto relative ${open.stepped ? "photo-fade" : ""}`}
               >
+                {current.photo.src && (
+                  // The row's copy, already loaded, shows until the sharper one arrives.
+                  <Image
+                    src={current.photo.src}
+                    alt=""
+                    fill
+                    sizes={ROW_SIZES}
+                    loading="eager"
+                    className="object-cover"
+                  />
+                )}
                 <PhotoFill
                   photo={current.photo}
                   shade={shade(current.row, current.inRow)}
-                  sizes="90vw"
+                  sizes={slideSizes(current.photo.ratio)}
+                  eager
                 />
               </div>
             </div>
