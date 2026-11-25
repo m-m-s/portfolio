@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLayoutEffect, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import { LookOutsideHint } from "@/components/look-outside-hint";
 import { turnForSlope, Window, windowShape } from "@/components/window";
 import type { Project } from "@/content/projects";
@@ -116,7 +117,9 @@ export function ProjectPlatforms({ projects }: { projects: Project[] }) {
     const measure = () =>
       setSize({ width: el.clientWidth, height: el.clientHeight });
     measure();
-    const observer = new ResizeObserver(measure);
+    // Redrawn before paint: for a frame, the old, larger steps would hang below
+    // the footer and lengthen the page.
+    const observer = new ResizeObserver(() => flushSync(measure));
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
