@@ -38,7 +38,7 @@ export const overlook: ProjectPage = {
     {
       type: "text",
       paragraphs: [
-        `Pinterest is the closest thing I’d found to what I needed, but it relies on static albums and doesn’t organize with the depth and responsivity I wanted. Using it for my screenshots would mean uploading every one by hand. Even the “pins” I already save there tend to get lost.`,
+        `Pinterest is the closest thing I’d found to what I needed, but it relies on static albums and doesn’t organize with the depth and responsiveness I wanted. Using it for my screenshots would mean uploading every one by hand. Even the “pins” I already save there tend to get lost.`,
         "Overlook solves this with **an extensive tagging system that’s fully searchable** and connects every image into one complete database. Every image sits in broad categories and carries its own niche details.",
       ],
     },
