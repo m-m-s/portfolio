@@ -49,7 +49,7 @@ The shadow is on the homepage around the clock: the sun casts it by day and the 
 
 ## Load
 - A fresh visit plays the walk-up: the house comes into view from far away (see shell.md).
-- The idle door swings start 10 seconds after the page opens (see shell.md).
+- The first idle door swing comes just after the house settles (see shell.md).
 
 ## Done when
 - The intro keeps its five lines and house shape from a small phone to a wide screen, with "Product Engineer" on one line.

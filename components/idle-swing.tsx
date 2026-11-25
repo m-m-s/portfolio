@@ -2,7 +2,8 @@
 
 import { useEffect, useRef } from "react";
 
-const FIRST_WAIT = 3_500;
+/** After the house has settled from its walk-up, in ms. */
+const FIRST_PAUSE = 300;
 const LATER_WAIT = 30_000;
 const ACTIVITY = ["pointermove", "pointerdown", "keydown", "scroll", "wheel"];
 
@@ -19,13 +20,16 @@ export function IdleSwing({ children }: { children: React.ReactNode }) {
       0,
       doors.findIndex((d) => d.closest('a[href="/projects"]')),
     );
-    let wait = FIRST_WAIT;
+    let wait = FIRST_PAUSE;
     let timer: ReturnType<typeof setTimeout>;
+    let gone = false;
+    let settled = false;
 
     const nudge = () => {
       const door = doors[next];
       const hovering = root.querySelector(".door:hover");
-      if (document.hidden || hovering || door.dataset.door) return restart();
+      if (document.hidden) return;
+      if (hovering || door.dataset.door) return restart();
       next = (next + 1) % doors.length;
       wait = LATER_WAIT;
       door.dataset.door = "nudge";
@@ -42,17 +46,32 @@ export function IdleSwing({ children }: { children: React.ReactNode }) {
       clearTimeout(timer);
       timer = setTimeout(nudge, wait);
     };
+    // Activity only holds off the later swings: the first comes as the house settles.
+    const onActivity = () => {
+      if (wait === LATER_WAIT) restart();
+    };
 
     for (const type of ACTIVITY) {
-      window.addEventListener(type, restart, { passive: true });
+      window.addEventListener(type, onActivity, { passive: true });
     }
-    document.addEventListener("visibilitychange", restart);
-    restart();
+    const onShown = () => {
+      if (settled && !document.hidden) restart();
+    };
+    document.addEventListener("visibilitychange", onShown);
+    // A fresh load walks the house up; arriving from another room, it's already in place.
+    const walkUp = root.closest(".walk-up")?.getAnimations()[0];
+    (walkUp?.finished ?? Promise.resolve())
+      .catch(() => {})
+      .then(() => {
+        settled = true;
+        if (!gone) restart();
+      });
 
     return () => {
+      gone = true;
       clearTimeout(timer);
-      for (const type of ACTIVITY) window.removeEventListener(type, restart);
-      document.removeEventListener("visibilitychange", restart);
+      for (const type of ACTIVITY) window.removeEventListener(type, onActivity);
+      document.removeEventListener("visibilitychange", onShown);
     };
   }, []);
 
