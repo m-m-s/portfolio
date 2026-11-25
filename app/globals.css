@@ -493,11 +493,18 @@ html[data-nav] [data-settle="opening"] {
   );
 }
 
-html[data-nav="across"]::view-transition-old(room),
+/* Between project pages the room isn't its own layer: its picture would be
+   pinned to the new page's top and show the old page's top, not what was on
+   screen. Left in the page's own picture, the old page fades as it was seen. */
+html[data-nav="across"] [data-room] {
+  /* biome-ignore lint/complexity/noImportantStyles: React sets the name inline. */
+  view-transition-name: none !important;
+}
+html[data-nav="across"]::view-transition-old(root),
 html[data-nav="across"]::view-transition-image-pair(door) {
   animation: leave-fade var(--crossfade) linear both;
 }
-html[data-nav="across"]::view-transition-new(room) {
+html[data-nav="across"]::view-transition-new(root) {
   animation: none;
 }
 html[data-nav="across"] [data-settle="opening"] {
