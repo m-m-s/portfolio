@@ -18,14 +18,14 @@ One continuous gallery, images only.
 ## Built so far
 - Rows (`features/photography/gallery.tsx`, data in `content/photography.ts`) are endless loops, moved by script rather than native scrolling. Rows are 14rem tall on a phone, 20rem from 640px, and 28rem (at most 60% of the screen's height) from 1024px, with 2.5rem between rows on a phone and 5rem from 640px. Placeholder grays are the `photo-1` to `photo-3` theme tokens.
 - The slideshow is a native `<dialog>`; its grow and slide are view transitions (`photoMotion` in `gallery.tsx`, styles under `data-photo-motion` in `app/globals.css`, timing `--photo-grow`, 450ms). See Slideshow.
-- Row motion (`features/photography/row-motion.ts`, slide-in in `app/globals.css`): see Motion. Tuning: `--row-slide` (1.6s), `--row-ease` and `--row-slide-distance` (100vw) in CSS; scroll travel, edge and fling constants at the top of `row-motion.ts`.
+- Row motion (`features/photography/row-motion.ts`, slide-in in `app/globals.css`): see Motion. Tuning: `--row-slide` (1.6s), `--row-ease` and `--row-slide-distance` (100vw) in CSS; edge and fling constants at the top of `row-motion.ts`.
 
 ## Motion
 - Each row is an endless loop: after its last photo the first comes round again, with the usual gap, so scrolling a row never hits an end. Each photo is a single element; a photo that leaves one end is moved to the other, so the page holds no copies. A row has to be wider than the screen plus its widest photo for the loop to stay seamless (even 7 photos are, at 2560px).
-- Rows slide in from alternating sides (left, right, left…), starting fully off screen, and keep moving in that direction while slowing to a stop, as one continuous motion with no pause. All rows arrive at the same time, with no stagger and no fade: the blank space a row leaves as it comes in is on purpose. Arriving through a room transition, the slide waits until the room is revealed (`--settle-delay`), out of sight.
-- Rows travel with the page: scrolling down moves each row along in its own direction (0.4px per px of scroll, `SCROLL_TRAVEL`), scrolling up moves it back, and when scrolling stops they stop. Nothing springs back. (An earlier drift pushed rows aside with each scroll and eased them back, which read as a jiggle on phones.)
+- Rows slide in from alternating sides (left, right, left…), starting fully off screen, and keep moving in that direction while slowing to a stop, as one continuous motion with no pause. All rows arrive at the same time, with no stagger and no fade: the blank space a row leaves as it comes in is on purpose. Arriving through a room transition, the slide waits until the old page is gone (`--arrive`), out of sight.
+- Scrolling the page up and down never moves the rows sideways.
 - Rows move sideways with a finger swipe, a mouse drag or a sideways trackpad swipe, and keep gliding a little when let go; a drag never opens a photo. An up-and-down swipe scrolls the page as usual. With a mouse, hovering the left or right edge of the screen (12% of its width) over a row moves that row that way, faster nearer the edge; not while the slideshow is open. Tabbing to a photo brings it into view.
-- Reduced motion: rows appear in place, with no slide-in or scroll travel. Swiping, dragging and edge hover still work.
+- Reduced motion: rows appear in place, with no slide-in. Swiping, dragging and edge hover still work.
 - With a mouse, hovering a photo dims the others (`--photo-hover-dim`, 0.6) so the one under the pointer stands out.
 
 ## Slideshow

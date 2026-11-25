@@ -1,6 +1,5 @@
 import { type RefObject, useEffect } from "react";
 
-const SCROLL_TRAVEL = 0.4;
 const EDGE = 0.12;
 const EDGE_SPEED = 900;
 const DRAG_SLOP = 6;
@@ -10,7 +9,6 @@ type Row = {
   el: HTMLElement;
   track: HTMLElement;
   photos: HTMLElement[];
-  dir: number;
   offset: number;
   fling: number;
   ends: number[];
@@ -44,7 +42,6 @@ export function useRowMotion(container: RefObject<HTMLElement | null>) {
           el,
           track,
           photos: [...track.children] as HTMLElement[],
-          dir: Number(el.dataset.row),
           offset: 0,
           fling: 0,
           ends: [],
@@ -54,12 +51,10 @@ export function useRowMotion(container: RefObject<HTMLElement | null>) {
         },
       ];
     });
-    const still = matchMedia("(prefers-reduced-motion: reduce)");
     const mouse = matchMedia("(hover: hover) and (pointer: fine)");
 
     let raf = 0;
     let last = 0;
-    let scrollY = window.scrollY;
     let pointer: { x: number; y: number } | null = null;
     let drag: Drag | null = null;
     let swallowClick = false;
@@ -138,14 +133,6 @@ export function useRowMotion(container: RefObject<HTMLElement | null>) {
       if (raf) return;
       last = performance.now();
       raf = requestAnimationFrame(frame);
-    };
-
-    const onScroll = () => {
-      const dy = window.scrollY - scrollY;
-      scrollY = window.scrollY;
-      if (still.matches) return;
-      for (const row of rows) row.offset -= row.dir * dy * SCROLL_TRAVEL;
-      wake();
     };
 
     const onPointerDown = (e: PointerEvent) => {
@@ -256,7 +243,6 @@ export function useRowMotion(container: RefObject<HTMLElement | null>) {
 
     const abort = new AbortController();
     const opts = { signal: abort.signal, passive: true };
-    window.addEventListener("scroll", onScroll, opts);
     window.addEventListener("pointermove", onPointerMove, opts);
     window.addEventListener("pointerup", onPointerUp, opts);
     window.addEventListener("pointercancel", onPointerCancel, opts);
