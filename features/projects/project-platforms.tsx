@@ -21,7 +21,7 @@ const WINDOW_EYE = 0;
 /** Past this the window would turn to a sliver (on a phone the steps' sides recede very steeply). */
 const MAX_WINDOW_TURN = 45;
 /** Where the Look outside hint sits beside the window, as a share of the window's height. */
-const HINT_AT = 0.25;
+const HINT_AT = 0;
 /** How far a step rises, as shares of its riser: a little on hover or focus, most of the way when chosen. */
 const LIFT = { hover: 0.15, chosen: 0.7 };
 /** How long a step takes to rise, in ms. */
