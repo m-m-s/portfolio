@@ -12,7 +12,7 @@ export const filmJousting: ProjectPage = {
       type: "image",
       image: {
         src: "/projects/film-jousting/search-page.webp",
-        alt: "Film Jousting's search page: jousting knights over a vine border, the filters, a Letterboxd search box and the Discover and Joust buttons",
+        alt: "Film Jousting’s search page: jousting knights over a vine border, the filters, a Letterboxd search box, and the Discover and Joust buttons",
         ratio: 16 / 9,
       },
     },
@@ -67,7 +67,7 @@ export const filmJousting: ProjectPage = {
       type: "text",
       paragraphs: [
         "**I wanted users to have as much control over their search as possible.** I chose TMDB as the most extensive movie database with a free API and built a filter for everything its search allows. Each filter starts on a default I picked as my recommendation. Anyone can hit Discover straight away and get good results, while anyone who wants more control can open a filter and change it. All that control makes Film Jousting’s UI essentially a long list of buttons and dropdowns.",
-        "How do you make that look good? To match the jousting tournament, I wanted the page to look like a medieval manuscript. I sourced illustrations of knights, heraldic crests and vine borders and built a custom UI around what I collected. Instead of boxes and dropdown arrows, each filter is a heading with its current setting written underneath. Two vine borders frame the filters as one section. I made the Discover and Joust buttons by laying the site’s font over illustrations of a ship and a knight. Custom UI let me build onto the page like a painting.",
+        "How do you make that look good? To match the jousting tournament, I wanted the page to look like a medieval manuscript. I sourced illustrations of knights, heraldic crests, and vine borders and built a custom UI around what I collected. Instead of boxes and dropdown arrows, each filter is a heading with its current setting written underneath. Two vine borders frame the filters as one section. I made the Discover and Joust buttons by laying the site’s font over illustrations of a ship and a knight. Custom UI let me build onto the page like a painting.",
       ],
     },
     { type: "break" },
@@ -101,7 +101,7 @@ export const filmJousting: ProjectPage = {
           title: "Letterboxd scraping",
           step: "letterboxd",
           paragraphs: [
-            "I planned for Letterboxd lists from the start because that’s where many film enthusiasts track and gather the movies they want to watch. Letterboxd has no open API, so the Film Jousting server scrapes each list with Cheerio and follows its pages to the end. It then matches every title to TMDB by title and year to pull in the rating and genres the scoring engine needs. The server accepts a username, a list URL or a boxd.it short link.",
+            "I planned for Letterboxd lists from the start because that’s where many film enthusiasts track and gather the movies they want to watch. Letterboxd has no open API, so the Film Jousting server scrapes each list with Cheerio and follows its pages to the end. It then matches every title to TMDB by title and year to pull in the rating and genres the scoring engine needs. The server accepts a username, a list URL, or a boxd.it short link.",
           ],
         },
       ],

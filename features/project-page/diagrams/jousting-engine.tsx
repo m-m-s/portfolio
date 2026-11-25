@@ -50,7 +50,7 @@ export function JoustingEngine({ active }: { active?: string }) {
     >
       <Box
         title="Your filters"
-        detail="Genres, rating, runtime, years, language, keywords, cast and crew"
+        detail="Genres, rating, runtime, years, language, keywords, and cast and crew"
         step={EVERY_STEP}
         {...at}
       />
@@ -78,8 +78,8 @@ export function JoustingEngine({ active }: { active?: string }) {
         <div>
           <Lane>With a Letterboxd list</Lane>
           <Box
-            title="Username, list URL or boxd.it link"
-            detail="Usernames become watchlists, short links are followed, URLs are trimmed to the list"
+            title="Username, list URL, or boxd.it link"
+            detail="Usernames become watchlists, short links are followed, and URLs are trimmed to the list"
             step="letterboxd"
             {...at}
           />

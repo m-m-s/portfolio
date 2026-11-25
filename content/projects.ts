@@ -20,6 +20,6 @@ export const projects: Project[] = [
   {
     name: "This site",
     href: "/projects/this-site",
-    tagline: "The portfolio you're in right now",
+    tagline: "The portfolio you’re in right now",
   },
 ];
