@@ -11,7 +11,7 @@ const GRAYS = ["bg-photo-1", "bg-photo-2", "bg-photo-3"];
 const SWIPE = 40;
 const WHEEL_REST = 150;
 /** How long the pointer rests on one photo before the others dim, in ms. */
-const HOVER_REST = 300;
+const HOVER_REST = 1000;
 /** The top row's photos on screen as the page opens, loaded straight away rather than lazily. */
 const FIRST_SEEN = 3;
 const ROW_SIZES = "(min-width: 1024px) 50rem, (min-width: 640px) 36rem, 25rem";
