@@ -55,7 +55,7 @@ export function LiveCloud({
     >
       <canvas
         ref={canvas}
-        className={`absolute inset-0 block h-full w-full touch-pan-y transition-opacity duration-500 ${ready ? "opacity-100" : "opacity-0"}`}
+        className={`absolute inset-0 block h-full w-full touch-pinch-zoom transition-opacity duration-500 ${ready ? "opacity-100" : "opacity-0"}`}
       />
     </div>
   );
