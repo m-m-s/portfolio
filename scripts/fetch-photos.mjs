@@ -2,6 +2,8 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { get, list } from "@vercel/blob";
 import sharp from "sharp";
 
+// next/image's largest default size.
+const LARGEST = 3840;
 const token = process.env.PHOTOS_READ_WRITE_TOKEN;
 const storeId = process.env.PHOTOS_STORE_ID;
 // Without the store (a local build), the gallery shows its placeholders.
@@ -40,16 +42,25 @@ if (token || storeId) {
       process.exit(1);
     }
     const bytes = new Uint8Array(await new Response(got.stream).arrayBuffer());
-    await writeFile(new URL(file, dir), bytes);
-    // Phone photos often store their turn in EXIF; the displayed shape is after it.
-    const { width, height, orientation } = await sharp(bytes).metadata();
-    const turned = orientation >= 5;
+    // Turned upright from the EXIF turn phone photos carry, and no bigger than
+    // next/image ever serves, so the deployment doesn't carry camera originals.
+    const image = sharp(bytes);
+    const { format } = await image.metadata();
+    image.rotate().resize({
+      width: LARGEST,
+      height: LARGEST,
+      fit: "inside",
+      withoutEnlargement: true,
+    });
+    if (format === "jpeg") image.jpeg({ quality: 90 });
+    const { data, info } = await image.toBuffer({ resolveWithObject: true });
+    await writeFile(new URL(file, dir), data);
     photos.push({
       file,
       row: Number(row),
       position: Number(position),
-      width: turned ? height : width,
-      height: turned ? width : height,
+      width: info.width,
+      height: info.height,
     });
   }
 

@@ -12,7 +12,7 @@ One continuous gallery, images only.
 ## Photos
 - The photos live in a Vercel Blob store connected to the project with the prefix `PHOTOS`, so builds on Vercel get `PHOTOS_READ_WRITE_TOKEN`. They aren't in the repo.
 - Each file name starts with its row and its place in that row: `r1-03-bridge.jpg` is the third photo in row 1 (anything before the row number is ignored). A build stops with an error naming any photo without them.
-- Before each build, `scripts/fetch-photos.mjs` downloads the photos into `public/photography/` (git-ignored) and writes each one's row, place and shape (after its EXIF rotation) to `features/photography/photos.json`, which `galleryRows()` in `features/photography/photos.ts` turns into rows. Public and private stores both work.
+- Before each build, `scripts/fetch-photos.mjs` downloads the photos into `public/photography/` (git-ignored), turned upright and no larger than 3840px (next/image's largest size), and writes each one's row, place and shape to `features/photography/photos.json`, which `galleryRows()` in `features/photography/photos.ts` turns into rows. Public and private stores both work.
 - Alt text is copy: `photoAlts` in `content/photography.ts`, keyed by file name. A photo without one shows `[COPY: alt for …]`.
 - Where a build has no store (a local build), `photos.json` stays empty and the gallery shows placeholders: 3 rows of 7 to 12 rectangles in common photo shapes (3:2, 2:3, 4:3, 3:4, 16:9), in a few light grays from the Tailwind theme.
 
