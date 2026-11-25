@@ -7,7 +7,7 @@ export async function WeatherClockLine() {
   const { sky, temperature } = await getWeather();
 
   return (
-    <div className="[view-transition-name:weather-line] with-sky halo flex flex-col items-end gap-x-8 gap-y-1 font-grotesk text-sm sm:flex-row sm:items-center">
+    <div className="[view-transition-name:weather-line] with-sky halo flex flex-col items-end gap-x-8 gap-y-1 font-grotesk text-sm sm:flex-row sm:items-center 2xl:text-base">
       <WeatherCondition sky={sky} temperature={temperature} />
       <Clock />
       <WeatherRefresh />

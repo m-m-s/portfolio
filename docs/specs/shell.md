@@ -43,7 +43,7 @@ Example: `[sun icon] Sunny 58°    06:10:37 PM ET`
 - Fog (45, 48) shows Cloudy for now. Maggie is deciding whether fog gets its own sky.
 
 ## Shell margins
-The house logo and the weather/clock line sit in the top corners, and the footer in the bottom right, at the same distance from the edges: 1rem on a phone, 2rem from 640px, 3rem from 1024px and 4rem from 1536px (with matching room above the header and below the footer), so they don't crowd the edges of a wide screen.
+The house logo and the weather/clock line sit in the top corners, and the footer in the bottom right, at the same distance from the edges: 1rem on a phone, 2rem from 640px, 3rem from 1024px and 4rem from 1536px (with matching room above the header and below the footer), so they don't crowd the edges of a wide screen. The weather/clock line and footer text is 14px, and 16px from 1536px.
 
 ## Footer
 
