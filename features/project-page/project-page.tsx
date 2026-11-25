@@ -99,7 +99,7 @@ export function ProjectPage({ href }: { href: string }) {
           </RoomLink>
         </SettleIn>
         <SettleIn order={1}>
-          <hr className={`${nearLine} border-rule`} />
+          <hr className="mt-5 border-rule sm:mt-6" />
           <dl
             className={`${nearLine} flex flex-wrap gap-x-12 gap-y-5 *:last:basis-full`}
           >
