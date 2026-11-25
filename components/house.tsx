@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import { intro } from "@/content/home";
 import { useSky } from "@/features/sky/sky-provider";
 import type { Sky } from "@/features/weather/sky";
@@ -153,7 +154,8 @@ function House({ shadow }: { shadow: HouseShadow | null }) {
       if (lines.length >= 4) setPoints(outline(lines, padX, pad));
     };
     measure();
-    const observer = new ResizeObserver(measure);
+    // Redrawn before paint, or the outline trails the text by a frame.
+    const observer = new ResizeObserver(() => flushSync(measure));
     observer.observe(h);
     document.fonts.ready.then(measure);
     return () => observer.disconnect();
