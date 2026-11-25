@@ -412,7 +412,8 @@ html[data-nav] .row-in {
   transition: opacity 300ms ease;
 }
 @media (hover: hover) {
-  [data-gallery]:has([data-photo]:hover) [data-photo]:not(:hover) {
+  [data-gallery][data-resting]:has([data-photo]:hover)
+    [data-photo]:not(:hover) {
     opacity: var(--photo-hover-dim);
   }
 }

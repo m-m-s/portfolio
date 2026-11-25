@@ -10,6 +10,8 @@ import { useRowMotion } from "./row-motion";
 const GRAYS = ["bg-photo-1", "bg-photo-2", "bg-photo-3"];
 const SWIPE = 40;
 const WHEEL_REST = 150;
+/** How long the pointer rests on one photo before the others dim, in ms. */
+const HOVER_REST = 300;
 
 function PhotoFill({
   photo,
@@ -54,6 +56,25 @@ export function Gallery({ rows }: { rows: Photo[][] }) {
   const wheel = useRef({ sum: 0, done: false, timer: 0 });
   const rowsBox = useRef<HTMLDivElement>(null);
   useRowMotion(rowsBox);
+  const rest = useRef<{ photo: Element | null; timer: number }>({
+    photo: null,
+    timer: 0,
+  });
+  // Dims once the pointer stops on a photo; moving within that photo afterwards keeps it.
+  const pointAt = (photo: Element | null) => {
+    const box = rowsBox.current;
+    if (!box) return;
+    const moved = photo !== rest.current.photo;
+    if (!moved && "resting" in box.dataset) return;
+    rest.current.photo = photo;
+    if (moved) delete box.dataset.resting;
+    clearTimeout(rest.current.timer);
+    if (photo) {
+      rest.current.timer = window.setTimeout(() => {
+        box.dataset.resting = "";
+      }, HOVER_REST);
+    }
+  };
 
   const shade = (row: number, photo: number) =>
     GRAYS[(row + photo) % GRAYS.length];
@@ -115,7 +136,17 @@ export function Gallery({ rows }: { rows: Photo[][] }) {
 
   return (
     <>
-      <div ref={rowsBox} data-gallery className="space-y-10 sm:space-y-20">
+      <div
+        ref={rowsBox}
+        data-gallery
+        onPointerMove={(e) => {
+          if (e.pointerType === "mouse") {
+            pointAt((e.target as Element).closest("[data-photo]"));
+          }
+        }}
+        onPointerLeave={() => pointAt(null)}
+        className="space-y-10 sm:space-y-20"
+      >
         {rows.map((row, r) => (
           <div
             // biome-ignore lint/suspicious/noArrayIndexKey: rows are fixed content, never reordered.
