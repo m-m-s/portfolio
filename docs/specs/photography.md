@@ -4,14 +4,14 @@ One continuous gallery, images only.
 
 ## Layout
 - Shell: house logo, weather/clock line, footer. A visually hidden "Photography" heading names the page for screen readers.
-- 3 rows of large photos with generous space between rows, every photo the same height within the page. Widths follow each photo's own shape (landscape, portrait, wide), so nothing gets cropped.
+- Rows of large photos (as many as the file names give) with generous space between rows, every photo the same height within the page. Widths follow each photo's own shape (landscape, portrait, wide), so nothing gets cropped.
 - Rows come from a list in `content/`: each row is an ordered list of image files, shown in that order.
 - Photos show without labels or captions.
 - The page is light, like every other room.
 
 ## Photos
 - The photos live in a Vercel Blob store connected to the project with the prefix `PHOTOS`, so builds on Vercel get `PHOTOS_READ_WRITE_TOKEN`. They aren't in the repo.
-- Each file name starts with its row and its place in that row: `1-03-bridge.jpg` is the third photo in row 1. A build stops with an error naming any photo without them.
+- Each file name starts with its row and its place in that row: `r1-03-bridge.jpg` is the third photo in row 1 (anything before the row number is ignored). A build stops with an error naming any photo without them.
 - Before each build, `scripts/fetch-photos.mjs` downloads the photos into `public/photography/` (git-ignored) and writes each one's row, place and shape (after its EXIF rotation) to `features/photography/photos.json`, which `galleryRows()` in `features/photography/photos.ts` turns into rows. Public and private stores both work.
 - Alt text is copy: `photoAlts` in `content/photography.ts`, keyed by file name. A photo without one shows `[COPY: alt for …]`.
 - Where a build has no store (a local build), `photos.json` stays empty and the gallery shows placeholders: 3 rows of 7 to 12 rectangles in common photo shapes (3:2, 2:3, 4:3, 3:4, 16:9), in a few light grays from the Tailwind theme.

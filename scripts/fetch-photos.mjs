@@ -25,8 +25,8 @@ if (token || storeId) {
   const photos = [];
   for (const blob of images) {
     const file = blob.pathname.split("/").pop();
-    // Named row first, then place in the row: "1-03-bridge.jpg".
-    const [, row, position] = file.match(/^(\d+)\D+(\d+)/) ?? [];
+    // Named row first, then place in the row: "r1-03-bridge.jpg".
+    const [, row, position] = file.match(/^\D*(\d+)\D+(\d+)/) ?? [];
     if (!row) {
       unplaced.push(file);
       continue;
@@ -55,7 +55,7 @@ if (token || storeId) {
 
   if (unplaced.length) {
     console.error(
-      `Photos need a row and place at the start of their name ("1-03-bridge.jpg"): ${unplaced.join(", ")}`,
+      `Photos need a row and place at the start of their name ("r1-03-bridge.jpg"): ${unplaced.join(", ")}`,
     );
     process.exit(1);
   }
