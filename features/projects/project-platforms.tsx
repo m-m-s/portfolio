@@ -24,7 +24,6 @@ const MAX_WINDOW_TURN = 45;
 const HINT_AT = 0;
 /** How far a step rises, as shares of its riser: a little on hover or focus, most of the way when chosen. */
 const LIFT = { hover: 0.15, chosen: 0.7 };
-/** How long a step takes to rise, in ms. */
 const LIFT_MS = 350;
 /** When the move to the chosen page starts, in ms after the click. The new page renders before the browser photographs the old one, so starting partway through lets that overlap the rise's slow last stretch. */
 const GO_MS = 150;
@@ -89,7 +88,7 @@ function placeWindow(
 const points = (pts: Point[]) =>
   pts.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(" ");
 
-/** The projects on platforms, oldest lowest, and a window in the wall behind them. Fills its parent, which must be positioned. */
+/** Fills its parent, which must be positioned. */
 export function ProjectPlatforms({ projects }: { projects: Project[] }) {
   const room = useRef<HTMLDivElement>(null);
   const router = useRouter();

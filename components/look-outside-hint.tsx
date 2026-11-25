@@ -3,12 +3,7 @@
 import { wallSlant } from "@/components/window";
 import { useLookOutside } from "@/features/sky/sky-view";
 
-/**
- * Sits beside a window, inside its `data-window-group`, so hovering it lights
- * the window. It lies along the wall like the window's frame: `turn`, `eye`
- * and `flip` match the window's, and `at` is where it sits as a share of the
- * window's height.
- */
+/** Goes inside the window's `data-window-group`, so hovering it lights the window. `at` is its height as a share of the window's. */
 export function LookOutsideHint({
   arrow,
   turn,

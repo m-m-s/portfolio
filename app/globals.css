@@ -4,7 +4,7 @@
   --font-sans: var(--font-switzer), ui-sans-serif, system-ui, sans-serif;
   --font-grotesk:
     var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
-  /* The window's sill: whatever wall it's on, lit by the window above it (inline, so a room that changes the page color changes it too). */
+  /* Inline, so a room that changes the page color changes the sill too. */
   --color-sill: color-mix(in srgb, var(--color-page), #fff 40%);
 }
 
@@ -14,14 +14,12 @@
   --color-house-shadow: #898986;
   /* Shrinks with the screen so "Product Engineer" never wraps and the house keeps its shape. */
   --text-intro: min(3rem, calc((100vw - 2rem) / 10.6));
-  /* The window: clear panes (the homepage's sky color, so the sky looks the same through it) and the bezel's shading. */
+  /* The homepage's sky color, so the sky looks the same through a window. */
   --color-glass: #fcfbf9;
   --color-bevel: rgb(0 0 0 / 0.14);
   /* About's floor: always a shade darker than the wall, so window light shows on it. */
   --color-floor: #eae9e7;
-  /* Gray boxes standing in for images that aren't added yet. */
   --color-placeholder: #e2e2e0;
-  /* Thin lines that divide a page: around the project info table, between a project's sections. */
   --color-rule: #dbdad7;
   --spacing-phone: 14rem;
   --spacing-beside-phone: 30rem;
@@ -30,11 +28,9 @@
   --color-link-hover: #1b3a85;
   /* Projects' wall: a touch darker than the page, so the white step tops show against it. */
   --color-wall: #f8f7f5;
-  /* The Projects platforms: lit top, front in light shade, side in deeper shade. */
   --color-platform-top: #ffffff;
   --color-platform-front: #e2e0dd;
   --color-platform-side: #d3d1cd;
-  /* Photography's placeholder photos, until the real ones are in. */
   --color-photo-1: #e5e5e3;
   --color-photo-2: #dbdbd8;
   --color-photo-3: #ededeb;
@@ -43,12 +39,7 @@
 :root {
   color-scheme: light;
 
-  /* One continuous camera move from the click: the old room zooms (--camera)
-     while its door swings (--door-swing); from --settle-delay the new room
-     zooms the same way, slowing into place (--settle), and the two crossfade
-     evenly over --crossfade. Anything that moves in on the new page waits
-     for --arrive, when the old page is gone. Negative angles swing toward
-     the viewer. */
+  /* Negative angles swing toward the viewer. */
   --door-swing: 450ms;
   --camera: 600ms;
   --crossfade: 150ms;
@@ -63,21 +54,16 @@
   --door-nudge: 5000ms;
   --walk-up: 1600ms;
   --sky-fade: 1200ms;
-  /* Gallery rows slide in from alternating sides, from fully off screen. */
   --row-slide: 1600ms;
   --row-ease: cubic-bezier(0.33, 1, 0.68, 1);
   --row-slide-distance: 100vw;
-  /* A gallery photo growing out of its row into the slideshow, and back. */
   --photo-grow: 450ms;
-  /* A window growing into Look outside's view, and back; and one sky fading into the next there. */
   --outside-grow: 500ms;
   --sky-swap: 250ms;
-  /* Look outside's big window: its distance from the screen's sides, top and bottom, and its frame. */
   --outside-x: 22vw;
   --outside-top: 7vh;
   --outside-bottom: 18vh;
   --outside-frame: 0.75rem;
-  /* With a mouse, the other gallery photos dim to this while one is hovered. */
   --photo-hover-dim: 0.6;
   /* Room between the intro's text and the house's edges, in em. */
   --house-pad: 0.35;
@@ -125,8 +111,6 @@ body:has([data-sky="full"]) {
   filter: none;
 }
 
-/* Door links */
-
 /* inline-block so the doorway (inset: 0) is exactly the door's size. */
 .door {
   position: relative;
@@ -169,7 +153,6 @@ body:has([data-sky="full"]) {
   visibility: hidden;
 }
 
-/* The logo's doorway is cut in its house shape. */
 .door-house .door-frame {
   clip-path: polygon(
     0 0,
@@ -182,7 +165,6 @@ body:has([data-sky="full"]) {
   );
 }
 
-/* While it moves the door is a solid slab, casting a shadow with light from the upper left. */
 .door-panel:not([data-door=""]) {
   background: var(--color-page);
   filter: drop-shadow(var(--door-shadow));
@@ -224,7 +206,6 @@ body:has([data-sky="full"]) {
     slab-nudge var(--door-nudge) linear;
 }
 
-/* Opens slowly, lingers open, then drifts shut. */
 @keyframes door-nudge {
   0% {
     transform: perspective(var(--door-perspective)) rotateY(0deg);
@@ -274,8 +255,6 @@ body:has([data-sky="full"]) {
   display: block;
   background: transparent;
 }
-
-/* Page transitions: the camera walks into and out of rooms. */
 
 ::view-transition {
   pointer-events: none;
@@ -334,7 +313,6 @@ html[data-nav="out"]::view-transition-image-pair(door) {
   }
 }
 
-/* One move: both rooms zoom the same way, crossfading briefly in the middle. */
 ::view-transition-old(room),
 ::view-transition-image-pair(door) {
   animation-duration: var(--camera), var(--crossfade);
@@ -439,10 +417,7 @@ html[data-nav] .row-in {
   }
 }
 
-/* The gallery slideshow's view transitions (data-photo-motion): "grow" morphs the
-   photo between its row and the slideshow; "step" slides the current photo out
-   and the next in, toward --photo-dir (1 for next, -1 for previous). Only the
-   photo moves; the page fades under the backdrop. */
+/* --photo-dir is 1 stepping to the next photo, -1 to the previous. */
 html[data-photo-motion] * {
   view-transition-name: none;
 }
@@ -524,8 +499,6 @@ html[data-nav="across"] [data-settle="opening"] {
   }
 }
 
-/* Look outside: opening, only the window's glass moves, growing into the
-   full sky view while the page fades under it; closing, the view fades out. */
 html[data-sky-view] * {
   view-transition-name: none;
 }
@@ -561,7 +534,6 @@ html[data-sky-view="fade"]::view-transition-new(*) {
   width: 100vw;
   height: 100dvh;
 }
-/* The glass's bevel, over the sky. */
 .outside-window::after {
   content: "";
   position: absolute;
@@ -583,7 +555,6 @@ dialog:focus-visible {
   outline: none;
 }
 
-/* Every window opens Look outside with a mouse: a pointer and a slightly brighter glass on hover. */
 @media (hover: hover) and (pointer: fine) {
   [data-window] {
     cursor: pointer;

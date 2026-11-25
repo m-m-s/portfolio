@@ -57,7 +57,6 @@ const DESKTOP_WIDTH = 1280;
 /** How far the faces run below the room's foot, so they reach past the page's bottom. */
 const DEPTH = 2000;
 
-/** How far x is from `from` to `to`, from 0 to 1. */
 export const progress = (x: number, from: number, to: number) =>
   Math.min(1, Math.max(0, (x - from) / (to - from)));
 
