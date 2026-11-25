@@ -46,11 +46,14 @@
   /* One continuous camera move from the click: the old room zooms (--camera)
      while its door swings (--door-swing); from --settle-delay the new room
      zooms the same way, slowing into place (--settle), and the two crossfade
-     evenly over --crossfade. Negative angles swing toward the viewer. */
+     evenly over --crossfade. Anything that moves in on the new page waits
+     for --arrive, when the old page is gone. Negative angles swing toward
+     the viewer. */
   --door-swing: 450ms;
   --camera: 600ms;
-  --crossfade: 200ms;
+  --crossfade: 150ms;
   --settle-delay: 350ms;
+  --arrive: calc(var(--settle-delay) + var(--crossfade));
   --settle: 450ms;
   --settle-ease: cubic-bezier(0.16, 1, 0.3, 1);
   --settle-up: 1200ms;
@@ -418,9 +421,8 @@ html:not([data-nav]) .walk-up {
 .row-in {
   animation: row-in var(--row-slide) var(--row-ease) both;
 }
-/* Arriving through a room transition, the gallery is still hidden until the crossfade. */
 html[data-nav] .row-in {
-  animation-delay: var(--settle-delay);
+  animation-delay: var(--arrive);
 }
 @keyframes row-in {
   from {
@@ -485,7 +487,7 @@ html[data-photo-motion="step"]::view-transition-new(photo-in) {
 }
 html[data-nav] [data-settle="opening"] {
   animation-delay: calc(
-    var(--settle-delay) +
+    var(--arrive) +
     var(--settle-order) *
     var(--settle-stagger)
   );
@@ -499,7 +501,11 @@ html[data-nav="across"]::view-transition-new(room) {
   animation: none;
 }
 html[data-nav="across"] [data-settle="opening"] {
-  animation-delay: calc(var(--settle-order) * var(--settle-stagger));
+  animation-delay: calc(
+    var(--crossfade) +
+    var(--settle-order) *
+    var(--settle-stagger)
+  );
 }
 [data-settle="waiting"] {
   opacity: 0;
