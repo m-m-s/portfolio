@@ -268,13 +268,15 @@ export function ProjectPlatforms({ projects }: { projects: Project[] }) {
                     event.preventDefault();
                     choose(i);
                   }}
-                  className="block text-4xl font-bold sm:text-5xl lg:text-[max(3.75rem,2.6vw)]"
+                  className="block"
                 >
-                  {project.name}
+                  <span className="block text-4xl font-bold sm:text-5xl lg:text-[max(3.75rem,2.6vw)]">
+                    {project.name}
+                  </span>
+                  <span className="mt-1 block text-xs sm:text-sm lg:text-[max(1rem,0.8vw)]">
+                    {project.tagline}
+                  </span>
                 </Link>
-                <p className="mt-1 text-xs sm:text-sm lg:text-[max(1rem,0.8vw)]">
-                  {project.tagline}
-                </p>
               </div>
             </li>
           );
