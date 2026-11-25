@@ -7,7 +7,7 @@ const SIZES = {
   phone: "14rem",
 };
 
-export const isPhone = (media: Photo) => media.ratio < 1;
+const isPhone = (media: Photo) => media.ratio < 1;
 
 export function besideText(media: Photo[], imageRight: boolean) {
   if (media.length === 0 || !media.every(isPhone)) return "sm:grid-cols-2";
