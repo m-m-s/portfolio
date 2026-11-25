@@ -8,6 +8,7 @@ One continuous gallery, images only.
 - Rows come from a list in `content/`: each row is an ordered list of image files, shown in that order.
 - Photos show without labels or captions.
 - The page is light, like every other room.
+- The gallery starts 1.5rem below the header (2rem from 640px).
 
 ## Photos
 - The photos live in a Vercel Blob store connected to the project with the prefix `PHOTOS`, so builds on Vercel get `PHOTOS_READ_WRITE_TOKEN`. They aren't in the repo.
@@ -23,11 +24,11 @@ One continuous gallery, images only.
 
 ## Motion
 - Each row is an endless loop: after its last photo the first comes round again, with the usual gap, so scrolling a row never hits an end. Each photo is a single element; a photo that leaves one end is moved to the other, so the page holds no copies. A row has to be wider than the screen plus its widest photo for the loop to stay seamless (even 7 photos are, at 2560px).
-- Rows slide in from alternating sides (left, right, left…), starting fully off screen, and keep moving in that direction while slowing to a stop, as one continuous motion with no pause. All rows arrive at the same time, with no stagger and no fade: the blank space a row leaves as it comes in is on purpose. Arriving through a room transition, the slide waits until the old page is gone (`--arrive`), out of sight.
+- Rows slide in from alternating sides (left, right, left…), starting fully off screen, and keep moving in that direction while slowing to a stop, as one continuous motion with no pause. All rows arrive at the same time, with no stagger and no fade: the blank space a row leaves as it comes in is on purpose. Arriving through a room transition, the slide waits until the old page is gone (`--arrive`), out of sight. They wait, hidden in place, until the photos on screen once they settle have loaded (at most 3s, `LOAD_WAIT` in `gallery.tsx`), so none slides in with gaps or half-drawn photos.
 - Scrolling the page up and down never moves the rows sideways.
 - Rows move sideways with a finger swipe, a mouse drag or a sideways trackpad swipe, and keep gliding a little when let go; a drag never opens a photo. An up-and-down swipe scrolls the page as usual. With a mouse, hovering the left or right edge of the screen (12% of its width) over a row moves that row that way, faster nearer the edge; not while the slideshow is open. Tabbing to a photo brings it into view.
 - Reduced motion: rows appear in place, with no slide-in. Swiping, dragging and edge hover still work.
-- With a mouse, resting the pointer on a photo dims the others (`--photo-hover-dim`, 0.6) so it stands out. The dim waits until the pointer has stopped on a photo for 1s (`HOVER_REST` in `gallery.tsx`), so sweeping across the gallery never dims it; once dimmed, moving within that photo keeps the dim, and moving to another photo clears it until the pointer stops again.
+- With a mouse, resting the pointer on a photo grows it a little (`--photo-hover-grow`, 1.08; not with reduced motion) and dims the others (`--photo-hover-dim`, 0.6), so it stands out. The dim waits until the pointer has stopped on a photo for 1s (`HOVER_REST` in `gallery.tsx`), so sweeping across the gallery never dims it; once dimmed, moving within that photo keeps the dim, and moving to another photo clears it until the pointer stops again.
 
 ## Slideshow
 - Tapping a photo opens a modal over the gallery, starting at that photo. The photo grows out of its spot in the row into the modal while the page fades under the backdrop.

@@ -12,6 +12,8 @@ const SWIPE = 40;
 const WHEEL_REST = 150;
 /** How long the pointer rests on one photo before the others dim, in ms. */
 const HOVER_REST = 1000;
+/** The longest the rows wait for their on-screen photos before sliding in anyway, in ms. */
+const LOAD_WAIT = 3000;
 /** The top row's photos on screen as the page opens, loaded straight away rather than lazily. */
 const FIRST_SEEN = 3;
 const ROW_SIZES = "(min-width: 1024px) 50rem, (min-width: 640px) 36rem, 25rem";
@@ -79,6 +81,42 @@ export function Gallery({ rows }: { rows: Photo[][] }) {
   const swipeFrom = useRef<number | null>(null);
   const wheel = useRef({ sum: 0, done: false, timer: 0 });
   const rowsBox = useRef<HTMLDivElement>(null);
+  // The rows wait, hidden in place, until the photos they'll show have loaded,
+  // so none slides in with gaps or half-drawn photos.
+  const [loaded, setLoaded] = useState(false);
+  useEffect(() => {
+    const box = rowsBox.current;
+    if (!box) return;
+    const onScreen = [...box.querySelectorAll("img")].filter((img) => {
+      const r = img.getBoundingClientRect();
+      return (
+        r.right > 0 &&
+        r.left < innerWidth &&
+        r.bottom > 0 &&
+        r.top < innerHeight
+      );
+    });
+    let done = false;
+    const show = () => {
+      if (!done) setLoaded(true);
+      done = true;
+    };
+    const timer = setTimeout(show, LOAD_WAIT);
+    // decode() gives up on an image that hasn't started loading, so wait for its load first.
+    const settled = (img: HTMLImageElement) =>
+      (img.complete
+        ? Promise.resolve()
+        : new Promise((done) => {
+            img.addEventListener("load", done, { once: true });
+            img.addEventListener("error", done, { once: true });
+          })
+      ).then(() => img.decode().catch(() => {}));
+    void Promise.all(onScreen.map(settled)).then(show);
+    return () => {
+      done = true;
+      clearTimeout(timer);
+    };
+  }, []);
   useRowMotion(rowsBox);
   const rest = useRef<{ photo: Element | null; timer: number }>({
     photo: null,
@@ -187,7 +225,7 @@ export function Gallery({ rows }: { rows: Photo[][] }) {
           <div
             // biome-ignore lint/suspicious/noArrayIndexKey: rows are fixed content, never reordered.
             key={r}
-            className="row-in"
+            className={loaded ? "row-in" : "invisible"}
             style={{ "--row-from": r % 2 ? 1 : -1 } as React.CSSProperties}
           >
             <div data-row className="touch-pan-y overflow-x-clip select-none">
