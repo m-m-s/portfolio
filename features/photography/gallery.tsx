@@ -122,6 +122,29 @@ export function Gallery({ rows }: { rows: Photo[][] }) {
     photo: null,
     timer: 0,
   });
+  // The rested photo's row neighbours make room for it, each side by half its
+  // growth. Which side is read from the screen: a looping row's order isn't the DOM's.
+  const pushAside = (photo: Element | null) => {
+    for (const p of rowsBox.current?.querySelectorAll<HTMLElement>(
+      "[data-photo]",
+    ) ?? []) {
+      p.style.translate = "";
+    }
+    if (!photo || matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      return;
+    }
+    const grow = Number.parseFloat(
+      getComputedStyle(photo).getPropertyValue("--photo-hover-grow"),
+    );
+    const at = photo.getBoundingClientRect();
+    const push = ((grow - 1) * at.width) / 2;
+    for (const p of photo.parentElement?.children ?? []) {
+      if (p === photo || !(p instanceof HTMLElement)) continue;
+      const left = p.getBoundingClientRect().left < at.left;
+      p.style.translate = `${left ? -push : push}px 0`;
+    }
+  };
+
   // Dims once the pointer stops on a photo; moving within that photo afterwards keeps it.
   const pointAt = (photo: Element | null) => {
     const box = rowsBox.current;
@@ -129,10 +152,14 @@ export function Gallery({ rows }: { rows: Photo[][] }) {
     const moved = photo !== rest.current.photo;
     if (!moved && "resting" in box.dataset) return;
     rest.current.photo = photo;
-    if (moved) delete box.dataset.resting;
+    if (moved) {
+      delete box.dataset.resting;
+      pushAside(null);
+    }
     clearTimeout(rest.current.timer);
     if (photo) {
       rest.current.timer = window.setTimeout(() => {
+        pushAside(photo);
         box.dataset.resting = "";
         const place = places[Number((photo as HTMLElement).dataset.photo)];
         if (place) preload(place.photo, slideSizes(place.photo.ratio));
