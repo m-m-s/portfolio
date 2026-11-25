@@ -203,7 +203,7 @@ export function ProjectPlatforms({ projects }: { projects: Project[] }) {
             eye={WINDOW_EYE}
             flip
             style={{ top: `${HINT_AT * 100}%` }}
-            className="absolute left-full ml-4"
+            className="absolute left-full ml-4 max-sm:w-24 max-sm:text-left max-sm:whitespace-normal"
           />
         </div>
       )}

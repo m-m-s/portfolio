@@ -35,7 +35,7 @@ export function LookOutsideHint({
       aria-haspopup="dialog"
       onClick={lookOutside}
       style={{ ...style, transform: `skewY(${slant}deg)` }}
-      className={`cursor-pointer font-grotesk text-xs whitespace-nowrap text-ink/65 ${className}`}
+      className={`cursor-pointer font-grotesk text-sm whitespace-nowrap text-ink/65 ${className}`}
     >
       <span aria-hidden="true">{arrow}</span> Look out the window
     </button>

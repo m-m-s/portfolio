@@ -117,7 +117,7 @@ export function Slideshow({
                 ))}
               </div>
               {slide.hint && visual && (
-                <p className="mt-4 font-grotesk text-xs text-ink/65">
+                <p className="mt-4 font-grotesk text-sm text-ink/65">
                   <span aria-hidden="true">
                     <span className="sm:hidden">{Figure ? "↓" : "↑"}</span>
                     <span className="hidden sm:inline">
