@@ -10,7 +10,7 @@ One template for every project page (Film Jousting, Overlook, This site). Refere
 
 ## Header
 - Project name, large Switzer bold. At the right, level with the top of the title (so it stays at the top when the name wraps on a phone), a small "← Projects" link back (Space Grotesk, like the footer; a room link, so the camera walks back out).
-- The project's facts, laid out like film credits, with no lines or boxes: Platform, Hosting (only where a project has it), Status, Repo (a link to its GitHub repo) and Accessibility (what the app supports) side by side, wrapping as the width needs, then Built with, the long one, on a line of its own. Each label is small Space Grotesk capitals in a lighter gray (`ink` at half strength), with its value under it. Claude Code is listed in Built with. Values can hold a link, like Status's live site.
+- The project's facts, laid out like film credits, with no lines or boxes: Platform, Hosting (only where a project has it), Status and Repo (a link to its GitHub repo) side by side, wrapping as the width needs, then Built with, the long one, on a line of its own. Each label is small Space Grotesk capitals in a lighter gray (`ink` at half strength), with its value under it. Claude Code is listed in Built with. Values can hold a link, like Status's live site.
 - Thin lines (`rule` token) under the title and under the facts. The line under the title sits close to it (1.25rem, 1.5rem from 640px); the one under the facts is spaced like the breaks between sections.
 
 ## Other projects

@@ -8,7 +8,6 @@ export const filmJousting: ProjectPage = {
   status:
     "Live at [film-jousting.vercel.app](https://film-jousting.vercel.app)",
   repo: "[github.com/m-m-s/filmJousting](https://github.com/m-m-s/filmJousting)",
-  accessibility: "Keyboard navigation, reduced motion, screen-reader labels",
   blocks: [
     {
       type: "image",

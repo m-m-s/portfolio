@@ -6,7 +6,6 @@ export const overlook: ProjectPage = {
   platform: "Android",
   status: "In progress",
   repo: "[github.com/m-m-s/overlook](https://github.com/m-m-s/overlook)",
-  accessibility: "Android reduce motion, screen-reader labels",
   builtWith:
     "React Native, Expo, TypeScript, Supabase, Claude API, Claude Code",
   blocks: [
