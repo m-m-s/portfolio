@@ -41,5 +41,6 @@ export type ProjectPage = {
   builtWith: string;
   hosting?: string;
   status: string;
+  repo: string;
   blocks: Block[];
 };

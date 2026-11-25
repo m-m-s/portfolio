@@ -7,6 +7,7 @@ export const filmJousting: ProjectPage = {
   hosting: "Vercel and Render",
   status:
     "Live at [film-jousting.vercel.app](https://film-jousting.vercel.app)",
+  repo: "[github.com/m-m-s/filmJousting](https://github.com/m-m-s/filmJousting)",
   blocks: [
     {
       type: "image",

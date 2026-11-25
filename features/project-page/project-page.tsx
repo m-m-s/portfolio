@@ -81,6 +81,7 @@ export function ProjectPage({ href }: { href: string }) {
     ["Platform", page.platform],
     ["Hosting", page.hosting],
     ["Status", page.status],
+    ["Repo", page.repo],
     ["Built with", page.builtWith],
   ];
   const info = rows.filter((row): row is [string, string] => Boolean(row[1]));

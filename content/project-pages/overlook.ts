@@ -5,8 +5,9 @@ const screen = 1080 / 2210;
 export const overlook: ProjectPage = {
   platform: "Android",
   status: "In progress",
+  repo: "[github.com/m-m-s/overlook](https://github.com/m-m-s/overlook)",
   builtWith:
-    "React Native, TypeScript, Supabase, Claude API, React Query, Claude Code",
+    "React Native, Expo, TypeScript, Supabase, Claude API, Claude Code",
   blocks: [
     {
       type: "text",

@@ -4,6 +4,7 @@ export const thisSite: ProjectPage = {
   platform: "Web",
   hosting: "Vercel",
   status: "Live at [maggiemshen.com](https://maggiemshen.com)",
+  repo: "[github.com/m-m-s/portfolio](https://github.com/m-m-s/portfolio)",
   builtWith:
     "Next.js, React, TypeScript, Tailwind, Canvas (Floyd–Steinberg dithering), Open-Meteo API, Figma, Claude Code",
   blocks: [
