@@ -9,7 +9,7 @@ import { Slideshow } from "./slideshow";
 import type { Block } from "./types";
 
 const betweenBlocks = "mt-12 sm:mt-16";
-const nearLine = "mt-8 sm:mt-10";
+const nearLine = "mt-6 sm:mt-8";
 
 function BlockView({ block }: { block: Block }) {
   switch (block.type) {
