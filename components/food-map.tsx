@@ -30,7 +30,7 @@ export function FoodMapButton({ children }: { children: React.ReactNode }) {
         popover="auto"
         onToggle={(e) => setOpen(e.newState === "open")}
         onAnimationEnd={(e) => e.currentTarget.hidePopover()}
-        className="fixed inset-x-4 top-1/2 bottom-auto m-0 w-auto -translate-y-1/2 overflow-hidden border-0 bg-glass p-0 shadow-lg [animation:food-map_4.5s_both] sm:inset-x-auto sm:top-[22%] sm:right-[10%] sm:w-96 sm:translate-y-0 lg:right-auto lg:left-[min(10vw_+_37rem,100vw_-_31rem)] lg:w-md xl:left-[min(10vw_+_43rem,100vw_-_31rem)] 2xl:left-[min(20vw_+_43rem,100vw_-_31rem)]"
+        className="fixed inset-x-4 top-1/2 bottom-auto m-0 w-auto -translate-y-1/2 overflow-hidden border-0 bg-glass p-0 shadow-lg [animation:food-map_4.5s_both] sm:inset-x-auto sm:top-[22%] sm:right-[10%] sm:w-96 sm:translate-y-0 lg:w-md lg:supports-[anchor-name:--a]:right-auto lg:supports-[anchor-name:--a]:left-[min(anchor(right)_+_3rem,100vw_-_31rem)] lg:supports-[anchor-name:--a]:[position-anchor:--about-copy]"
       >
         <Image
           src={foodMap}

@@ -77,7 +77,7 @@ export default function About() {
           className="absolute top-full left-1/2 mt-6 -translate-x-1/2 max-sm:hidden"
         />
       </div>
-      <div className="max-sm:halo mt-6 space-y-[1.5em]">
+      <div className="max-sm:halo mt-6 space-y-[1.5em] [anchor-name:--about-copy]">
         {aboutParagraphs.map((paragraph) => (
           <p
             key={paragraph
