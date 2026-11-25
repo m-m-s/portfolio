@@ -17,31 +17,22 @@ function direction(from: string, to: string) {
   return sideBySide ? "across" : "in";
 }
 
-let revealAt: number | null = null;
-
 // Must run before navigation starts: the browser snapshots the old page then.
-// `holdFor` keeps the old page up until that many ms from now, however soon the new page is ready.
+// `revealAfter` (ms) replaces the camera's usual delay before the crossfade.
 export function prepareNavigation(
   from: string,
   to: string,
   focus?: { x: number; y: number },
-  holdFor = 0,
+  revealAfter?: number,
 ) {
   const root = document.documentElement;
   root.dataset.nav = direction(from, to);
-  root.style.removeProperty("--settle-delay");
-  revealAt = holdFor ? performance.now() + holdFor : null;
+  if (revealAfter !== undefined)
+    root.style.setProperty("--settle-delay", `${revealAfter}ms`);
+  else root.style.removeProperty("--settle-delay");
 
   const room = document.querySelector(ROOM_SELECTOR)?.getBoundingClientRect();
   const point = focus ?? { x: innerWidth / 2, y: innerHeight / 2 };
   root.style.setProperty("--camera-x", `${point.x - (room?.left ?? 0)}px`);
   root.style.setProperty("--camera-y", `${point.y - (room?.top ?? 0)}px`);
-}
-
-/** Runs as the page change starts: a held page starts crossfading when its hold ends, not after the usual delay. */
-export function startReveal() {
-  if (revealAt === null) return;
-  const wait = Math.max(0, revealAt - performance.now());
-  document.documentElement.style.setProperty("--settle-delay", `${wait}ms`);
-  revealAt = null;
 }

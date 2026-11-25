@@ -23,6 +23,10 @@ const MAX_WINDOW_TURN = 45;
 const LIFT = { hover: 0.15, chosen: 0.7 };
 /** How long a step takes to rise, in ms. */
 const LIFT_MS = 350;
+/** When the move to the chosen page starts, in ms after the click. The new page renders before the browser photographs the old one, so starting partway through lets that overlap the rise's slow last stretch. */
+const GO_MS = 150;
+/** How long the risen step holds before the crossfade, in ms. */
+const HOLD_MS = 150;
 /** The window's left edge, as a share of the room's width. */
 const WINDOW_LEFT = 0.1;
 const WINDOW_MIN_WIDTH = 100;
@@ -91,10 +95,12 @@ export function ProjectPlatforms({ projects }: { projects: Project[] }) {
   const pathname = usePath();
   const [hovered, setHovered] = useState<number | null>(null);
   const [chosen, setChosen] = useState<number | null>(null);
+  const going = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   // Next keeps visited pages alive but hidden: coming back, no step should still be raised.
   useLayoutEffect(
     () => () => {
+      clearTimeout(going.current);
       setChosen(null);
       setHovered(null);
     },
@@ -139,20 +145,28 @@ export function ProjectPlatforms({ projects }: { projects: Project[] }) {
         ? LIFT.hover
         : 0);
 
-  /** Starts raising project i's step and, at the same time, the move to its page, which crossfades in as the step tops out. */
+  /** Raises project i's step, then crossfades to its page. */
   const choose = (i: number) => {
     if (chosen !== null) return;
     setChosen(i);
-    const box = room.current?.getBoundingClientRect();
-    const at = shapes[i]?.label ?? [0, 0];
+    const { href } = projects[i];
+    router.prefetch(href);
     const rises = !matchMedia("(prefers-reduced-motion: reduce)").matches;
-    prepareNavigation(
-      pathname,
-      projects[i].href,
-      { x: (box?.left ?? 0) + at[0], y: (box?.top ?? 0) + at[1] },
-      rises ? LIFT_MS : 0,
+    going.current = setTimeout(
+      () => {
+        const box = room.current?.getBoundingClientRect();
+        const at = shapes[i]?.label ?? [0, 0];
+        const risen = rises ? (shapes[i]?.riser ?? 0) * LIFT.chosen : 0;
+        prepareNavigation(
+          pathname,
+          href,
+          { x: (box?.left ?? 0) + at[0], y: (box?.top ?? 0) + at[1] - risen },
+          HOLD_MS,
+        );
+        router.push(href, { transitionTypes: [ROOM_WALK] });
+      },
+      rises ? GO_MS : 0,
     );
-    router.push(projects[i].href, { transitionTypes: [ROOM_WALK] });
   };
 
   return (
