@@ -94,7 +94,7 @@ export const thisSite: ProjectPage = {
             ratio: 1625 / 1083,
           },
           paragraphs: [
-            "The sky engine builds a fresh sky on every visit from a preset matching New York's current weather. It picks a random size and height for each cloud within its tuned range. The sky appears at many sizes across the site. It fills screens of every width on the homepage and smaller views on other pages. Scaling a finished dither to fit them would only enlarge its dots and ruin the granularity of its shape and shade. **Every cloud is instead dithered in the browser at the exact size it appears on screen.**",
+            "The sky engine builds a new sky on every visit from a curated preset according to New York's current weather. A randomly generated seed decides which clouds appear and the size and height of each one. It stays live across connected pages until the user refreshes. Clouds are dithered in the browser at the exact size they appear on screen to stay faithful to the shape and texture of each image.",
           ],
         },
       ],
