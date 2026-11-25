@@ -14,7 +14,7 @@ export function HouseLogo() {
       <DoorLink href="/" aria-label="Home" className="door-house block w-fit">
         <svg
           viewBox="0 0 46 34"
-          className="halo block h-5 w-auto overflow-visible"
+          className="halo block h-5 w-auto overflow-visible 2xl:h-6"
           aria-hidden="true"
         >
           <path className="fill-ink" d="M0 0H18V7H39L46 20V34H0Z" />
