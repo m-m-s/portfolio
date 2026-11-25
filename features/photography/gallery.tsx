@@ -106,9 +106,9 @@ export function Gallery({ rows }: { rows: Photo[][] }) {
     const settled = (img: HTMLImageElement) =>
       (img.complete
         ? Promise.resolve()
-        : new Promise((done) => {
-            img.addEventListener("load", done, { once: true });
-            img.addEventListener("error", done, { once: true });
+        : new Promise((resolve) => {
+            img.addEventListener("load", resolve, { once: true });
+            img.addEventListener("error", resolve, { once: true });
           })
       ).then(() => img.decode().catch(() => {}));
     void Promise.all(onScreen.map(settled)).then(show);
