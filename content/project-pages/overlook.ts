@@ -69,7 +69,7 @@ export const overlook: ProjectPage = {
             ratio: screen,
           },
           paragraphs: [
-            "Screenshots can hold private details like addresses or messages. I built Overlook with a privacy-first mindset. Images stay on users’ phones and only leave when sent to Claude’s API for analysis. The database stores just the tags Claude returns.",
+            "Screenshots can hold private details like addresses or messages. I built Overlook with a privacy-first mindset. Images stay on users’ phones and only leave when sent to Claude’s API for analysis. The database stores only text about each screenshot (its tags, status, urgency and links) and never the image itself.",
           ],
         },
         {

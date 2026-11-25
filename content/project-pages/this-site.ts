@@ -54,6 +54,7 @@ export const thisSite: ProjectPage = {
           hint: "Try it on the cloud",
           paragraphs: [
             "I started by thinking about what makes digital interaction feel tactile on a screen made of pixels. Dithering can turn a cloud into individual pixels while keeping its shape and shading. Those dots scatter under the cursor to capture the most pleasant imagination of touching a cloud. Soft and fluffy.",
+            "With reduced motion turned on, the clouds stop drifting and the rain hangs still, but their dots still scatter when you touch them.",
           ],
         },
         {
