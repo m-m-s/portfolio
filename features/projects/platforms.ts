@@ -8,7 +8,7 @@ export type Platform = {
   side: Point[];
   /** Height of a front face between steps, in pixels: how far a step can rise. */
   riser: number;
-  /** Bottom middle of the project's name: on the top, a little behind its front edge. */
+  /** Bottom middle of the project's name and tagline: on the top, a little behind its front edge. */
   label: Point;
 };
 

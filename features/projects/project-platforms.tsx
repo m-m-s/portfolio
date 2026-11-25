@@ -268,6 +268,9 @@ export function ProjectPlatforms({ projects }: { projects: Project[] }) {
                 >
                   {project.name}
                 </Link>
+                <p className="mt-1 text-xs sm:text-sm lg:text-[max(0.875rem,0.65vw)]">
+                  {project.tagline}
+                </p>
               </div>
             </li>
           );
