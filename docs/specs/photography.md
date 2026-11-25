@@ -9,14 +9,15 @@ One continuous gallery, images only.
 - Photos show without labels or captions.
 - The page is light, like every other room.
 
-## Placeholder photos
-- Build the whole gallery with blank rectangles first, so the motion and slideshow can be tested before the real photos are chosen.
-- Placeholder data goes in the same `content/` list the real photos will use, with each entry giving a width-to-height ratio in place of an image file. Mix common photo shapes: 3:2, 2:3, 4:3, 3:4, 16:9.
-- 3 rows of 7 to 12 rectangles each, in a few light grays from the Tailwind theme.
-- Swapping in the real photos later changes only the content list.
+## Photos
+- The photos live in a Vercel Blob store connected to the project with the prefix `PHOTOS`, so builds on Vercel get `PHOTOS_READ_WRITE_TOKEN`. They aren't in the repo.
+- Each file name starts with its row and its place in that row: `1-03-bridge.jpg` is the third photo in row 1. A build stops with an error naming any photo without them.
+- Before each build, `scripts/fetch-photos.mjs` downloads the photos into `public/photography/` (git-ignored) and writes each one's row, place and shape (after its EXIF rotation) to `features/photography/photos.json`, which `galleryRows()` in `features/photography/photos.ts` turns into rows. Public and private stores both work.
+- Alt text is copy: `photoAlts` in `content/photography.ts`, keyed by file name. A photo without one shows `[COPY: alt for …]`.
+- Where a build has no store (a local build), `photos.json` stays empty and the gallery shows placeholders: 3 rows of 7 to 12 rectangles in common photo shapes (3:2, 2:3, 4:3, 3:4, 16:9), in a few light grays from the Tailwind theme.
 
 ## Built so far
-- Rows (`features/photography/gallery.tsx`, data in `content/photography.ts`) are endless loops, moved by script rather than native scrolling. Rows are 14rem tall on a phone, 20rem from 640px, and 28rem (at most 60% of the screen's height) from 1024px, with 2.5rem between rows on a phone and 5rem from 640px. Placeholder grays are the `photo-1` to `photo-3` theme tokens.
+- Rows (`features/photography/gallery.tsx`, data from `galleryRows()`) are endless loops, moved by script rather than native scrolling. Rows are 14rem tall on a phone, 20rem from 640px, and 28rem (at most 60% of the screen's height) from 1024px, with 2.5rem between rows on a phone and 5rem from 640px. Placeholder grays are the `photo-1` to `photo-3` theme tokens.
 - The slideshow is a native `<dialog>`; its grow and slide are view transitions (`photoMotion` in `gallery.tsx`, styles under `data-photo-motion` in `app/globals.css`, timing `--photo-grow`, 450ms). See Slideshow.
 - Row motion (`features/photography/row-motion.ts`, slide-in in `app/globals.css`): see Motion. Tuning: `--row-slide` (1.6s), `--row-ease` and `--row-slide-distance` (100vw) in CSS; edge and fling constants at the top of `row-motion.ts`.
 

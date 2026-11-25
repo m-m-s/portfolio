@@ -6,6 +6,9 @@ export type Photo = {
   ratio: number;
 };
 
+/** Each gallery photo's alt text, keyed by its file name in the photos Blob store. */
+export const photoAlts: Record<string, string> = {};
+
 const SHAPES = {
   "3:2": 3 / 2,
   "2:3": 2 / 3,
@@ -21,7 +24,8 @@ const row = (n: number, shapes: Shape[]): Photo[] =>
     ratio: SHAPES[shape],
   }));
 
-export const photoRows: Photo[][] = [
+/** Shown where a build has no photos store (a local build). */
+export const placeholderRows: Photo[][] = [
   row(1, ["3:2", "2:3", "16:9", "3:4", "3:2", "4:3", "2:3"]),
   row(2, [
     "2:3",

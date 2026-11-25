@@ -43,3 +43,6 @@ next-env.d.ts
 # Switzer's license (FFL) forbids putting the font files in a public place,
 # including a public repo. Builds fetch them from a private Vercel Blob store.
 /app/fonts/Switzer-*.woff2
+
+# The gallery's photos come from a Vercel Blob store at build time.
+/public/photography/

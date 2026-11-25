@@ -28,7 +28,7 @@ This is Next.js 16. Read the matching guide in `node_modules/next/dist/docs/` be
 app/                 routes (one folder per page)
 components/          shared UI (site shell, weather/clock line, door link, footer)
 app/fonts/           local font files (Switzer, Space Grotesk), loaded with next/font/local
-scripts/             build scripts (fetching Switzer before a build)
+scripts/             build scripts (fetching Switzer and the gallery photos before a build)
 features/weather/    NYC weather fetch (cached), the weather code → sky mapping, and the sun's and moon's positions
 features/transitions/ page transitions: direction by page depth, back/forward handling
 features/sky/        the dithered weather sky, self-contained
@@ -60,6 +60,7 @@ docs/design/         Figma exports and references
 ## Design rules
 - One light theme: a white/off-white page at all hours. The off-white is a starting point, not a rule: a room can depart from it where that looks better. So far Projects does, with a wall a touch darker than the page (see docs/specs/projects.md).
 - Type: Switzer is the standard typeface. Space Grotesk regular is used for the homepage's connecting words and for the weather/clock line and footer. Fonts load locally with `next/font/local`, from `app/fonts/fonts.ts`. Switzer's license (ITF FFL) allows self-hosting on this site but not sharing the font files publicly, so the Switzer files are git-ignored and live in a private Vercel Blob store; `scripts/fetch-fonts.mjs` runs before every build on Vercel and downloads every `.woff2` in that store (connected with the prefix `LOCALFONTS`) into `app/fonts/`, whatever folder it sits in. To add a weight, upload it there and add it to `fonts.ts`. Locally, keep a copy in `app/fonts/`. Space Grotesk is OFL and committed.
+- Photography's photos live in a second Vercel Blob store (prefix `PHOTOS`); `scripts/fetch-photos.mjs` pulls them in before each build on Vercel. See docs/specs/photography.md.
 - Figma frames are loose mocks showing layout and intent. Spacing and type sizes come from named tokens in the Tailwind theme, starting from Tailwind's defaults and tuned in the browser. Build hierarchy with type size and whitespace.
 - The weather/clock line sits at the top of every page, so every room feels like the same place.
 - The house-shaped favicon is also the logo that links home. Both are the homepage house outline (`app/icon.svg`, `components/house-logo.tsx`); if the house shape changes, update both.
