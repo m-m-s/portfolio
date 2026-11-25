@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useSyncExternalStore } from "react";
 import { useSky } from "@/features/sky/sky-provider";
 import { useLookOutside } from "@/features/sky/sky-view";
 
@@ -11,6 +11,13 @@ type Point3 = [number, number, number];
 
 const W = 100;
 const H = 150;
+/** Tailwind's 2xl, where a window with `wide` widens. */
+const WIDE_SCREEN = "(min-width: 96rem)";
+const subscribeWide = (change: () => void) => {
+  const query = matchMedia(WIDE_SCREEN);
+  query.addEventListener("change", change);
+  return () => query.removeEventListener("change", change);
+};
 const TURN = 32;
 const DISTANCE = 300;
 const EYE = 0.8;
@@ -215,15 +222,12 @@ export function Window({
   const glass = useRef<HTMLCanvasElement>(null);
   const { attach } = useSky();
   const lookOutside = useLookOutside();
-  const [wideScreen, setWideScreen] = useState(false);
-  useEffect(() => {
-    if (!wide) return;
-    const query = matchMedia("(min-width: 96rem)");
-    const update = () => setWideScreen(query.matches);
-    update();
-    query.addEventListener("change", update);
-    return () => query.removeEventListener("change", update);
-  }, [wide]);
+  // Null until the browser knows the width: the server's page can't.
+  const wideScreen = useSyncExternalStore(
+    subscribeWide,
+    () => matchMedia(WIDE_SCREEN).matches,
+    () => null,
+  );
   const id = useId();
   const light = useLiveLight();
   const g = geometryFor(turn, eye, wide && wideScreen ? wide : W);
@@ -259,7 +263,8 @@ export function Window({
         }
       }}
       style={{ aspectRatio: `${g.viewW} / ${g.viewH}` }}
-      className={`relative ${className}`}
+      // Kept hidden on wide screens until the width is known, so it never shows the narrow shape first.
+      className={`relative ${wide && wideScreen === null ? "2xl:invisible" : ""} ${className}`}
     >
       {floorLight && (
         // Behind the page's text: the page needs `isolate` so this stays above its background.

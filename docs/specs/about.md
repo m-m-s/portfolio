@@ -11,7 +11,7 @@ A room with a window. Reference: docs/design/about.png.
 - Margins above phone size: 3rem at the sides from 640px, 4rem from 768px, and 10% on both sides from 1024px. On the widest screens (from 1536px) the text starts 20% in from the left, so text and window read as one composition instead of leaving a wide empty middle.
 - The text column widens on wider screens (34rem, 40rem from 1280px, 46rem from 1536px, where the body text also steps up a size), so the copy doesn't sit in a narrow strip.
 - The window sits on the right, beside the text.
-- **Window size:** 14rem wide from 640px. On the widest screens (from 1536px) it's wider but not taller: the window's shape widens from 100 to 130 units (its height is 150; `wide` on `<Window>`), and its height stays 26.25rem, so the floor keeps its place and only the panes and their light on the floor get wider.
+- **Window size:** 14rem wide from 640px. On the widest screens (from 1536px) it's wider but not taller: the window's shape widens from 100 to 130 units (its height is 150; `wide` on `<Window>`), and its height stays 26.25rem, so the floor keeps its place and only the panes and their light on the floor get wider. Until the browser knows the screen width (the server can't), it stays hidden there, so it never shows the narrow shape first.
 - **Phone:** the window is large (15rem) and sits top right, behind the heading and first paragraph. The text stays on top, with a page-colored halo (`halo`) so it reads over the clouds.
 
 ## Copy and links
