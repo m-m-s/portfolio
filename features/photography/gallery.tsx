@@ -5,13 +5,15 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import type { Photo } from "@/content/photography";
 import { scopedTransition } from "@/features/transitions/scoped-transition";
-import { useRowMotion } from "./row-motion";
+import { EDGE, useRowMotion } from "./row-motion";
 
 const GRAYS = ["bg-photo-1", "bg-photo-2", "bg-photo-3"];
 const SWIPE = 40;
 const WHEEL_REST = 150;
 /** How long the pointer rests on one photo before the others dim, in ms. */
 const HOVER_REST = 400;
+/** How long the rows must stay still before the photo under a resting pointer counts, in ms; the rest wait follows. */
+const ROWS_STILL = 100;
 /** The longest the rows wait for their on-screen photos before sliding in anyway, in ms. */
 const LOAD_WAIT = 3000;
 /** The top row's photos on screen as the page opens, loaded straight away rather than lazily. */
@@ -167,6 +169,33 @@ export function Gallery({ rows }: { rows: Photo[][] }) {
     }
   };
 
+  const pointer = useRef<{ x: number; y: number } | null>(null);
+  const photoUnder = (x: number, y: number) => {
+    const zone = window.innerWidth * EDGE;
+    if (x < zone || window.innerWidth - x < zone) return null;
+    return document.elementFromPoint(x, y)?.closest("[data-photo]") ?? null;
+  };
+  const rowsStill = useRef(0);
+  const onRowMove = useRef(() => {});
+  onRowMove.current = () => {
+    pointAt(null);
+    clearTimeout(rowsStill.current);
+    rowsStill.current = window.setTimeout(() => {
+      const at = pointer.current;
+      if (at) pointAt(photoUnder(at.x, at.y));
+    }, ROWS_STILL);
+  };
+  useEffect(() => {
+    const box = rowsBox.current;
+    if (!box) return;
+    const moved = () => onRowMove.current();
+    box.addEventListener("rowmove", moved);
+    return () => {
+      box.removeEventListener("rowmove", moved);
+      clearTimeout(rowsStill.current);
+    };
+  }, []);
+
   const shade = (row: number, photo: number) =>
     GRAYS[(row + photo) % GRAYS.length];
   const { places, starts } = useMemo(() => {
@@ -241,11 +270,14 @@ export function Gallery({ rows }: { rows: Photo[][] }) {
         ref={rowsBox}
         data-gallery
         onPointerMove={(e) => {
-          if (e.pointerType === "mouse") {
-            pointAt((e.target as Element).closest("[data-photo]"));
-          }
+          if (e.pointerType !== "mouse") return;
+          pointer.current = { x: e.clientX, y: e.clientY };
+          pointAt(photoUnder(e.clientX, e.clientY));
         }}
-        onPointerLeave={() => pointAt(null)}
+        onPointerLeave={() => {
+          pointer.current = null;
+          pointAt(null);
+        }}
         className="space-y-8 sm:space-y-12"
       >
         {rows.map((row, r) => (

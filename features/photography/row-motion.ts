@@ -1,6 +1,6 @@
 import { type RefObject, useEffect } from "react";
 
-const EDGE = 0.12;
+export const EDGE = 0.12;
 const EDGE_SPEED = 900;
 const DRAG_SLOP = 6;
 const FRICTION = 4;
@@ -15,6 +15,7 @@ type Row = {
   start: number;
   lap: number;
   shifts: number[];
+  shown: number;
 };
 
 type Drag = {
@@ -48,6 +49,7 @@ export function useRowMotion(container: RefObject<HTMLElement | null>) {
           start: 0,
           lap: 0,
           shifts: [],
+          shown: 0,
         },
       ];
     });
@@ -72,9 +74,12 @@ export function useRowMotion(container: RefObject<HTMLElement | null>) {
       }
     };
 
+    /** Whether the row moved since it was last placed. */
     const place = (row: Row) => {
-      if (!row.lap) return;
+      if (!row.lap) return false;
       const o = ((row.offset % row.lap) + row.lap) % row.lap;
+      const moved = o !== row.shown;
+      row.shown = o;
       row.track.style.transform = o ? `translateX(${-o}px)` : "";
       row.photos.forEach((photo, i) => {
         const shift = row.ends[i] - o < 0 ? row.lap : 0;
@@ -82,6 +87,7 @@ export function useRowMotion(container: RefObject<HTMLElement | null>) {
         photo.style.transform = shift ? `translateX(${shift}px)` : "";
         row.shifts[i] = shift;
       });
+      return moved;
     };
 
     const edgePull = () => {
@@ -115,6 +121,7 @@ export function useRowMotion(container: RefObject<HTMLElement | null>) {
         moving = true;
       }
 
+      let shifted = false;
       for (const row of rows) {
         if (row.fling && drag?.row !== row) {
           row.fling *= Math.exp(-FRICTION * dt);
@@ -124,8 +131,9 @@ export function useRowMotion(container: RefObject<HTMLElement | null>) {
             moving = true;
           }
         }
-        place(row);
+        if (place(row)) shifted = true;
       }
+      if (shifted) root.dispatchEvent(new Event("rowmove"));
       raf = moving ? requestAnimationFrame(frame) : 0;
     };
 
