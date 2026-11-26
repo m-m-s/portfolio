@@ -60,9 +60,9 @@ export function JoustingEngine({ active }: { active?: string }) {
       </div>
       <div className="grid grid-cols-2 gap-x-3">
         <div>
-          <Lane>No list: search TMDB</Lane>
+          <Lane>Search TMDB</Lane>
           <Box
-            title="One TMDB call per genre"
+            title="Four TMDB calls per genre"
             detail="And per language"
             step="genres"
             {...at}

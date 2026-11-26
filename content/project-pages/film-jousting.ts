@@ -20,7 +20,7 @@ export const filmJousting: ProjectPage = {
     {
       type: "text",
       paragraphs: [
-        "What movie should I watch right now? That question can lead down a rabbit hole of frustrating searching and debating, whether you’re deciding alone or with friends. An online search brings up top 100 lists of all time, best movies of the year, scariest movies ever, but I wanted more, more nuance, more diversity. **I built Film Jousting to dig past those lists and end the debate over what to watch.**",
+        "What movie should I watch right now? Whether you’re deciding alone or with friends, that question can lead down a rabbit hole of searching and debating. An online search brings up the top 100 films of all time, the best movies of the year and the scariest movies ever. I wanted more nuance and more diversity. **I built Film Jousting to dig past those lists and end the debate over what to watch.**",
       ],
     },
     { type: "break" },
@@ -36,7 +36,7 @@ export const filmJousting: ProjectPage = {
         {
           title: "Film discovery",
           paragraphs: [
-            "Users can search the full TMDB movie database with filters for genre, rating, runtime, year, language, keywords, and cast and crew. Each search pulls popular films along with random pages from deeper in the catalog for greater variety and hidden gems. Discover again with the same filters to dig further.",
+            "Users can search the full TMDB movie database with filters for genre, rating, runtime, year, language, keywords, and cast and crew. Each search pulls popular films along with random pages from deeper in the catalog for greater variety and hidden gems. Users who want stranger picks can exclude the most popular films or include extremely obscure ones with fewer than 200 votes. Those get truly bizarre. Discover again with the same filters to dig further.",
           ],
         },
         {
@@ -51,14 +51,14 @@ export const filmJousting: ProjectPage = {
           ],
         },
         {
-          title: "The joust",
+          title: "Jousting",
           image: {
             src: "/projects/film-jousting/joust-blade-runner.webp",
             alt: "A Round 2 matchup: Blade Runner 2049 against The Vast of Night",
             ratio: 1.5,
           },
           paragraphs: [
-            "Turn Discover results into a tournament of top films. Joust the films head to head and round by round until one film is crowned champion. This is designed to help users and their friends finally decide what to watch. It is easier to choose between two films at a time than to survive the long argument that inevitably ensues over multiple options.",
+            "Turn Discover results into a tournament. Users build their own bracket of 8, 16 or 32 films and choose whether contenders are picked by recommendation, rating or popularity. They can also favor hidden gems, skip the most popular films or shuffle the lineup at random. The films face off head to head, round by round, until one is crowned champion. Choosing between two films at a time is far easier than surviving the argument that breaks out over twenty.",
           ],
         },
       ],
@@ -67,8 +67,8 @@ export const filmJousting: ProjectPage = {
     {
       type: "text",
       paragraphs: [
-        "**I wanted users to have as much control over their search as possible.** I chose TMDB as the most extensive movie database with a free API and built a filter for everything its search allows. Each filter starts on a default I picked as my recommendation. Anyone can hit Discover straight away and get good results, while anyone who wants more control can open a filter and change it. All that control makes Film Jousting’s UI essentially a long list of buttons and dropdowns.",
-        "How do you make that look good? To match the jousting tournament, I wanted the page to look like a medieval manuscript. I sourced illustrations of knights, heraldic crests, and vine borders and built a custom UI around what I collected. Instead of boxes and dropdown arrows, each filter is a heading with its current setting written underneath. Two vine borders frame the filters as one section. I made the Discover and Joust buttons by laying the site’s font over illustrations of a ship and a knight. Custom UI let me build onto the page like a painting.",
+        "**I wanted users to have as much control over their search as possible.** I chose TMDB because it’s the most extensive movie database with a free API, and I built a filter for everything its search allows. Each filter starts on a default I picked as my recommendation. Anyone can hit Discover straight away and get good results, while anyone who wants more control can open a filter and change it. All that control makes Film Jousting’s UI essentially a long list of buttons and dropdowns.",
+        "How do you make that look good? To match the jousting tournament, I wanted the page to look like a medieval manuscript. I sourced illustrations of knights, heraldic crests, and vine borders and built a custom UI around what I collected. Instead of boxes and dropdown arrows, each filter is a heading with its current setting written underneath. This lets the page read like a manuscript, with every setting visible at a glance. I made the Discover and Joust buttons by laying the site’s font over illustrations of a ship and a knight. Custom UI let me build onto the page like a painting.",
       ],
     },
     { type: "break" },
@@ -81,7 +81,7 @@ export const filmJousting: ProjectPage = {
           title: "Scoring",
           step: "scoring",
           paragraphs: [
-            "TMDB’s API can only sort by rating or popularity within one call. **I built a custom scoring engine to weigh everything a user asks for at once.** Each movie’s score starts from its TMDB rating as a measure of quality. Genres marked “Yes” outweigh those marked “Maybe.” Films that appear on more than one Letterboxd list rank higher.",
+            "TMDB’s API can only sort by rating or popularity within one call. **I built a custom scoring engine to weigh everything a user asks for at once.** Every film starts from its TMDB rating as a measure of quality. Genre matches multiply that score instead of adding to it, so a great film gains more from a match than a mediocre one. A “Yes” counts for more than a “Maybe.” If you mark Sci-Fi as “Yes,” a 6.9 sci-fi film scores 10.4 and outranks an 8.2 drama with no genre match. Films get another boost for every extra Letterboxd list they appear on.",
             "[View source →](https://github.com/m-m-s/filmJousting/blob/main/client/src/lib/scoring.ts)",
           ],
         },
@@ -96,7 +96,7 @@ export const filmJousting: ProjectPage = {
           title: "Discovery",
           step: "discovery",
           paragraphs: [
-            "TMDB returns 20 movies a page, and I turned that to Film Jousting’s advantage. Each genre’s call takes TMDB’s default first page of popular picks, plus three random pages from deeper in the results for lesser-known ones. A 200-vote minimum strips out films with too few votes for their rating to mean much. (Something that can be overruled in the advanced filters.) When running the same search again, the call pulls the next page and draws a new set of random pages. This continues until the pool is exhausted.",
+            "TMDB’s 20-movies-per-call cap started as a limitation I had to work around. Then I realized I could turn it into Film Jousting’s advantage. Each genre’s call takes TMDB’s first page of popular picks plus three random pages from deeper in the results. I wanted lesser-known films to outnumber the popular picks without losing them entirely. A 200-vote minimum strips out films with too few votes for their rating to mean much, with the option to override it within the advanced filters. Running the same search again pulls the next page and a new set of random pages until the pool runs out.",
           ],
         },
         {
@@ -112,8 +112,8 @@ export const filmJousting: ProjectPage = {
     {
       type: "text",
       paragraphs: [
-        "To test the quality of the scoring engine, I ran parameters for films I would recommend to specific people and checked whether they ranked high in the results. I knew the engine was working when I saw the films I would pick organically rank high along with additional films I was excited to see. A friend who’s a big film enthusiast tested the site and told me **it gave them movies they’d be interested in but wouldn’t have found on their own.** Not everything went smoothly, though. People overcomplicated the genre selection because they thought they had to make a call on every single genre. To solve this I added more direct guidance to each filter’s pop-up.",
-        "Building this project was a good lesson in working with external databases and APIs and deploying a front end and back end separately on Vercel and Render. It also taught me a lot about building UX/UI for user understanding and scoping a project. **The hardest part isn’t knowing what to build next, but knowing when to stop.** I originally planned a whole multiplayer system, but it didn’t seem necessary once the site worked without it. With the discovery turning up great films people wouldn’t find on their own and the jousting tournament working, I’m happy to say the site is where I want it to be.",
+        "To test the scoring engine, I searched for films I’d recommend to people I know and checked where they ranked. My picks consistently ranked near the top. Even better, the engine turned up films I hadn’t thought of that I was excited to watch. Then I handed the site to eight people. A friend who’s a big film enthusiast said **it found movies they’d be interested in but would never have found on their own.** Genre selection tripped a few people up because they thought they had to make a call on every single genre. I added help notes on how “Maybe” and “Veto” work and made guidance throughout the site bolder.",
+        "Building Film Jousting was a crash course in external APIs and deploying a front end and back end separately on Vercel and Render. The server handles what the browser can’t, like calling TMDB with a private key and scraping Letterboxd. Scoring runs in the browser, so changing a joust setting re-ranks results instantly. **The hardest part of scoping wasn’t knowing what to build next, but knowing when to stop.** I originally planned a whole multiplayer system, but it didn’t seem necessary once friends could joust together on one screen. I’m happy to say the site is where I want it to be.",
       ],
     },
   ],
