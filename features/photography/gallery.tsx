@@ -352,7 +352,7 @@ export function Gallery({ rows }: { rows: Photo[][] }) {
           swipeFrom.current = null;
           if (Math.abs(dx) > SWIPE) step(dx < 0 ? 1 : -1);
         }}
-        className="m-0 max-h-none max-w-none touch-pinch-zoom photo-dialog bg-transparent p-0 text-page backdrop:bg-ink/97"
+        className="m-0 max-h-none max-w-none touch-pinch-zoom photo-dialog bg-transparent p-0 text-page backdrop:bg-ink/99"
       >
         {open && current && (
           <div className="pointer-events-none grid h-dvh w-screen grid-rows-[minmax(0,1fr)_auto] gap-2 px-8 pt-10 sm:px-16 sm:pt-16">

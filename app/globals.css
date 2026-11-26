@@ -64,7 +64,7 @@
   --outside-top: 7vh;
   --outside-bottom: 18vh;
   --outside-frame: 0.75rem;
-  --photo-hover-dim: 0.6;
+  --photo-hover-dim: 0.5;
   --photo-hover-grow: 1.08;
   /* Room between the intro's text and the house's edges, in em. */
   --house-pad: 0.35;
