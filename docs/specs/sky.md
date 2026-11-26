@@ -15,6 +15,7 @@ The mock page also contains editing controls (cloud picker, sliders, saving to a
 ## Structure
 - Lives in `features/sky/`. The weather ids are `sunny | partly-cloudy | cloudy | rainy | snowy`. The mock calls Partly cloudy `partly`; use `partly-cloudy` throughout.
 - **One sky for the whole site.** It lives in the shell, behind every page, and is built once per visit. It keeps drifting while you move between rooms and is never rebuilt by a page change. A new visit gets a new layout. A weather change (the shell's hourly refresh) rebuilds it with the same seed.
+- It spans the full window width, under the scrollbar too, so a page that scrolls never resizes it.
 - The weather comes from the same `getWeather()` as the weather/clock line, so the sky and the line always agree. If the fetch fails, both show Sunny.
 - What each page shows:
   - **Home:** the whole sky. Dots and drops react to the cursor or finger. The homepage doesn't scroll, so it keeps a finger's drags for the sky (`touch-action: pinch-zoom` on the body while the full sky shows): otherwise the browser takes a moving finger over to pan the page and the dots stop following it. Pinch zoom still works.

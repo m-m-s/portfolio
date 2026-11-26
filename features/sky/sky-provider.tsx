@@ -96,7 +96,7 @@ export function SkyProvider({
       <div
         aria-hidden="true"
         data-sky={full ? "full" : "window"}
-        className={`[view-transition-name:sky] pointer-events-none fixed inset-0 -z-10 ${full ? "" : "invisible"}`}
+        className={`[view-transition-name:sky] pointer-events-none fixed inset-y-0 left-0 -z-10 w-screen ${full ? "" : "invisible"}`}
       >
         <canvas ref={canvas} className="with-sky block h-full w-full" />
       </div>
