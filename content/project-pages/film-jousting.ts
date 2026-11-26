@@ -82,6 +82,7 @@ export const filmJousting: ProjectPage = {
           step: "scoring",
           paragraphs: [
             "TMDB’s API can only sort by rating or popularity within one call. **I built a custom scoring engine to weigh everything a user asks for at once.** Each movie’s score starts from its TMDB rating as a measure of quality. Genres marked “Yes” outweigh those marked “Maybe.” Films that appear on more than one Letterboxd list rank higher.",
+            "[View source →](https://github.com/m-m-s/filmJousting/blob/main/client/src/lib/scoring.ts)",
           ],
         },
         {
