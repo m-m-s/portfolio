@@ -4,6 +4,8 @@ export const EDGE = 0.12;
 const EDGE_SPEED = 900;
 const DRAG_SLOP = 6;
 const FRICTION = 4;
+/** Seconds a row takes to glide a cut-off photo into frame. */
+const GLIDE_TIME = 0.45;
 
 type Row = {
   el: HTMLElement;
@@ -16,6 +18,7 @@ type Row = {
   lap: number;
   shifts: number[];
   shown: number;
+  glide: { from: number; to: number; at: number } | null;
 };
 
 type Drag = {
@@ -50,10 +53,12 @@ export function useRowMotion(container: RefObject<HTMLElement | null>) {
           lap: 0,
           shifts: [],
           shown: 0,
+          glide: null,
         },
       ];
     });
     const mouse = matchMedia("(hover: hover) and (pointer: fine)");
+    const still = matchMedia("(prefers-reduced-motion: reduce)");
 
     let raf = 0;
     let last = 0;
@@ -117,12 +122,27 @@ export function useRowMotion(container: RefObject<HTMLElement | null>) {
           ? rowAt(pointer.y)
           : undefined;
       if (hovered) {
+        hovered.glide = null;
         hovered.offset += pull * dt;
         moving = true;
       }
 
       let shifted = false;
+      let landed = false;
       for (const row of rows) {
+        const glide = row.glide;
+        if (glide) {
+          glide.at += dt;
+          const p = still.matches ? 1 : Math.min(1, glide.at / GLIDE_TIME);
+          row.offset =
+            glide.from + (glide.to - glide.from) * (1 - (1 - p) ** 3);
+          if (p === 1) {
+            row.glide = null;
+            landed = true;
+          } else {
+            moving = true;
+          }
+        }
         if (row.fling && drag?.row !== row) {
           row.fling *= Math.exp(-FRICTION * dt);
           if (Math.abs(row.fling) < 20) row.fling = 0;
@@ -134,6 +154,7 @@ export function useRowMotion(container: RefObject<HTMLElement | null>) {
         if (place(row)) shifted = true;
       }
       if (shifted) root.dispatchEvent(new Event("rowmove"));
+      if (landed) root.dispatchEvent(new Event("rowglideend"));
       raf = moving ? requestAnimationFrame(frame) : 0;
     };
 
@@ -149,6 +170,7 @@ export function useRowMotion(container: RefObject<HTMLElement | null>) {
       const row = rows.find((r) => r.el === el);
       if (!row) return;
       row.fling = 0;
+      row.glide = null;
       drag = {
         row,
         id: e.pointerId,
@@ -213,6 +235,7 @@ export function useRowMotion(container: RefObject<HTMLElement | null>) {
       // Also keeps the browser's swipe-to-go-back from firing.
       e.preventDefault();
       row.fling = 0;
+      row.glide = null;
       row.offset +=
         e.deltaMode === WheelEvent.DOM_DELTA_LINE ? e.deltaX * 16 : e.deltaX;
       wake();
@@ -233,12 +256,22 @@ export function useRowMotion(container: RefObject<HTMLElement | null>) {
       const view = row.el.getBoundingClientRect();
       if (box.left >= view.left && box.right <= view.right) return;
       row.fling = 0;
+      row.glide = null;
       row.offset += box.left - view.left - row.start;
       wake();
     };
 
     const onLeave = () => {
       pointer = null;
+    };
+
+    const onGlide = (e: Event) => {
+      if (!(e instanceof CustomEvent) || typeof e.detail !== "number") return;
+      const row = rows.find((r) => r.photos.includes(e.target as HTMLElement));
+      if (!row || drag?.row === row) return;
+      row.fling = 0;
+      row.glide = { from: row.offset, to: row.offset + e.detail, at: 0 };
+      wake();
     };
 
     measure();
@@ -258,6 +291,7 @@ export function useRowMotion(container: RefObject<HTMLElement | null>) {
     document.documentElement.addEventListener("pointerleave", onLeave, opts);
     root.addEventListener("pointerdown", onPointerDown, opts);
     root.addEventListener("focusin", onFocus, opts);
+    root.addEventListener("rowglide", onGlide, opts);
     root.addEventListener("wheel", onWheel, {
       signal: abort.signal,
       passive: false,

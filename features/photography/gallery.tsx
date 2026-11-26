@@ -24,6 +24,29 @@ const ROW_SIZES = "(min-width: 1024px) 50rem, (min-width: 640px) 36rem, 25rem";
 const slideSizes = (ratio: number) =>
   `${Math.round(Math.min(innerWidth, innerHeight * ratio))}px`;
 
+const hoverGrow = (photo: Element) =>
+  Number.parseFloat(
+    getComputedStyle(photo).getPropertyValue("--photo-hover-grow"),
+  );
+
+/** How far a photo's row must move left (negative: right) for the photo, grown, to sit inside the row's margin; 0 if it already fits on screen, null if it never could. */
+function framing(photo: HTMLElement) {
+  const at = photo.getBoundingClientRect();
+  const middle = at.left + at.width / 2;
+  // offsetWidth, not the on-screen box: a photo returned to within its shrink is still partly grown.
+  const half = (photo.offsetWidth * hoverGrow(photo)) / 2;
+  const screen = document.documentElement.clientWidth;
+  if (middle - half >= 0 && middle + half <= screen) return 0;
+  const track = photo.parentElement;
+  const margin = track
+    ? Number.parseFloat(getComputedStyle(track).paddingLeft)
+    : 0;
+  if (2 * half > screen - 2 * margin) return null;
+  return middle + half > screen
+    ? middle + half - (screen - margin)
+    : middle - half - margin;
+}
+
 function preload(photo: Photo, sizes: string) {
   if (!photo.src) return;
   const { props } = getImageProps({
@@ -135,9 +158,7 @@ export function Gallery({ rows }: { rows: Photo[][] }) {
     if (!photo || matchMedia("(prefers-reduced-motion: reduce)").matches) {
       return;
     }
-    const grow = Number.parseFloat(
-      getComputedStyle(photo).getPropertyValue("--photo-hover-grow"),
-    );
+    const grow = hoverGrow(photo);
     const at = photo.getBoundingClientRect();
     const push = ((grow - 1) * at.width) / 2;
     for (const p of photo.parentElement?.children ?? []) {
@@ -147,8 +168,10 @@ export function Gallery({ rows }: { rows: Photo[][] }) {
     }
   };
 
+  const framed = useRef<HTMLElement | null>(null);
+
   // Dims once the pointer stops on a photo; moving within that photo afterwards keeps it.
-  const pointAt = (photo: Element | null) => {
+  const pointAt = (photo: HTMLElement | null, wait = HOVER_REST) => {
     const box = rowsBox.current;
     if (!box) return;
     const moved = photo !== rest.current.photo;
@@ -161,11 +184,20 @@ export function Gallery({ rows }: { rows: Photo[][] }) {
     clearTimeout(rest.current.timer);
     if (photo) {
       rest.current.timer = window.setTimeout(() => {
+        const by = framing(photo);
+        if (by === null) return;
+        if (by) {
+          framed.current = photo;
+          photo.dispatchEvent(
+            new CustomEvent("rowglide", { bubbles: true, detail: by }),
+          );
+          return;
+        }
         pushAside(photo);
         box.dataset.resting = "";
-        const place = places[Number((photo as HTMLElement).dataset.photo)];
+        const place = places[Number(photo.dataset.photo)];
         if (place) preload(place.photo, slideSizes(place.photo.ratio));
-      }, HOVER_REST);
+      }, wait);
     }
   };
 
@@ -173,7 +205,10 @@ export function Gallery({ rows }: { rows: Photo[][] }) {
   const photoUnder = (x: number, y: number) => {
     const zone = window.innerWidth * EDGE;
     if (x < zone || window.innerWidth - x < zone) return null;
-    return document.elementFromPoint(x, y)?.closest("[data-photo]") ?? null;
+    return (
+      document.elementFromPoint(x, y)?.closest<HTMLElement>("[data-photo]") ??
+      null
+    );
   };
   const rowsStill = useRef(0);
   const onRowMove = useRef(() => {});
@@ -185,13 +220,25 @@ export function Gallery({ rows }: { rows: Photo[][] }) {
       if (at) pointAt(photoUnder(at.x, at.y));
     }, ROWS_STILL);
   };
+  const onGlideEnd = useRef(() => {});
+  onGlideEnd.current = () => {
+    const photo = framed.current;
+    const at = pointer.current;
+    framed.current = null;
+    if (!photo || !at || photoUnder(at.x, at.y) !== photo) return;
+    clearTimeout(rowsStill.current);
+    pointAt(photo, 0);
+  };
   useEffect(() => {
     const box = rowsBox.current;
     if (!box) return;
     const moved = () => onRowMove.current();
+    const landed = () => onGlideEnd.current();
     box.addEventListener("rowmove", moved);
+    box.addEventListener("rowglideend", landed);
     return () => {
       box.removeEventListener("rowmove", moved);
+      box.removeEventListener("rowglideend", landed);
       clearTimeout(rowsStill.current);
     };
   }, []);
