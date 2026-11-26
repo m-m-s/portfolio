@@ -195,6 +195,9 @@ export class SkyEngine {
   private single: { id: string; fill: number } | null = null;
 
   private readonly sprites = new Map<string, Sprite>();
+  // Clouds placed by size alone, still to be dithered: those on screen before the
+  // sky shows, the rest just after, before they drift in.
+  private readonly undithered = new Map<Sprite, () => Sprite>();
   private layers: Partial<Record<Layer, CloudLayer>> = {};
   private farL: FarLayer | null = null;
   private readonly drops: Drop[] = [];
@@ -626,10 +629,44 @@ export class SkyEngine {
     if (!s) {
       const im = cloudImages.get(id);
       if (!im) return null;
-      s = ditherCloud(im, w, t);
+      if (this.single) {
+        s = ditherCloud(im, w, t);
+      } else {
+        // ditherCloud's own size, so placement doesn't need the dots.
+        const sw = Math.max(20, Math.round(w));
+        const sh = Math.max(10, Math.round((im.height * sw) / im.width));
+        s = { w: sw, h: sh, pts: new Int16Array(0), tint: new Map() };
+        this.undithered.set(s, () => ditherCloud(im, w, t));
+      }
       this.sprites.set(key, s);
     }
     return s;
+  }
+
+  private dither(s: Sprite, layers: Partial<Record<Layer, CloudLayer>>) {
+    const make = this.undithered.get(s);
+    if (!make) return;
+    this.undithered.delete(s);
+    const done = make();
+    s.pts = done.pts;
+    s.bot = undefined;
+    s.tint.clear();
+    for (const L of Object.values(layers)) {
+      for (const o of L.inst) {
+        if (o.sprite === s) {
+          o.buf = this.alloc(L, s);
+          o.p = null;
+        }
+      }
+    }
+  }
+
+  private async ditherRest(bid: number) {
+    for (const s of [...this.undithered.keys()]) {
+      await nextTask();
+      if (bid !== this.buildId) return;
+      this.dither(s, this.layers);
+    }
   }
 
   private farSize(k: string) {
@@ -1086,6 +1123,20 @@ export class SkyEngine {
       tinted(fs, fink, false);
     }
 
+    // The clouds on screen now are dithered before the sky shows.
+    for (const L of Object.values(layers)) {
+      for (const o of L.inst) {
+        let v = (o.x0 + L.off) % L.span;
+        if (v < 0) v += L.span;
+        const x = v - L.margin;
+        if (x > W || x + o.sprite.w < 0 || !this.undithered.has(o.sprite)) {
+          continue;
+        }
+        if (await stale()) return false;
+        this.dither(o.sprite, layers);
+      }
+    }
+
     this.layers = layers;
     this.farL = farL;
     const inUse = new Set<Sprite>(farL ? [farL.sprite] : []);
@@ -1094,6 +1145,9 @@ export class SkyEngine {
     }
     for (const [key, sprite] of this.sprites) {
       if (!inUse.has(sprite)) this.sprites.delete(key);
+    }
+    for (const sprite of this.undithered.keys()) {
+      if (!inUse.has(sprite)) this.undithered.delete(sprite);
     }
     this.dpr = Math.min(2, window.devicePixelRatio || 1);
 
@@ -1121,6 +1175,7 @@ export class SkyEngine {
         this.advance(this.drops, 0.1, true);
       }
     }
+    void this.ditherRest(bid);
     return true;
   }
 
