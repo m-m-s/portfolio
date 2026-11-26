@@ -528,7 +528,13 @@ export class SkyEngine {
         if (x >= W) break;
         if (x + s.w < 0) continue;
         const lx = this.px - x;
-        const near = lx > -R && lx < s.w + R && ly > -R && ly < s.h + R;
+        // Only on a phone, where the strip spans most of the screen.
+        const near =
+          this.W < SMALL_SCREEN &&
+          lx > -R &&
+          lx < s.w + R &&
+          ly > -R &&
+          ly < s.h + R;
         const seen = this.inView(x, farL.y, s.w, s.h);
         let o = farL.stirred.get(n);
         if (near && !o) {
