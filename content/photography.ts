@@ -33,8 +33,6 @@ export const photoAlts: Record<string, string> = {
     "A black and white cat sitting on a stone path at the foot of mossy rock steps",
   "r2-03-creek-swimmers.jpg":
     "People sunbathing on boulders beside a creek, dwarfed by dense green forest",
-  "r2-04-grand-canyon.jpg":
-    "A river winding through the depths of a vast canyon, framed by pine branches",
   "r2-05-green-room.jpg":
     "Glass apothecary jars on a table beneath a gilded mirror in a dim green room",
   "r2-06-oak-creek.jpg":
