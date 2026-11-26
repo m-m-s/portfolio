@@ -12,7 +12,7 @@ export const overlook: ProjectPage = {
     {
       type: "text",
       paragraphs: [
-        `Overlook started with a conversation at a community tech demo about what AI assistants could do. I went home that night thinking about where one would actually help me. On my phone I’m constantly screenshotting recipes, outfits, and to-dos. Thousands of them pile up in an unorganized gallery and sorting them is the kind of tedious job I never get to. I wanted an assistant app that could tag and sort them for me and **turn my ceaseless bookmarks into a functioning library.**`,
+        `Overlook started with a conversation at a community tech demo about what AI assistants could do. I went home that night thinking about where one would actually help me. On my phone I’m constantly screenshotting recipes, outfits, and to-dos. Thousands of them pile up in an unorganized gallery. Sorting them is the kind of tedious job I never get to. I wanted an assistant app that could tag and sort them for me and **turn my ceaseless bookmarks into a functioning library.**`,
       ],
     },
     {
@@ -155,7 +155,7 @@ export const overlook: ProjectPage = {
           title: "Photo access workarounds",
           paragraphs: [
             "V1 reached photos through a stack of workarounds. An outdated file tool couldn’t read the content:// addresses Android gives photos, so the code copied every screenshot into a temporary file before sending it to Claude’s API. That was a lot of extra handling in an app built around keeping photos private.",
-            "The root cause was running Overlook inside Expo Go, a test app with a fixed set of tools. Claude Code patched around what Expo Go was missing instead of setting up what Overlook actually needed. I didn’t know enough yet to question it. Overlook now runs on its own development build and reads photos the standard way.",
+            "The root cause was running Overlook inside Expo Go, a test app with a fixed set of tools. Claude Code patched around what Expo Go was missing instead of setting up what Overlook actually needed. I didn’t think to question it. Overlook now runs on its own development build and reads photos the standard way.",
           ],
         },
         {
