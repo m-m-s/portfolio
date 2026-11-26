@@ -570,6 +570,11 @@ dialog:focus-visible {
 .photo-dialog :focus-visible {
   outline-color: var(--color-page);
 }
+/* A modal dialog blocks clicks on the page but not its scrolling. The gutter keeps the page from shifting as the scrollbar goes. */
+html:has(.photo-dialog[open]) {
+  overflow: hidden;
+  scrollbar-gutter: stable;
+}
 
 @media (hover: hover) and (pointer: fine) {
   [data-window] {

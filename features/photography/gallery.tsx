@@ -227,6 +227,7 @@ export function Gallery({ rows }: { rows: Photo[][] }) {
     rowsBox.current?.querySelector<HTMLElement>(`[data-photo="${o.at}"]`);
 
   const openPhoto = (target: Open) => {
+    pointAt(null);
     const from = thumb(target);
     if (from) from.dataset.grow = "";
     photoMotion("grow", () => {
