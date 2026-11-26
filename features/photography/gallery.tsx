@@ -130,7 +130,7 @@ export function Gallery({ rows }: { rows: Photo[][] }) {
     for (const p of rowsBox.current?.querySelectorAll<HTMLElement>(
       "[data-photo]",
     ) ?? []) {
-      p.style.translate = "";
+      p.style.transform = "";
     }
     if (!photo || matchMedia("(prefers-reduced-motion: reduce)").matches) {
       return;
@@ -143,7 +143,7 @@ export function Gallery({ rows }: { rows: Photo[][] }) {
     for (const p of photo.parentElement?.children ?? []) {
       if (p === photo || !(p instanceof HTMLElement)) continue;
       const left = p.getBoundingClientRect().left < at.left;
-      p.style.translate = `${left ? -push : push}px 0`;
+      p.style.transform = `translateX(${left ? -push : push}px)`;
     }
   };
 

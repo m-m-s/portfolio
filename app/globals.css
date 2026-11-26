@@ -413,7 +413,7 @@ html[data-nav] .row-in {
   transition:
     opacity 300ms ease,
     scale 450ms var(--settle-ease),
-    translate 450ms var(--settle-ease);
+    transform 450ms var(--settle-ease);
 }
 @media (hover: hover) {
   [data-gallery][data-resting]:has([data-photo]:hover)
@@ -421,7 +421,7 @@ html[data-nav] .row-in {
     opacity: var(--photo-hover-dim);
   }
 }
-/* `scale` and `translate`, not `transform`: row motion moves the photos with transform. */
+/* Row motion loops photos round with `translate`, which applies after `scale`; under `transform` the loop's shift would grow with the photo. */
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
   [data-gallery][data-resting] [data-photo]:hover {
     scale: var(--photo-hover-grow);

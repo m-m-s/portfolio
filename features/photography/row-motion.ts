@@ -84,7 +84,7 @@ export function useRowMotion(container: RefObject<HTMLElement | null>) {
       row.photos.forEach((photo, i) => {
         const shift = row.ends[i] - o < 0 ? row.lap : 0;
         if (shift === row.shifts[i]) return;
-        photo.style.transform = shift ? `translateX(${shift}px)` : "";
+        photo.style.translate = shift ? `${shift}px 0` : "";
         row.shifts[i] = shift;
       });
       return moved;
@@ -276,7 +276,7 @@ export function useRowMotion(container: RefObject<HTMLElement | null>) {
       cancelAnimationFrame(raf);
       for (const row of rows) {
         row.track.style.transform = "";
-        for (const photo of row.photos) photo.style.transform = "";
+        for (const photo of row.photos) photo.style.translate = "";
       }
     };
   }, [container]);
