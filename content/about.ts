@@ -5,7 +5,7 @@ export type AboutPart =
   | { text: string; href: string }
   | { text: string; action: "weather" | "food-map" };
 
-export const aboutHeading = "Hi, I’m Maggie,";
+export const aboutHeading = "Hi! I’m Maggie,";
 
 export const foodMapDescription =
   "A Google Maps screenshot with New York City covered in different colored pins";

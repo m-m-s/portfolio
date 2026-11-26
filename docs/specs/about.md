@@ -4,7 +4,7 @@ A room with a window. Reference: docs/design/about.png.
 
 ## Layout
 - Shell as usual: house logo top left, weather/clock line top right, footer bottom right.
-- Heading "Hi, I'm Maggie," in large Switzer bold.
+- Heading "Hi! I'm Maggie," in large Switzer bold.
 - Paragraphs sit flush left at every width. (The frame zigzags them, every other one shifted right; with the tighter gaps that read as a formatting quirk rather than a rhythm.)
 - Type: 16px body and 48px heading at every size from 640px; larger type on the widest screens felt too big. The text column stops growing at 40rem (from 1280px), so lines stay readable.
 - Paragraphs are 1.5 times the text size apart at every width (24px at 16px text), not wider on desktop. From 1024px the copy starts lower than the window's top (4rem more space above the heading, 6rem from 1536px); the window stays put.
