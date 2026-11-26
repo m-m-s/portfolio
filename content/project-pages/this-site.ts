@@ -20,7 +20,7 @@ export const thisSite: ProjectPage = {
       type: "text",
       paragraphs: [
         "If the internet is our digital world, a portfolio is the closest thing to building a home. I’ve always loved the idea that the places we make for ourselves reflect who we are. **So what happens when the entire place is meant to showcase who I am?**",
-        "I wanted my home built on what I appreciate most in design: excellence in its subtlety. Before designing anything I researched how good portfolios achieve this. The portfolios I liked best had a strong editorial style and one small but strong bit of interactivity.",
+        "I wanted my home built on what I appreciate most in design: subtle excellence. Before designing anything I researched how good portfolios achieve this. The ones I liked best had a strong editorial style and one small, memorable bit of interactivity.",
       ],
     },
     {
@@ -51,7 +51,7 @@ export const thisSite: ProjectPage = {
           title: "Making clouds interactive",
           hint: "Try it on the cloud",
           paragraphs: [
-            "I started by thinking about what makes digital interaction feel tactile on a screen made of pixels. Dithering can turn a cloud into individual pixels while keeping its shape and shading. Those dots scatter under the cursor to capture the most pleasant imagination of touching a cloud. Soft and fluffy.",
+            "I started by thinking about what makes digital interaction feel tactile on a screen made of pixels. Dithering can turn a cloud into individual pixels while keeping its shape and shading. Those dots scatter under the cursor to capture what touching a cloud feels like in your imagination. Soft and fluffy.",
             "With reduced motion turned on, the clouds stop drifting and the rain hangs still, but their dots still scatter when you touch them.",
           ],
         },
@@ -96,7 +96,7 @@ export const thisSite: ProjectPage = {
             ratio: 1625 / 1083,
           },
           paragraphs: [
-            "The sky engine builds a new sky on every visit from a curated preset according to New York’s current weather. A randomly generated seed decides which clouds appear and the size and height of each one. It stays live across connected pages until the user refreshes. Clouds are dithered in the browser at the exact size they appear on screen to stay faithful to the shape and texture of each image.",
+            "The sky engine builds a new sky on every visit from a curated preset according to New York’s current weather. A randomly generated seed decides which clouds appear and the size and height of each one. The same sky follows visitors from page to page until they refresh. Clouds are dithered in the browser at the exact size they appear on screen to stay faithful to the shape and texture of each image.",
           ],
         },
       ],
