@@ -567,6 +567,10 @@ dialog:focus-visible {
   outline: none;
 }
 
+.photo-dialog :focus-visible {
+  outline-color: var(--color-page);
+}
+
 @media (hover: hover) and (pointer: fine) {
   [data-window] {
     cursor: pointer;
