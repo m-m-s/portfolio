@@ -14,7 +14,7 @@ One template for every project page (Film Jousting, Overlook, This site). Refere
 - Thin lines (`rule` token) under the title and under the facts. The line under the title sits close to it (1.25rem, 1.5rem from 640px); the one under the facts is spaced like the breaks between sections.
 
 ## Other projects
-- At the end of the content, after a thin line, the projects on either side of this one in the staircase's order (`content/projects.ts`, oldest first), looping round so every page has both: the earlier one at the left ("← This site"), the later one at the right ("Overlook →"). Space Grotesk regular at body size, like the back link, as room links.
+- At the end of the content, after a thin line, the projects on either side of this one in the staircase's order (`content/projects.ts`, oldest first), looping round so every page has both: the earlier one at the left ("← This site"), the later one at the right ("Overlook →"). Space Grotesk regular at body size, like the back link, as room links. The page leaves 2rem below them before the footer (2.5rem from 640px).
 
 ## Content blocks
 Each project's page is a list of blocks in `content/project-pages/` (one file per project, keyed by its href), rendered in order by `features/project-page/`. Pages differ by project: any number of blocks, in any order, with more or fewer images and slideshows. The page copy has no section titles. Block types:

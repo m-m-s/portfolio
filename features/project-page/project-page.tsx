@@ -88,7 +88,7 @@ export function ProjectPage({ href }: { href: string }) {
   const [before, after] = [projects[(at - 1 + n) % n], projects[(at + 1) % n]];
 
   return (
-    <main className="flex-1 overflow-x-clip px-4 pt-8 pb-4 sm:px-8 sm:pt-10">
+    <main className="flex-1 overflow-x-clip px-4 pt-8 pb-8 sm:px-8 sm:pt-10 sm:pb-10">
       <div className="mx-auto max-w-2xl leading-relaxed xl:max-w-[50rem] 2xl:max-w-[58rem]">
         <SettleIn order={0} className="flex items-start justify-between gap-6">
           <h1 className="text-5xl font-bold sm:text-6xl">{project.name}</h1>
