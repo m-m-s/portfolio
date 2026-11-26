@@ -60,6 +60,7 @@ export function IdleSwing({ children }: { children: React.ReactNode }) {
     document.addEventListener("visibilitychange", onShown);
     // A fresh load walks the house up; arriving from another room, it's already in place.
     const walkUp = root.closest(".walk-up")?.getAnimations()[0];
+    if (!walkUp) wait = LATER_WAIT;
     (walkUp?.finished ?? Promise.resolve())
       .catch(() => {})
       .then(() => {
