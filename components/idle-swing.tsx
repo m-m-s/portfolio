@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 
 /** After the house has settled from its walk-up, in ms. */
 const FIRST_PAUSE = 300;
-const LATER_WAIT = 30_000;
+const LATER_WAIT = 5_000;
 const ACTIVITY = ["pointermove", "pointerdown", "keydown", "scroll", "wheel"];
 
 export function IdleSwing({ children }: { children: React.ReactNode }) {
