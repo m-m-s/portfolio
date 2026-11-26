@@ -90,6 +90,8 @@ export const thisSite: ProjectPage = {
         },
         {
           title: "Rendering the sky",
+          hint: "Look out the window",
+          hintOpens: "look-outside",
           image: {
             src: "/projects/this-site/look-outside-rainy.webp",
             alt: "Look outside showing the Rainy sky full size: dark dithered clouds over falling rain, with the weather arrows and Refresh, Close, and More info below",

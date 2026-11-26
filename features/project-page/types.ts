@@ -9,6 +9,7 @@ export type Slide = {
   image?: Photo;
   step?: string;
   hint?: string;
+  hintOpens?: "look-outside";
 };
 
 export type Diagram = "jousting-engine";

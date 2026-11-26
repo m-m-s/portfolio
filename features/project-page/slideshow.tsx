@@ -3,6 +3,7 @@
 import { useId, useState } from "react";
 import type { Photo } from "@/content/photography";
 import { LiveCloud } from "@/features/sky/live-cloud";
+import { useLookOutside } from "@/features/sky/sky-view";
 import { JoustingEngine } from "./diagrams/jousting-engine";
 import { besideText, MediaBox } from "./media";
 import { RichText } from "./rich-text";
@@ -116,7 +117,10 @@ export function Slideshow({
                   </p>
                 ))}
               </div>
-              {slide.hint && visual && (
+              {slide.hint && slide.hintOpens && (
+                <LookOutsideHint>{slide.hint}</LookOutsideHint>
+              )}
+              {slide.hint && !slide.hintOpens && visual && (
                 <p className="mt-4 font-grotesk text-sm text-ink/65">
                   <span aria-hidden="true">
                     <span className="sm:hidden">{Figure ? "↓" : "↑"}</span>
@@ -157,5 +161,21 @@ export function Slideshow({
         </div>
       </div>
     </section>
+  );
+}
+
+function LookOutsideHint({ children }: { children: React.ReactNode }) {
+  const lookOutside = useLookOutside();
+  return (
+    <p className="mt-4">
+      <button
+        type="button"
+        aria-haspopup="dialog"
+        onClick={lookOutside}
+        className="cursor-pointer font-grotesk text-sm text-ink/65 hover:underline"
+      >
+        {children}
+      </button>
+    </p>
   );
 }
