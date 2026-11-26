@@ -14,7 +14,7 @@ export const foodMapCredit = "Map data ©2026 Google";
 
 export const aboutParagraphs: AboutPart[][] = [
   [
-    "a product thinker, builder, and fixer. I love making tools that turn messy, real-world information into something structured and interactive, and finding fun solutions that expand the ways people interact with their world. I’ve been building ",
+    "a product thinker, builder, and fixer. I love making tools that turn messy, real-world information into something structured and explorable, and finding fun ways to expand how people interact with their world. I’ve been building ",
     { text: "[a living library for screenshots]", href: "/projects/overlook" },
     " and ",
     {
@@ -39,8 +39,8 @@ export const aboutParagraphs: AboutPart[][] = [
     ".",
   ],
   [
-    "Next, I want to take on bigger, more complex systems with ",
+    "Next, I want to help ",
     { text: "[a team I care about]", href: `mailto:${email}` },
-    ".",
+    " build bigger, more complex systems.",
   ],
 ];
