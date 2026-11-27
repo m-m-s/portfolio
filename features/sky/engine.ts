@@ -442,6 +442,37 @@ export class SkyEngine {
     }
   }
 
+  /** Whether a point, in client coordinates, is within `reach` px of a cloud's dot at rest. */
+  touchesCloud(clientX: number, clientY: number, reach: number) {
+    if (!this.interactive) return false;
+    const r = this.canvas.getBoundingClientRect();
+    const px = clientX - r.left;
+    const py = clientY - r.top;
+    for (const L of [this.layers.front, this.layers.mid]) {
+      if (!L) continue;
+      for (const o of L.inst) {
+        const s = o.sprite;
+        const v = (((o.x0 + L.off) % L.span) + L.span) % L.span;
+        const lx = px - (v - L.margin);
+        const ly = py - o.y;
+        if (
+          lx < -reach ||
+          lx > s.w + reach ||
+          ly < -reach ||
+          ly > s.h + reach
+        ) {
+          continue;
+        }
+        for (let i = 0; i < s.pts.length; i += 2) {
+          const dx = (o.flip ? s.w - 1 - s.pts[i] : s.pts[i]) - lx;
+          const dy = s.pts[i + 1] - ly;
+          if (dx * dx + dy * dy <= reach * reach) return true;
+        }
+      }
+    }
+    return false;
+  }
+
   destroy() {
     this.loadId++;
     this.buildId++;

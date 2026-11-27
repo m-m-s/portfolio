@@ -8,6 +8,8 @@ const SKY = "partly-cloudy";
 const CLOUD = "58-2";
 const SETTINGS = { ...configFor(SKY).front[CLOUD], light: 0.35 };
 const FILL = 0.85;
+/** How near a cloud dot a finger has to land to grab the cloud, in px. */
+const REACH = 16;
 
 export function LiveCloud({
   label,
@@ -34,7 +36,21 @@ export function LiveCloud({
       setInView(entry.isIntersecting),
     );
     observer.observe(c);
+
+    let onCloud = false;
+    const start = (t: TouchEvent) => {
+      const f = t.touches[0];
+      onCloud =
+        t.touches.length === 1 && e.touchesCloud(f.clientX, f.clientY, REACH);
+    };
+    const move = (t: TouchEvent) => {
+      if (onCloud && t.touches.length === 1) t.preventDefault();
+    };
+    c.addEventListener("touchstart", start, { passive: true });
+    c.addEventListener("touchmove", move, { passive: false });
     return () => {
+      c.removeEventListener("touchstart", start);
+      c.removeEventListener("touchmove", move);
       observer.disconnect();
       e.destroy();
       engine.current = null;
@@ -55,7 +71,7 @@ export function LiveCloud({
     >
       <canvas
         ref={canvas}
-        className={`absolute inset-0 block h-full w-full touch-pinch-zoom transition-opacity duration-500 ${ready ? "opacity-100" : "opacity-0"}`}
+        className={`absolute inset-0 block h-full w-full transition-opacity duration-500 ${ready ? "opacity-100" : "opacity-0"}`}
       />
     </div>
   );
