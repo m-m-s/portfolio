@@ -112,15 +112,26 @@ export function Gallery({ rows }: { rows: Photo[][] }) {
   useEffect(() => {
     const box = rowsBox.current;
     if (!box) return;
+    const distance = getComputedStyle(box)
+      .getPropertyValue("--row-slide-distance")
+      .trim();
+    const slide = distance.endsWith("vw")
+      ? (Number.parseFloat(distance) * innerWidth) / 100
+      : Number.parseFloat(distance);
+    // A row from the left crosses the screen with photos that end up past its right edge.
     const onScreen = [...box.querySelectorAll("img")].filter((img) => {
       const r = img.getBoundingClientRect();
+      const fromLeft =
+        getComputedStyle(img).getPropertyValue("--row-from") === "-1";
       return (
         r.right > 0 &&
-        r.left < innerWidth &&
+        r.left < innerWidth + (fromLeft ? slide : 0) &&
         r.bottom > 0 &&
         r.top < innerHeight
       );
     });
+    // Lazy loading never starts a photo the row's clip hides, however near the edge.
+    for (const img of onScreen) img.loading = "eager";
     let done = false;
     const show = () => {
       if (!done) setLoaded(true);
@@ -142,6 +153,12 @@ export function Gallery({ rows }: { rows: Photo[][] }) {
       clearTimeout(timer);
     };
   }, []);
+  const [arrived, setArrived] = useState(false);
+  useEffect(() => {
+    if (loaded && matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setArrived(true);
+    }
+  }, [loaded]);
   useRowMotion(rowsBox);
   const rest = useRef<{ photo: Element | null; timer: number }>({
     photo: null,
@@ -333,6 +350,9 @@ export function Gallery({ rows }: { rows: Photo[][] }) {
             // biome-ignore lint/suspicious/noArrayIndexKey: rows are fixed content, never reordered.
             key={r}
             className={loaded ? "row-in" : "invisible"}
+            onAnimationEnd={(e) => {
+              if (e.animationName === "row-in") setArrived(true);
+            }}
             style={{ "--row-from": r % 2 ? 1 : -1 } as React.CSSProperties}
           >
             <div data-row className="touch-pan-y overflow-x-clip select-none">
@@ -351,7 +371,7 @@ export function Gallery({ rows }: { rows: Photo[][] }) {
                       photo={photo}
                       shade={shade(r, p)}
                       sizes={ROW_SIZES}
-                      eager={r === 0 && p < FIRST_SEEN}
+                      eager={arrived || (r === 0 && p < FIRST_SEEN)}
                     />
                   </button>
                 ))}

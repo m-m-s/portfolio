@@ -396,16 +396,17 @@ html:not([data-nav]) .walk-up {
   animation: camera-from-far var(--walk-up) var(--settle-ease) both;
 }
 
-/* --row-from is -1 for a row coming from the left, 1 from the right. */
-.row-in {
+/* --row-from is -1 for a row coming from the left, 1 from the right. The track slides inside the row's clip, which
+   stays put; it uses `translate` because row motion scrolls the track with `transform`. */
+.row-in [data-track] {
   animation: row-in var(--row-slide) var(--row-ease) both;
 }
-html[data-nav] .row-in {
+html[data-nav] .row-in [data-track] {
   animation-delay: var(--arrive);
 }
 @keyframes row-in {
   from {
-    transform: translateX(calc(var(--row-from) * var(--row-slide-distance)));
+    translate: calc(var(--row-from) * var(--row-slide-distance)) 0;
   }
 }
 
@@ -646,7 +647,7 @@ html:has(.photo-dialog[open]) {
   .photo-fade {
     animation: fade-in 300ms ease both;
   }
-  .row-in {
+  .row-in [data-track] {
     animation: none;
   }
   [data-slide="past"],
