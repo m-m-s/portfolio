@@ -112,20 +112,23 @@ export function Gallery({ rows }: { rows: Photo[][] }) {
   useEffect(() => {
     const box = rowsBox.current;
     if (!box) return;
-    const distance = getComputedStyle(box)
-      .getPropertyValue("--row-slide-distance")
-      .trim();
-    const slide = distance.endsWith("vw")
-      ? (Number.parseFloat(distance) * innerWidth) / 100
-      : Number.parseFloat(distance);
-    // A row from the left crosses the screen with photos that end up past its right edge.
+    // A row from the left would otherwise slide in full, showing the photos that come to rest past the screen.
+    for (const track of box.querySelectorAll<HTMLElement>("[data-track]")) {
+      if (getComputedStyle(track).getPropertyValue("--row-from") !== "-1")
+        continue;
+      let reach = innerWidth;
+      for (const photo of track.children as HTMLCollectionOf<HTMLElement>) {
+        const { left, right } = photo.getBoundingClientRect();
+        if (left >= innerWidth) photo.dataset.offstage = "";
+        else reach = Math.max(reach, right);
+      }
+      track.style.setProperty("--row-slide-distance", `${reach}px`);
+    }
     const onScreen = [...box.querySelectorAll("img")].filter((img) => {
       const r = img.getBoundingClientRect();
-      const fromLeft =
-        getComputedStyle(img).getPropertyValue("--row-from") === "-1";
       return (
         r.right > 0 &&
-        r.left < innerWidth + (fromLeft ? slide : 0) &&
+        r.left < innerWidth &&
         r.bottom > 0 &&
         r.top < innerHeight
       );

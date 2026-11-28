@@ -401,12 +401,21 @@ html:not([data-nav]) .walk-up {
 .row-in [data-track] {
   animation: row-in var(--row-slide) var(--row-ease) both;
 }
-html[data-nav] .row-in [data-track] {
+.row-in [data-offstage] {
+  animation: offstage var(--row-slide) backwards;
+}
+html[data-nav] .row-in :is([data-track], [data-offstage]) {
   animation-delay: var(--arrive);
 }
 @keyframes row-in {
   from {
     translate: calc(var(--row-from) * var(--row-slide-distance)) 0;
+  }
+}
+@keyframes offstage {
+  from,
+  to {
+    visibility: hidden;
   }
 }
 
@@ -647,7 +656,7 @@ html:has(.photo-dialog[open]) {
   .photo-fade {
     animation: fade-in 300ms ease both;
   }
-  .row-in [data-track] {
+  .row-in :is([data-track], [data-offstage]) {
     animation: none;
   }
   [data-slide="past"],
