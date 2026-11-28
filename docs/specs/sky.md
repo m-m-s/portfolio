@@ -33,6 +33,7 @@ The mock page also contains editing controls (cloud picker, sliders, saving to a
 
 ## Dithering
 - Floyd–Steinberg, applied to each cloud at its final pixel size, so the dots stay crisp.
+- Clouds are drawn on whole screen pixels, so the dots don't pulse as they drift.
 - Per-cloud settings from the config: contrast, brightness, and Lighter (a midtone lift before dithering).
 - Each layer has its own ink color per weather (`INK` in the mock): farther is lighter, nearer is darker.
 - The sky re-dithers once a resize finishes.

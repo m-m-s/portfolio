@@ -545,6 +545,8 @@ export class SkyEngine {
       ctx.clearRect(area.x, area.y, area.w, area.h);
     }
 
+    // A dot between screen pixels splits across two, so drifting clouds would pulse.
+    const snap = (v: number) => Math.round(v * dpr) / dpr;
     const move = this.still ? 0 : dt;
     const farL = this.farL;
     if (farL) {
@@ -554,8 +556,9 @@ export class SkyEngine {
       const step = farStep(s);
       const R = farL.radius;
       const ly = this.py - farL.y;
+      const fy = snap(farL.y);
       for (let n = Math.floor(-farL.off / step) - 1; ; n++) {
-        const x = n * step + farL.off;
+        const x = snap(n * step + farL.off);
         if (x >= W) break;
         if (x + s.w < 0) continue;
         const lx = this.px - x;
@@ -586,12 +589,12 @@ export class SkyEngine {
           } else {
             if (seen) {
               this.paint(farL, o);
-              ctx.drawImage(o.p.c, x - o.p.m, farL.y - o.p.m);
+              ctx.drawImage(o.p.c, x - o.p.m, fy - o.p.m);
             }
             continue;
           }
         }
-        if (seen) ctx.drawImage(tile, x, farL.y);
+        if (seen) ctx.drawImage(tile, x, fy);
       }
       this.emitFar(move);
       this.drawFarDrops(move);
@@ -606,8 +609,8 @@ export class SkyEngine {
         const s = o.sprite;
         let v = (o.x0 + L.off) % L.span;
         if (v < 0) v += L.span;
-        const x = v - L.margin;
-        const y = o.y;
+        const x = snap(v - L.margin);
+        const y = snap(o.y);
         if (x > W || x + s.w < 0) {
           o.p = null;
           continue;
