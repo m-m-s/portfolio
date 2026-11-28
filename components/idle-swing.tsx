@@ -24,6 +24,7 @@ export function IdleSwing({ children }: { children: React.ReactNode }) {
     let timer: ReturnType<typeof setTimeout>;
     let gone = false;
     let settled = false;
+    let swinging = false;
 
     const nudge = () => {
       const door = doors[next];
@@ -32,15 +33,17 @@ export function IdleSwing({ children }: { children: React.ReactNode }) {
       if (hovering || door.dataset.door) return restart();
       next = (next + 1) % doors.length;
       wait = LATER_WAIT;
+      swinging = true;
       door.dataset.door = "nudge";
       door.addEventListener(
         "animationend",
         () => {
           if (door.dataset.door === "nudge") door.dataset.door = "";
+          swinging = false;
+          if (!gone) restart();
         },
         { once: true },
       );
-      restart();
     };
     const restart = () => {
       clearTimeout(timer);
@@ -48,14 +51,14 @@ export function IdleSwing({ children }: { children: React.ReactNode }) {
     };
     // Activity only holds off the later swings: the first comes as the house settles.
     const onActivity = () => {
-      if (wait === LATER_WAIT) restart();
+      if (wait === LATER_WAIT && !swinging) restart();
     };
 
     for (const type of ACTIVITY) {
       window.addEventListener(type, onActivity, { passive: true });
     }
     const onShown = () => {
-      if (settled && !document.hidden) restart();
+      if (settled && !document.hidden && !swinging) restart();
     };
     document.addEventListener("visibilitychange", onShown);
     // A fresh load walks the house up; arriving from another room, it's already in place.
